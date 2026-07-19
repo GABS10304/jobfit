@@ -1,0 +1,595 @@
+# Role-Fit-Profil – Zielrollen und Kernsignale für den Fit-Check.
+# Echte Profildaten (Stand: Import).
+
+version: "0.1"
+
+roles:
+  - role_id: ai_product_manager
+    role_name: Product Manager / AI Product Manager
+    priority: high
+    confidence_score: 95
+    summary: >
+      Starker Fit durch Product Discovery, AI-Use-Case-Validierung, datenbasierte Produktentscheidungen
+      und verantwortungsvolle AI-Nutzung in regulierten Kontexten.
+    evidence_level: strong
+    confidence_notes: >
+      Sehr gut belegt durch RIWA, PM Evidence AI Portal, MCP/RAG-Prototyping, Ticket- und Suchdatenanalyse,
+      Pilotkunden-Validierung und DSGVO-konforme Analytics-Prozesse.
+    core_signals_skills:
+      - product_discovery
+      - ai_use_case_validation
+      - mvp_validation
+      - data_driven_decision_making
+      - stakeholder_communication
+      - product_analytics
+      - requirements_engineering
+      - experimental_validation
+      - privacy_by_design
+    core_signals_domains:
+      - b2b_saas
+      - govtech
+      - regulated_environments
+      - enterprise_software
+      - customer_intelligence
+    core_signals_tools:
+      - sql
+      - python
+      - pandas
+      - streamlit
+      - langchain
+      - ollama
+      - bigquery
+      - mcp
+      - claude_desktop
+      - jira_product_discovery
+    supporting_evidence:
+      - project_name: RIWA - AI-nahe Produktarbeit
+        reason: Agentic-AI-Use-Cases mit Stakeholdern entwickelt, mit Pilotkunden verifiziert und in Entscheidungs- und Datenprodukte übersetzt.
+      - project_name: RIWA - Ticket- und Suchdatenanalyse
+        reason: Fehlerbilder identifiziert und priorisierte Anforderungen für intelligente Suche abgeleitet.
+      - project_name: PM Evidence AI Portal
+        reason: Lokale Python/Streamlit/LangChain/Ollama-Umgebung für DSGVO-konforme Analyse von Tickets, Freitexten und Reports.
+      - project_name: GovTech Analytics
+        reason: Analytics-Prozesse mit Datenschutzbeauftragten und Engineering aufgebaut.
+    example_projects:
+      - project_name: RIWA - AI-nahe Produktarbeit
+        employer_or_client: RIWA
+        short_reason: Produktentscheidungen im GovTech-Kontext mit Daten- und AI-Bezug.
+      - project_name: PM Evidence AI Portal
+        employer_or_client: RIWA
+        short_reason: AI-gestütztes Portal für evidenzbasierte PM-Entscheidungen.
+    match_patterns_positive:
+      - AI Product Manager
+      - AI/ML-powered features
+      - evaluate and prioritize AI use cases
+      - data-driven product decisions
+      - responsible AI
+      - product analytics
+      - discovery and validation
+      - regulated environment
+    match_patterns_negative:
+      - pure project manager with no product ownership
+      - feature implementation without discovery
+      - AI hype without validation
+    best_fit_contexts:
+      - regulated B2B SaaS
+      - GovTech
+      - enterprise AI initiatives
+      - data-heavy product teams
+    notes: >
+      Besonders interessant bei echter Produktverantwortung, AI-Use-Case-Validierung und enger Zusammenarbeit mit Data/Engineering.
+
+  - role_id: technical_product_manager
+    role_name: Technical Product Manager
+    priority: high
+    confidence_score: 92
+    summary: >
+      Fit durch technische Anschlussfähigkeit, Prototyping, Datenanalyse und die Übersetzung zwischen Business, Produkt und Engineering.
+    evidence_level: strong
+    confidence_notes: >
+      Sehr gut belegt durch Prototypen, Datenanalysen, technische Produktarbeit und direkte Zusammenarbeit mit Software-Leads.
+    core_signals_skills:
+      - technical_product_management
+      - requirements_engineering
+      - prototyping
+      - backlog_management
+      - translation_business_to_tech
+      - technical_scoping
+      - product_analytics
+      - solution_design
+    core_signals_domains:
+      - b2b_saas
+      - platform_products
+      - govtech
+      - enterprise_software
+      - search_products
+    core_signals_tools:
+      - sql
+      - python
+      - pandas
+      - bigquery
+      - streamlit
+      - langchain
+      - jira_product_discovery
+      - mcp
+      - ollama
+    supporting_evidence:
+      - project_name: RIWA - Anforderungen aus Ticket- und Suchdaten
+        reason: Anforderungen in umsetzungsreife Arbeitspakete übersetzt und mit Software-Leads diskutiert.
+      - project_name: PM Evidence AI Portal
+        reason: Technische Prototypen aufgebaut, um Produktideen und AI-Workflows schnell zu validieren.
+      - project_name: FIS - Jira Product Discovery
+        reason: Produktzentriertes Portfolio-Backbone eingeführt.
+    example_projects:
+      - project_name: Streamlit / LangChain Prototypen
+        employer_or_client: RIWA / eigene Tools
+        short_reason: Schnelles technisches Validieren von Ideen.
+      - project_name: BigQuery-Analysen
+        employer_or_client: RIWA
+        short_reason: Data-Analytics als Grundlage für Produktentscheidungen.
+    match_patterns_positive:
+      - Technical Product Manager
+      - bridge between business and engineering
+      - own technical roadmap
+      - work closely with engineering
+      - prototype and validate
+      - product analytics
+    match_patterns_negative:
+      - no access to engineering team
+      - purely administrative product coordination
+      - architecture-only role without product impact
+    best_fit_contexts:
+      - platform products
+      - data products
+      - AI-enabled products
+      - enterprise software
+    notes: >
+      Technische Tiefe sollte in Produktgestaltung münden, nicht nur in Schnittstellenverwaltung.
+
+  - role_id: agile_coach
+    role_name: Agile Coach
+    priority: high
+    confidence_score: 90
+    summary: >
+      Sehr starker Fit durch Coaching von Product Ownern, Teams und Stakeholdern, Facilitation und agile Transformation.
+    evidence_level: strong
+    confidence_notes: >
+      Belegt durch FIS, JTL, Coaching-Programme, Facilitation, Workshop-Design und Organisationsdiagnostik.
+    core_signals_skills:
+      - agile_coaching
+      - team_coaching
+      - workshop_design
+      - facilitation
+      - stakeholder_alignment
+      - change_management
+      - leadership_coaching
+      - org_design
+    core_signals_domains:
+      - b2b_saas
+      - consulting
+      - govtech
+      - enterprise_software
+      - sap_consulting
+    core_signals_tools:
+      - miro
+      - jira
+      - confluence
+      - m365
+      - stacey_matrix
+    supporting_evidence:
+      - project_name: FIS - Agile Coaching
+        reason: Teams, Führung und Product Owner mit BNOFA, Stacey Matrix und Workshops begleitet.
+      - project_name: JTL - Team Coaching
+        reason: Teamreife, Zusammenarbeit und Refinement-Qualität verbessert.
+      - project_name: Coaching-Ausbildungen
+        reason: Agile-Coach-Ausbildungen und Coaching-Formate im CV verankert.
+    example_projects:
+      - project_name: Agile Coaching bei FIS
+        employer_or_client: FIS
+        short_reason: Coaching von Teams und Verbesserung von Review-Qualität.
+      - project_name: Agile Coaching bei JTL
+        employer_or_client: JTL
+        short_reason: Teamcoaching und Verbesserungen in Zusammenarbeit und Flow.
+    match_patterns_positive:
+      - Agile Coach
+      - coach agile teams
+      - facilitate retrospectives and workshops
+      - support agile transformation
+      - leadership coaching
+      - team development
+    match_patterns_negative:
+      - pure process policing
+      - agile theater
+      - ceremony facilitation only
+    best_fit_contexts:
+      - transformation programs
+      - complex enterprise environments
+      - product org coaching
+      - operating model change
+    notes: >
+      Rollen mit echtem Coaching-Mandat sind attraktiver als reine Prozesskontrolle.
+
+  - role_id: scrum_master
+    role_name: Scrum Master
+    priority: medium
+    confidence_score: 82
+    summary: >
+      Passend durch Scrum-Facilitation, Retros, Refinement, Teamreife und Stakeholder-Kommunikation.
+    evidence_level: strong
+    confidence_notes: >
+      Gut belegt, aber strategisch enger als die Product- und Transformation-Rollen.
+    core_signals_skills:
+      - scrum_moderation
+      - backlog_refinement
+      - retrospective_facilitation
+      - impediment_removal
+      - team_development
+      - stakeholder_management
+    core_signals_domains:
+      - software_development
+      - b2b_saas
+      - govtech
+      - enterprise_software
+      - erp
+    core_signals_tools:
+      - jira
+      - confluence
+      - miro
+    supporting_evidence:
+      - project_name: JTL - Scrum/Kanban Hybrid
+        reason: Kanban/Scrum-Hybrid aufgebaut, Produktivität und Stakeholder-Reviews verbessert.
+      - project_name: FIS - Coaching und Facilitation
+        reason: Über reines Event-Management hinaus Team- und Prozessverbesserungen begleitet.
+    example_projects:
+      - project_name: Scrum Master / Coach bei FIS
+        employer_or_client: FIS
+        short_reason: Verbesserung von Zusammenarbeit, Review-Qualität und Teamklarheit.
+      - project_name: Scrum Master / Team Coach bei JTL
+        employer_or_client: JTL
+        short_reason: Hybrid-Setup zur Verbesserung von Flow und Teamreife.
+    match_patterns_positive:
+      - Scrum Master
+      - facilitate Scrum events
+      - support team in applying Scrum
+      - remove impediments
+      - improve team flow
+    match_patterns_negative:
+      - Scrum Master as pure project manager
+      - command-and-control agile role
+      - ceremony-only role
+    best_fit_contexts:
+      - product teams
+      - team turnaround
+      - delivery environments with coaching need
+    notes: >
+      Gute Rollen betonen Coaching und Rahmenhaltung, nicht klassische Projektleitung.
+
+  - role_id: agile_transformation_consultant
+    role_name: Agile Transformation Consultant
+    priority: high
+    confidence_score: 89
+    summary: >
+      Sehr guter Fit durch Operating Models, Vorgehensweisen, Entscheidungslogiken und Organisationsdiagnostik.
+    evidence_level: strong
+    confidence_notes: >
+      Sehr gut belegt durch BNOFA, Stacey Matrix, Jira Product Discovery, Surveys und Transformation in SAP-Umfeldern.
+    core_signals_skills:
+      - organizational_diagnostics
+      - operating_model_design
+      - agile_transformation
+      - stakeholder_consulting
+      - decision_frameworks
+      - flow_optimization
+      - workshop_facilitation
+      - evidence_based_management
+    core_signals_domains:
+      - consulting
+      - govtech
+      - b2b_saas
+      - enterprise_software
+      - sap_consulting
+    core_signals_tools:
+      - stacey_matrix
+      - bnofa
+      - jira_product_discovery
+      - ebm
+      - surveys
+    supporting_evidence:
+      - project_name: FIS - BNOFA
+        reason: Arbeitsweise und Vorgehenslogik diagnostiziert.
+      - project_name: FIS - Sprint-Qualität
+        reason: Sprint-Qualität über Feedback- und Bewertungsmodell verbessert.
+      - project_name: FIS - Jira Product Discovery
+        reason: Produktzentrierte Arbeitsweisen und Portfoliologik eingeführt.
+    example_projects:
+      - project_name: BNOFA / Stacey Matrix Arbeit
+        employer_or_client: FIS
+        short_reason: Einordnung von Vorhaben mit Entscheidungsframeworks.
+      - project_name: Jira Product Discovery Einführung
+        employer_or_client: FIS
+        short_reason: Produktzentrierte Arbeitsweisen und Portfoliologik.
+    match_patterns_positive:
+      - agile transformation
+      - operating model
+      - organizational change
+      - coach leadership and teams
+      - product operating model
+      - portfolio discovery
+    match_patterns_negative:
+      - reine Prozessharmonisierung ohne Produktfokus
+      - framework roll-out without business context
+    best_fit_contexts:
+      - enterprise transformation
+      - product operating model work
+      - complexity-oriented consulting
+    notes: >
+      Spannend bei Rollen mit Produktfokus, Entscheidungslogik und Outcome-Orientierung.
+
+  - role_id: product_operations
+    role_name: Product Operations / Product Ops
+    priority: medium
+    confidence_score: 76
+    summary: >
+      Fit durch Priorisierungssysteme, Discovery-Backbones, Portfolio-Logik und Entscheidungsunterstützung.
+    evidence_level: moderate
+    confidence_notes: >
+      Gute Passung, aber die Rolle ist im Markt uneinheitlich benannt und muss oft über Kontext verkauft werden.
+    core_signals_skills:
+      - product_operations
+      - portfolio_management
+      - prioritization_systems
+      - discovery_frameworks
+      - ebm
+      - roadmap_prioritization
+      - operating_rhythm_design
+    core_signals_domains:
+      - b2b_saas
+      - platform_products
+      - enterprise_software
+    core_signals_tools:
+      - jira_product_discovery
+      - miro
+      - analytics_tools
+      - valueflow
+    supporting_evidence:
+      - project_name: valueflow
+        reason: Offlinefähiges Priorisierungs-Tool für Value-vs-Effort-Entscheidungen.
+      - project_name: FIS - Discovery Backbone
+        reason: Discovery-Backbone und Portfolio-Arbeit mit Jira Product Discovery.
+    example_projects:
+      - project_name: Discovery-Backbone und Priorisierung
+        employer_or_client: FIS / valueflow
+        short_reason: Value-vs-Effort, EBM und Backlog-Pflege.
+    match_patterns_positive:
+      - Product Operations
+      - Product Ops
+      - support product teams with data and processes
+      - portfolio and prioritization frameworks
+      - product operating rhythm
+    match_patterns_negative:
+      - reine Reporting-Rolle ohne Produktentscheidungen
+      - PMO without product context
+    best_fit_contexts:
+      - product organizations
+      - scaling product teams
+      - portfolio governance
+    notes: >
+      Rollen sollten operativ nah an Product Teams sein.
+
+  - role_id: agile_project_lead
+    role_name: Agile Project Lead / Agiler Projektleiter
+    priority: medium
+    confidence_score: 72
+    summary: >
+      Passt, weil Delivery, Stakeholder, Priorisierung und Produktlogik zusammenkommen.
+    evidence_level: moderate
+    confidence_notes: >
+      Solide Passung, aber nur sinnvoll, wenn Produktlogik und iterative Delivery im Vordergrund stehen.
+    core_signals_skills:
+      - project_leadership
+      - agile_delivery
+      - stakeholder_management
+      - risk_management
+      - prioritization
+      - cross_functional_coordination
+    core_signals_domains:
+      - sap_consulting
+      - erp_development
+      - govtech
+      - enterprise_software
+      - b2b_saas
+    core_signals_tools:
+      - jira
+      - confluence
+      - m365
+    supporting_evidence:
+      - project_name: SAP-Consulting und ERP-Entwicklung
+        reason: Mischung aus Delivery und produktnaher Perspektive.
+      - project_name: JTL - Delivery and Flow
+        reason: Delivery, Flow und Stakeholder-Kommunikation verbessert.
+    example_projects:
+      - project_name: SAP-Consulting und ERP-Entwicklung
+        employer_or_client: FIS / JTL
+        short_reason: Mischung aus Delivery und produktnaher Perspektive.
+    match_patterns_positive:
+      - Agile Project Lead
+      - Project Lead with agile mindset
+      - coordinate delivery across teams
+      - iterative delivery
+    match_patterns_negative:
+      - pure waterfall project manager
+      - schedule-only delivery role
+      - PMO without product ownership
+    best_fit_contexts:
+      - enterprise delivery
+      - product-adjacent project leadership
+      - cross-functional implementation
+    notes: >
+      Nur attraktiv, wenn Produktlogik und iterative Delivery im Vordergrund stehen.
+
+  - role_id: client_solutions_lead
+    role_name: Client Solutions Lead
+    priority: medium
+    confidence_score: 74
+    summary: >
+      Stark, weil du Kunden, Management, Engineering und Delivery übersetzen kannst.
+    evidence_level: moderate
+    confidence_notes: >
+      Gute Passung, insbesondere wenn die Rolle produktnah, lösungsorientiert und beratend ist.
+    core_signals_skills:
+      - client_consulting
+      - solution_design
+      - stakeholder_alignment
+      - pre_sales
+      - sales_enablement
+      - communication_design
+      - discovery_interviews
+    core_signals_domains:
+      - b2b_saas
+      - govtech
+      - consulting
+      - enterprise_software
+      - regulated_environments
+    core_signals_tools:
+      - presentation_tools
+      - m365
+      - jira
+      - miro
+    supporting_evidence:
+      - project_name: GBS / Weidmüller / RIWA - Customer Bridge
+        reason: Kundenbedarf, Produktwert und interne Stakeholder übersetzt.
+      - project_name: Weidmüller - Lead and Funnel
+        reason: Digitale Lead- und Funnel-Themen zwischen Business und Umsetzung verbunden.
+      - project_name: RIWA - Pilotkunden-Verifizierung
+        reason: Use-Case-Verifizierung mit Pilotkunden und Übergabe an Software-Leads.
+    example_projects:
+      - project_name: Produktnahe Beratung / Sales Enablement
+        employer_or_client: Weidmüller / GBS / RIWA
+        short_reason: Verbindung von Kundenbedürfnissen, Produktausrichtung und Delivery.
+    match_patterns_positive:
+      - Client Solutions Lead
+      - bridge between clients and product/engineering
+      - design solutions based on client needs
+      - pre-sales support
+      - solution consulting
+    match_patterns_negative:
+      - reine Hunter-Sales-Rolle ohne Produktbezug
+      - account management without product linkage
+    best_fit_contexts:
+      - solution consulting
+      - presales with product depth
+      - customer-facing product strategy
+    notes: >
+      Besonders passend, wenn die Rolle produktnah und nicht nur vertriebsgetrieben ist.
+
+  - role_id: product_transformation_lead
+    role_name: Product Transformation Lead
+    priority: medium
+    confidence_score: 73
+    summary: >
+      Fit durch Produktfokus, Go-to-Market, Discovery und teamübergreifende Zusammenarbeit.
+    evidence_level: moderate
+    confidence_notes: >
+      Gute Rolle für hybride Umfelder; stärker, wenn Markt-, Produkt- und Organisationsarbeit gemeinsam gefragt sind.
+    core_signals_skills:
+      - product_transformation
+      - go_to_market_alignment
+      - cross_team_collaboration
+      - discovery_enablement
+      - customer_feedback_loops
+      - operating_model_change
+    core_signals_domains:
+      - b2b_saas
+      - govtech
+      - enterprise_software
+      - fintech
+      - industrial_software
+    core_signals_tools:
+      - jira_product_discovery
+      - analytics_tools
+      - valueflow
+      - surveys
+    supporting_evidence:
+      - project_name: JTL / GBS / RIWA - Product and Market Alignment
+        reason: Produkt-, Markt- und Organisationsarbeit miteinander verbunden.
+      - project_name: Weidmüller - Go-to-Market Transformation
+        reason: Digitale Vermarktung und Go-to-Market weiterentwickelt.
+    example_projects:
+      - project_name: Produkt- und Marktausrichtung bei JTL
+        employer_or_client: JTL
+        short_reason: Verbindung von Produkt, Markt, Daten und Organisation.
+      - project_name: RIWA Produktfokus
+        employer_or_client: RIWA
+        short_reason: Stärkung der Produktorientierung im GovTech-Kontext.
+    match_patterns_positive:
+      - Product Transformation
+      - transform organization towards product-led
+      - align product, marketing and sales
+      - discovery enablement
+      - operating model change
+    match_patterns_negative:
+      - reine Prozessoptimierung ohne Produktverantwortung
+      - transformation without product ownership
+    best_fit_contexts:
+      - product-led transformation
+      - go-to-market transformation
+      - product operating model change
+    notes: >
+      Attraktiv, wenn Produktfokus und organisatorische Veränderung kombiniert werden.
+
+  - role_id: b2b_saas_govtech_product_lead
+    role_name: B2B SaaS / GovTech Product Lead
+    priority: medium
+    confidence_score: 78
+    summary: >
+      Gute Passung wegen Domänenstärke in B2B SaaS, GovTech, ERP, FinTech und regulierten Umfeldern.
+    evidence_level: moderate
+    confidence_notes: >
+      Die Rolle ist als Zielrolle sinnvoll, aber im Markt oft unter verschiedenen Titeln versteckt.
+    core_signals_skills:
+      - product_leadership
+      - customer_research
+      - evidence_based_management
+      - discovery_and_delivery_balance
+      - market_analysis
+      - regulatory_awareness
+    core_signals_domains:
+      - b2b_saas
+      - govtech
+      - enterprise_software
+      - erp
+      - fintech
+      - regulated_environments
+    core_signals_tools:
+      - jira
+      - survey_tools
+      - sql
+      - python
+      - bigquery
+    supporting_evidence:
+      - project_name: RIWA - GovTech Produktarbeit
+        reason: B2B SaaS im öffentlichen Sektor mit Regulierungs- und Datenfokus.
+      - project_name: JTL / FIS / GBS - B2B Leadership
+        reason: Produkt- und Führungsarbeit in komplexen B2B-Kontexten.
+    example_projects:
+      - project_name: GovTech-Produktarbeit
+        employer_or_client: RIWA
+        short_reason: B2B SaaS im öffentlichen Sektor mit Regulierungs- und Datenfokus.
+      - project_name: B2B SaaS / ERP-Kontexte
+        employer_or_client: JTL / FIS
+        short_reason: Produktführung in komplexen Umfeldern.
+    match_patterns_positive:
+      - Product Lead
+      - Head of Product
+      - own B2B SaaS product
+      - experience with public sector or regulated industries
+      - enterprise software
+    match_patterns_negative:
+      - pure consumer app focus with no B2B
+      - growth roles without product ownership
+    best_fit_contexts:
+      - regulated B2B software
+      - GovTech
+      - enterprise product leadership
+    notes: >
+      Spannend bei Rollen mit echtem Produktownership in komplexen regulierten Umfeldern.

@@ -1,0 +1,40 @@
+---
+description: V3 Policy – Präsenz als Penalty, Ausnahme explizit
+alwaysApply: true
+---
+
+# V3 Fit-Check Policy
+
+**V3 freigegeben und eingefroren (Freeze aktiv).**  
+Keine Regel- oder Logikänderung ohne neuen Review-Auftrag + Tests.
+
+## Flags
+- `no_go` – hartes Gate oder Präsenz-Ausnahme verweigert; kein (sichtbares) Result-Set
+- `verify_product_ownership` – Ownership unklar; Scoring läuft; Flag sichtbar
+- `proceed` – Ownership klar
+
+## Präsenz (V3 – Cursor-Regel)
+- Präsenz ist als **Penalty** zu behandeln, nicht pauschal als Soft-OK.
+- **Remote-first mit ≤1 Office-Tag/Woche** → normal erlaubt (`presence_policy.level=remote_first_ok`).
+- **2–3 Office-Tage/Woche** → nur wenn Rolle außergewöhnlich stark
+  (`best_role_score ≥ application_rules.min_score_for_auto_apply`, aktuell 90)
+  und Gesamtnutzen klar überwiegt. Ausnahme **muss** in `presence_policy` sichtbar sein
+  (`exception_granted` / `outcome=exception_granted|exception_denied`) – nie stillschweigend.
+- **>3 Office-Tage** oder **feste Präsenzpflicht** ohne klaren Mehrwert → hartes No-Go.
+
+## Hard Constraints
+- `remote_first_hybrid_ok` – siehe Präsenz-Regel; Status `passed` | `penalty` | `failed` | `unclear`
+- `no_hard_sales`
+- `product_ownership_required` – fehlen → No-Go; unklar → verify; klar → proceed
+
+## Ranking
+Bei ähnlichen Scores (Band 12): **Produkt > Koordination > Coaching**.
+
+## Response
+`presence_policy` ist Pflichtfeld: `level`, `outcome`, `reason`, `exception_granted`,
+`exceptional_score_threshold`, optional `best_role_score`.
+
+## Freeze
+Siehe `.cursor/rules/v3-freeze.mdc` und `docs/V3_FREEZE.md`.
+
+Details: `docs/V3_RELEASE.md`, `docs/V3_REVIEW.md`, `docs/FIT_LOGIC_NOTES.md`

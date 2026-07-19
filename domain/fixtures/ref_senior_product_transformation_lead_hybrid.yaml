@@ -1,0 +1,83 @@
+# Referenzfall: Senior Product & Transformation Lead (Grauzone)
+# Gespeichert nach Fit-Check mit remote_first_hybrid_ok + Hybrid-Bestätigung.
+
+id: ref_senior_product_transformation_lead_hybrid
+title: Senior Product & Transformation Lead
+created: "2026-07-19"
+source: manuell bestätigt (Hybrid durch Nutzer)
+notes:
+  - Produktnahe Grauzone: Ownership implizit, nicht explizit.
+  - remote_first_hybrid_ok: Hybrid → passed.
+  - Ranking: product_transformation_lead vor agile_project_lead trotz niedrigerem Roh-Score.
+
+job_description: |
+  Senior Product & Transformation Lead
+  Ort: Hybrid
+  Für ein wachsendes B2B-SaaS-/GovTech-Umfeld suchen wir eine Person, die Produktanforderungen aus Kundenfeedback, Support-Tickets und internen Stakeholdern strukturiert ableitet, priorisiert und gemeinsam mit Engineering umsetzt.
+
+  Aufgaben
+  Produkt- und Change-Themen aus verschiedenen Quellen zusammenführen.
+  Kundenfeedback, Support-Signale und interne Anforderungen bewerten.
+  Prioritäten mit Engineering, Delivery, Sales, Support und Management abstimmen.
+  Produktentscheidungen nachvollziehbar dokumentieren.
+  Prozesse und Zusammenarbeit im Team kontinuierlich verbessern.
+  Kleine Transformationen begleiten, ohne reine Coaching-Rolle zu sein.
+
+  Profil
+  Erfahrung in Product Management, Product Operations oder Product Transformation.
+  Gute Fähigkeit, zwischen Produkt, Koordination und Transformation zu wechseln.
+  Sicher im Stakeholder-Management.
+  Stark in Analyse, Priorisierung und klarer Kommunikation.
+  Praktische Erfahrung mit SaaS-, B2B- oder GovTech-Kontexten von Vorteil.
+
+expected:
+  status_flag: verify_product_ownership
+  verify_product_ownership: true
+  hard_constraints:
+    remote_first_hybrid_ok: passed
+    no_hard_sales: passed
+    product_ownership_required: unclear
+  # Top-3 role_ids in ranked order (results + excluded_roles)
+  top_role_ids:
+    - product_transformation_lead
+    - agile_project_lead
+    - b2b_saas_govtech_product_lead
+  # product_transformation_lead must rank above agile_project_lead (Band-12 Policy)
+  ranking_assertions:
+    - product_role: product_transformation_lead
+      before_role: agile_project_lead
+  scoring_runs: true
+  min_scored_roles: 1
+
+reference_scores_snapshot:
+  # Orientierungs-Snapshot vom 2026-07-19; nicht hart asserten außer top_role_ids.
+  - role_id: product_transformation_lead
+    score: 40
+    tier: 1
+  - role_id: agile_project_lead
+    score: 50
+    tier: 2
+  - role_id: b2b_saas_govtech_product_lead
+    score: 35
+    tier: 1
+  - role_id: technical_product_manager
+    score: 27
+    tier: 1
+  - role_id: client_solutions_lead
+    score: 38
+    tier: 2
+  - role_id: ai_product_manager
+    score: 25
+    tier: 1
+  - role_id: product_operations
+    score: 36
+    tier: 2
+  - role_id: scrum_master
+    score: 36
+    tier: 2
+  - role_id: agile_coach
+    score: 39
+    tier: 3
+  - role_id: agile_transformation_consultant
+    score: 28
+    tier: 3

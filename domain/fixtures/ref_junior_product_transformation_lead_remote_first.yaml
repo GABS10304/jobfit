@@ -1,0 +1,39 @@
+# Referenzfall V2: Junior Product / Transformation Lead (Smoke)
+id: ref_junior_product_transformation_lead_remote_first
+title: Junior Product / Transformation Lead
+created: "2026-07-19"
+version: "2"
+notes:
+  - Remote-first + bis zu 1 Office-Tag → remote_first_hybrid_ok passed.
+  - Ownership bewusst unklar → verify_product_ownership.
+  - Produktrollen in Top-4 priorisiert.
+
+job_description: |
+  Junior Product / Transformation Lead
+
+  Wir suchen eine Person für ein B2B-SaaS-/GovTech-Umfeld, die Produktanforderungen
+  aus Kundenfeedback, Support-Tickets und internen Stakeholdern zusammenführt,
+  priorisiert und gemeinsam mit Engineering umsetzt.
+
+  Aufgaben
+  - Kundenfeedback, Support-Signale und interne Anforderungen analysieren.
+  - Prioritäten mit Engineering, Delivery, Sales und Operations abstimmen.
+  - Produktentscheidungen verständlich dokumentieren.
+  - Kleine Prozess- und Zusammenarbeitsthemen verbessern.
+  - Produkt- und Transformationsaufgaben verbinden, ohne reine Coaching-Rolle zu sein.
+
+  Rahmen
+  - Remote-first.
+  - Bis zu 1 Tag pro Woche im Office ist möglich.
+  - Ownership ist bewusst nicht explizit formuliert.
+  - Die Rolle ist produktnah, aber auch koordinativ und transformativ.
+
+expected:
+  status_flag: verify_product_ownership
+  verify_product_ownership: true
+  hard_constraints:
+    remote_first_hybrid_ok: passed
+    no_hard_sales: passed
+    product_ownership_required: unclear
+  min_product_roles_in_top4: 2
+  scoring_runs: true

@@ -1,0 +1,29 @@
+---
+description: Fit-check Ranking und verify_product_ownership Policy
+alwaysApply: true
+---
+
+# Fit-Check Ranking & Ownership Flag
+
+Bei `verify_product_ownership` bleibt die Verifikation aktiv, das Scoring läuft weiter, und bei ähnlichen Scores gilt: **Produkt vor Koordination vor Coaching**.
+
+## Flags
+- `no_go` – hartes Gate, kein Scoring
+- `verify_product_ownership` – Ownership unklar/implizit; Scoring läuft; Flag bleibt sichtbar
+- `proceed` – Ownership klar
+
+## Ranking (Tie-Breaker)
+1. Echte Produktverantwortung (`ai_product_manager`, `technical_product_manager`, `b2b_saas_govtech_product_lead`, `product_transformation_lead`)
+2. Produktnahe Koordination (`agile_project_lead`, `client_solutions_lead`, `product_operations`, `scrum_master`)
+3. Coaching / Transformation (`agile_coach`, `agile_transformation_consultant`)
+
+Bei enger Score-Lage (Band in `fit_engine.SIMILAR_SCORE_BAND`) gewinnen Produktrollen gegen Koordination/Coaching. Nur ein **deutlicher** Score-Vorsprung darf eine niedrigere Tier-Rolle nach oben ziehen.
+
+## Hard Constraints (Kurz)
+- `remote_first_hybrid_ok`: Remote-first / Hybrid ok (≤1 Office-Tag/Woche); feste/überwiegende Präsenz = No-Go; unklar = No-Go
+- `no_hard_sales`, `product_ownership_required` unverändert
+
+## Nicht ändern ohne explizite Anweisung
+- Source of Truth unter `domain/`
+- Hard-Constraint-Semantik
+- Flag-Semantik (`no_go` / `verify` / `proceed`)

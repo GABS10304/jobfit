@@ -1,0 +1,24 @@
+---
+description: V2 Policy – historisch; Präsenz ab V3; Freeze siehe v3-freeze
+alwaysApply: false
+---
+
+# V2 Fit-Check Policy (historisch)
+
+**V2 Baseline; Präsenz-Policy und Freeze ab V3.**  
+Siehe `.cursor/rules/v3-freeze.mdc` und `docs/V3_FREEZE.md`.
+
+## Flags
+- `no_go` – hartes Gate, kein Scoring
+- `verify_product_ownership` – Ownership unklar; Scoring läuft; Flag sichtbar
+- `proceed` – Ownership klar
+
+## Hard Constraints (V2 Baseline)
+- `remote_first_hybrid_ok` – **aktualisiert in V3** (Penalty / Ausnahme)
+- `no_hard_sales`
+- `product_ownership_required` – fehlen → No-Go; unklar → verify; klar → proceed
+
+## Ranking
+Bei ähnlichen Scores (Band 12): **Produkt > Koordination > Coaching**.
+
+Details: `docs/V2_RELEASE.md`, `docs/V3_RELEASE.md`, `docs/FIT_LOGIC_NOTES.md`

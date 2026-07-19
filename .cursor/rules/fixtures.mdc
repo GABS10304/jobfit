@@ -1,0 +1,20 @@
+---
+description: Fixture-Dokumentation für reale Betriebsfälle
+globs: docs/fixtures.md, domain/fixtures/**/*.md
+alwaysApply: true
+---
+
+# Fixture-Regeln
+
+- Fixture-Dateien dienen nur der Dokumentation realer Betriebsfälle.
+- Leite aus einzelnen Fixtures **keine** Produktlogik, Matching-Regeln oder Schwellenwerte ab.
+- `docs/fixtures.md` ist der Index, `domain/fixtures/*.md` enthält die Einzelfälle.
+- Jeder Eintrag soll kurz sein: Kontext, Ergebnis, Lesart, Empfehlung.
+- Änderungen an Fixtures dürfen die Kernlogik nicht verändern.
+- Wenn ein Fall unklar ist, markiere ihn als `verify` statt ihn zu überinterpretieren.
+
+## Stil
+
+- Schreibe präzise und knapp.
+- Nutze konsistente Statuswerte.
+- Bevorzuge dokumentierende Sprache statt interpretierender Sprache.

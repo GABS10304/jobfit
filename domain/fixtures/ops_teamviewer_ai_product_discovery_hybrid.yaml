@@ -1,0 +1,88 @@
+# Betriebsfall (Dokumentation) – keine Logikänderung, kein Cue-Auftrag.
+#
+# Realitätsfall TeamViewer: verify_product_ownership ist plausibel,
+# Präsenz ist relevant aber kein No-Go, Scores = manueller Shortlist-Hinweis.
+id: ops_teamviewer_ai_product_discovery_hybrid
+title: TeamViewer – AI Product Discovery / Enablement (Hybrid)
+created: "2026-07-19"
+version: "3"
+kind: betriebsfall_dokumentation
+freeze: V3
+source: manuelle Betriebsprüfung (Fit-Check), kein Scraping
+
+notes:
+  - "Nur Dokumentation eines echten Alltagsfalls. Keine Regel-, Cue- oder Schwellenänderung."
+  - "status_flag=verify_product_ownership ist fachlich plausibel (Enablement/Change + Arbeit mit anderen PMs; Ownership nicht explizit)."
+  - "Präsenz: Hybrid / bis 50% Home Office – System sieht remote_first_ok (Cues hybrid, home office). Fachlich relevant (~2–3 Office-Tage möglich), aber kein No-Go."
+  - "Scores unter Review-Schwelle → results leer; excluded_roles als manueller Shortlist-Hinweis, kein harter Match."
+  - "Bei Interesse: Ownership-Scope und reale Präsenzlast im Gespräch klären."
+
+job_description: |
+  TeamViewer provides a leading Digital Workplace platform that connects people with technology—enabling, improving and automating digital processes to make work work better. Our software solutions harness the power of AI and shape the future of digitalization.
+
+  We believe that our diverse teams and strong company culture are key to the success of our products and technologies, that hundreds of millions of users around the world and around 645,000 customers across all industries rely on. With more than 1,900 employees worldwide, we celebrate the unique perspectives and talents that each individual brings to the table and foster a dynamic work environment where new ideas thrive. Are you ready to join our team and make an impact?
+
+  Responsibilities
+
+  Customer Feedback & Discovery: Establish and own a robust internal and external feedback pipeline. Conduct regular customer calls and discovery sessions to validate AI use cases, ensuring deep customer insights drive our product roadmap.
+  Stakeholder Management: Act as the primary bridge between the AI Product Domain and internal departments (Sales, Customer Success, Marketing, and Legal). Translate complex AI concepts for non-technical stakeholders and gather internal requirements to align expectations.
+  Change Management: Lead change management initiatives for new AI feature launches, ensuring internal readiness and smooth adoption across the organization and our customer base.
+  Process Improvement & Enablement: Continuously analyze and improve internal product management processes. Remove friction for the RnD and PM teams, facilitating smoother workflows and faster delivery cycles.
+  Innovation Support: Facilitate innovation workshops and discovery phases, helping the wider PM team identify and prioritize high-potential AI opportunities.
+  Product Delivery: Collaborate directly with other PMs and engineers to define requirements and deliver AI features, ensuring that process improvements and customer feedback are directly translated into tangible product value.
+
+  Requirements
+
+  Proven track record in Product Management, ideally with experience in B2B software or SaaS.
+  Strong experience in stakeholder management and navigating complex organizational structures.
+  Demonstrated ability in customer discovery, conducting interviews, and synthesizing qualitative feedback into actionable product requirements.
+  Deep expertise in change management, driving the full lifecycle from discovery to permanent institutionalization within corporate structures.
+  A strategic mindset with a passion for operational excellence and process improvement.
+  Excellent communication and facilitation skills, with the ability to influence without authority.
+  A proactive mindset, eagerness to learn, and strong collaboration skills.
+  Fluent in English; German is a plus.
+
+  What We Offer
+
+  An attractive compensation package above the collectively agreed minimum basic salary (according to the IT-KV, standard level with classification ST1/rule)
+  28 days of well-deserved holidays
+  Onsite Onboarding in our HQ office for an optimal start
+  Great compensation and benefits packages including company achievement bonus and regular salary reviews
+  Public transport friendly office
+  Special terms for local gyms
+  Access to Corporate Benefits platform with many discounts
+  Regular Team events and company-wide celebrations
+  Open door policy, no dress code rules, frequent All Hands and Leadership Lunches
+  Hybrid and Flexible work time with up to 50% home office
+  Work From Abroad Program allowing up to 40 days of work outside your contracting country
+  We celebrate diversity as one of core values, join and drive one of the c-a-r-e initiatives together with us!
+
+  TeamViewer is an equal opportunities employer and is committed to building an inclusive culture where everyone feels welcome and supported.
+
+observed_fit_check:
+  # Snapshot vom Betriebs-Lauf 2026-07-19 – dokumentiert, nicht als harte Regression erzwungen.
+  date: "2026-07-19"
+  status_flag: verify_product_ownership
+  verify_product_ownership: true
+  presence_policy:
+    level: remote_first_ok
+    outcome: ok
+    exception_granted: false
+    matched_cues: [home office, hybrid]
+  hard_constraints:
+    remote_first_hybrid_ok: passed
+    no_hard_sales: passed
+    product_ownership_required: unclear
+  soft_constraints_matched: [b2b_preferred, ai_or_data_preferred, team_coaching_preferred]
+  results_count: 0
+  excluded_top:
+    - role_id: product_transformation_lead
+      score: 27
+    - role_id: scrum_master
+      score: 36
+    - role_id: ai_product_manager
+      score: 21
+  pm_read:
+    - "Kein No-Go – weiterprüfen mit Ownership-Klärung."
+    - "Präsenz fachlich relevant (50% HO), System bewertet als Hybrid ok."
+    - "Scores = Shortlist-Hinweis, kein starker Auto-Match."

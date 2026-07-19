@@ -1,0 +1,95 @@
+# Referenzpaket Smoke V3 (Stabilitätscheck, keine Logikänderung)
+#
+# Vier Referenz-JDs decken Produkt-Grauzone, starken Produktfit mit mehr Präsenz,
+# koordinationslastigen Fall und Coaching-/Transformation-Fall ab; sie dienen nur
+# als Stabilitätscheck ohne Logikänderung.
+#
+# Nutzung: Review + Smoke-Tests. Keine Regeländerung daraus ableiten.
+id: ref_smoke_pack_v3
+title: Smoke-Referenzpaket (4 JDs)
+created: "2026-07-19"
+version: "3"
+freeze: V3
+notes:
+  - "Nur prüfen, nicht an der Logik drehen."
+  - >
+    JD2: Präsenz-Wording an bestehendes Cue-Lexikon angeglichen (2 Präsenztage);
+    Signal-Dichte ergänzt, damit die eingefrorene Ausnahme-Schwelle (>=90) erreichbar ist.
+  - "JD4: Coaching darf nur bei klarem Score-Vorsprung (> 2x Band 12) über Produkt liegen."
+
+cases:
+
+  - id: jd1_product_gray_ownership_unclear
+    title: Senior Product & Transformation Lead (Ownership unklar)
+    job_description: |
+      Senior Product & Transformation Lead für ein B2B-SaaS-/GovTech-Umfeld gesucht.
+      Du priorisierst Kundenfeedback, Support-Signale und interne Anforderungen, stimmst dich
+      eng mit Engineering, Delivery und Sales ab und verbesserst gleichzeitig Prozesse und
+      Zusammenarbeit.
+      Remote-first, bis zu 1 Office-Tag pro Woche möglich.
+      Ownership ist bewusst nicht explizit formuliert.
+    expected:
+      status_flag: verify_product_ownership
+      verify_product_ownership: true
+      presence_level: remote_first_ok
+      presence_outcome: ok
+      remote_first_hybrid_ok: passed
+      product_ownership_required: unclear
+      scoring_runs: true
+      min_product_roles_in_top4: 2
+
+  - id: jd2_strong_product_two_office_days
+    title: Product Lead kritische Produktlinie (2 Office-Tage)
+    job_description: |
+      Product Lead für eine kritische Produktlinie gesucht.
+      Du verantwortest Roadmap, Priorisierung und Umsetzung, arbeitest eng mit Engineering
+      und Stakeholdern und trägst klar Produktverantwortung (product ownership).
+      Die Rolle ist fachlich sehr stark, verlangt aber 2 Präsenztage pro Woche im Büro.
+      Die Präsenz ist begründet, aber nicht dominierend.
+
+      Focus: product discovery, AI use case validation, MVP validation,
+      data driven decision making, stakeholder communication, product analytics,
+      requirements engineering, experimental validation, privacy by design,
+      B2B SaaS, GovTech, regulated environments, enterprise software, customer intelligence.
+      Stack: SQL, Python, pandas, Streamlit, LangChain, Ollama, BigQuery, MCP,
+      Claude Desktop, Jira Product Discovery.
+    expected:
+      status_flag_in: [proceed, verify_product_ownership]
+      presence_level: two_to_three_office_days
+      presence_outcome: exception_granted
+      exception_granted: true
+      remote_first_hybrid_ok: penalty
+      presence_reason_contains: Ausnahme
+      scoring_runs: true
+
+  - id: jd3_coordination_with_product_share
+    title: Agile Project / Client Solutions Lead (Koordination + Produktanteil)
+    job_description: |
+      Agile Project / Client Solutions Lead für ein B2B-Software-Team gesucht.
+      Du koordinierst Anforderungen zwischen Kunden, Delivery, Support und Management,
+      strukturierst Abläufe und bringst Produktimpulse ein.
+      Produktarbeit ist vorhanden, aber nicht die alleinige Hauptverantwortung.
+      Hybrid mit begrenzter Präsenz.
+    expected:
+      status_flag_in: [proceed, verify_product_ownership]
+      presence_level: remote_first_ok
+      presence_outcome: ok
+      remote_first_hybrid_ok: passed
+      scoring_runs: true
+      ranking_product_before_coord_when_similar: true
+
+  - id: jd4_coaching_transformation_heavy
+    title: Agile Transformation Consultant (Coaching last)
+    job_description: |
+      Agile Transformation Consultant für mehrere Teams gesucht.
+      Du begleitest Teams, verbesserst Zusammenarbeit, facilitiert Workshops und unterstützt
+      die Einführung neuer Arbeitsweisen.
+      Produktbezug ist vorhanden, aber Coaching und Transformation stehen klar im Vordergrund.
+      Remote-first, gelegentliche Präsenz möglich.
+    expected:
+      status_flag_in: [proceed, verify_product_ownership]
+      presence_level: remote_first_ok
+      presence_outcome: ok
+      remote_first_hybrid_ok: passed
+      scoring_runs: true
+      ranking_respects_band: true

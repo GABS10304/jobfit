@@ -1,0 +1,16 @@
+---
+description: V3 Freeze – aktiv; keine Logikänderungen ohne neuen Review-Auftrag
+alwaysApply: true
+---
+
+# V3 Freeze (aktiv)
+
+**Freeze aktiv. V3 freigegeben. Keine Logikänderungen.**
+
+- V3 ist review-ready und eingefroren (2026-07-19).
+- Präsenzregel, Boundary-Tests (1/2/3/>3), Ausnahme-Logik und Smoke-Test sind grün.
+- Weitere Änderungen nur nach **neuem Review-Auftrag**.
+- Bis dahin: keine Änderungen an Präsenz-/Remote-Logik, Fit-Flags, Ranking oder SoT-Constraints ohne Auftrag.
+
+Policy-Inhalt: `v3-policy.mdc`  
+Details: `docs/V3_FREEZE.md`, `docs/V3_RELEASE.md`, `docs/V3_REVIEW.md`

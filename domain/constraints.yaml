@@ -1,0 +1,65 @@
+hard_constraints:
+- id: remote_first_hybrid_ok
+  label: Remote-first (Hybrid ok) / Presence penalty
+  enabled: true
+  notes: >
+    Präsenz ist als Penalty zu behandeln.
+    Remote-first mit bis zu 1 Office-Tag pro Woche ist normal erlaubt.
+    2 bis 3 Office-Tage pro Woche sind nur dann akzeptabel, wenn die Rolle
+    insgesamt außergewöhnlich stark ist und der Gesamtnutzen die Präsenz klar überwiegt
+    (Ausnahme muss im Fit-Check explizit sichtbar sein).
+    Mehr als 3 Office-Tage pro Woche oder feste Präsenzpflicht ohne klaren Mehrwert
+    ist ein hartes No-Go.
+- id: no_hard_sales
+  label: No hard sales
+  enabled: true
+  notes: Keine reinen Hunter-/Quota-Rollen ohne Produktbezug.
+- id: product_ownership_required
+  label: Product ownership required
+  enabled: true
+  notes: Rollen ohne echte Produktverantwortung meiden.
+soft_constraints:
+- id: b2b_preferred
+  label: B2B preferred
+  weight: 0.8
+- id: govtech_or_regulated_preferred
+  label: GovTech / regulated preferred
+  weight: 0.9
+- id: ai_or_data_preferred
+  label: AI / data preferred
+  weight: 0.85
+- id: team_coaching_preferred
+  label: Team coaching / transformation preferred
+  weight: 0.75
+location_preferences:
+  preferred_locations:
+  - Remote
+  - Germany
+  - DACH
+  avoid_locations: []
+  travel_tolerance: low_to_medium
+compensation:
+  currency: EUR
+  min_annual_base: null
+  target_annual_base: null
+  notes: To be filled later.
+job_types:
+  preferred:
+  - Permanent
+  - Working Student not applicable
+  - Contract if product-heavy
+  avoid:
+  - Pure temp staffing
+  - Pure admin PMO
+application_rules:
+  min_score_for_review: 75
+  min_score_for_assisted_apply: 80
+  # V3: Schwelle für Präsenz-Ausnahme bei 2–3 Office-Tagen
+  min_score_for_auto_apply: 90
+  require_manual_approval_for_submit: true
+  auto_apply_enabled: false
+notes:
+- Constraints are hard gates before scoring (except presence penalty path).
+- If a hard constraint fails, the job is rejected or flagged as no-go.
+- Work mode must be verified explicitly if unclear (remote_first_hybrid_ok).
+- Presence exception (2–3 office days) uses min_score_for_auto_apply as exceptional bar.

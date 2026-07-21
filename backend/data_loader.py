@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from backend.models import Constraints, CvMaster, RoleFitProfile
+from backend.models import Constraints, CvMaster, CvRules, RoleFitProfile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOMAIN_DIR = REPO_ROOT / "domain"
@@ -78,6 +78,11 @@ def load_constraints(path: Path | None = None) -> Constraints:
     return Constraints.model_validate(raw)
 
 
+def load_cv_rules(path: Path | None = None) -> CvRules:
+    raw = _read_domain_file(path or DOMAIN_DIR / "cv_rules.yaml")
+    return CvRules.model_validate(raw)
+
+
 @lru_cache(maxsize=1)
 def get_role_fit_profile() -> RoleFitProfile:
     """Cached profile for API requests. Call clear_domain_cache() after edits."""
@@ -94,7 +99,13 @@ def get_constraints() -> Constraints:
     return load_constraints()
 
 
+@lru_cache(maxsize=1)
+def get_cv_rules() -> CvRules:
+    return load_cv_rules()
+
+
 def clear_domain_cache() -> None:
     get_role_fit_profile.cache_clear()
     get_cv_master.cache_clear()
     get_constraints.cache_clear()
+    get_cv_rules.cache_clear()

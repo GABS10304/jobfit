@@ -235,3 +235,90 @@ class Constraints(BaseModel):
     job_types: Optional[JobTypes] = None
     application_rules: ApplicationRules = Field(default_factory=ApplicationRules)
     notes: list[str] = Field(default_factory=list)
+
+
+# --- CV tailoring (Phase 2) ---
+
+
+class CvRulesLanguage(BaseModel):
+    default: str = "de"
+    note: Optional[str] = None
+
+
+class CvRulesLimits(BaseModel):
+    max_bullets_per_employment: int = 5
+    max_bullets_per_project: int = 3
+    max_total_pages_hint: int = 2
+    max_employments: int = 4
+    max_projects: int = 4
+
+
+class CvRulesEvidence(BaseModel):
+    min_strength_for_inclusion: Literal["strong", "medium", "weak"] = "medium"
+    exclude_markers: list[str] = Field(default_factory=lambda: ["[TODO]"])
+    never_promote_todo_to_claim: bool = True
+    note: Optional[str] = None
+
+
+class CvRulesKeywordMirroring(BaseModel):
+    source: str = "cv_master_only"
+    no_invention: bool = True
+    note: Optional[str] = None
+
+
+class CvRules(BaseModel):
+    version: str = "0.1"
+    language: CvRulesLanguage = Field(default_factory=CvRulesLanguage)
+    limits: CvRulesLimits = Field(default_factory=CvRulesLimits)
+    section_order: list[str] = Field(default_factory=list)
+    evidence: CvRulesEvidence = Field(default_factory=CvRulesEvidence)
+    keyword_mirroring: CvRulesKeywordMirroring = Field(
+        default_factory=CvRulesKeywordMirroring
+    )
+
+
+class SelectedBullet(BaseModel):
+    source_type: Literal["employment", "project"]
+    source_id: str
+    bullet_text: str
+    evidence_strength: Optional[str] = None
+    jd_keyword_overlap: list[str] = Field(default_factory=list)
+    rank_score: float = 0.0
+    rationale: str = ""
+
+
+class SelectedEmployment(BaseModel):
+    employment_id: str
+    bullets: list[SelectedBullet] = Field(default_factory=list)
+    rationale: str = ""
+
+
+class SelectedProject(BaseModel):
+    project_id: str
+    rank_score: float = 0.0
+    matched_signals: list[str] = Field(default_factory=list)
+    bullets: list[SelectedBullet] = Field(default_factory=list)
+    rationale: str = ""
+
+
+class SelectionPlan(BaseModel):
+    selected_role_id: str
+    selected_role_name: str
+    role_source: Literal["results", "excluded_roles"]
+    role_score: int = Field(..., ge=0, le=100)
+    matched_signals: list[str] = Field(default_factory=list)
+    selected_employment_ids: list[str] = Field(default_factory=list)
+    selected_project_ids: list[str] = Field(default_factory=list)
+    employments: list[SelectedEmployment] = Field(default_factory=list)
+    projects: list[SelectedProject] = Field(default_factory=list)
+    rationale: str = ""
+    explain: dict[str, str] = Field(default_factory=dict)
+
+
+class CvVariant(BaseModel):
+    """Tailored CV variant – MVP wraps deterministic selection plan."""
+
+    selection_plan: SelectionPlan
+    language: str = "de"
+    section_order: list[str] = Field(default_factory=list)
+    max_pages_hint: int = 2

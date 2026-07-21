@@ -1,0 +1,34 @@
+version: "0.1"
+
+language:
+  default: de
+  note: Ausgabe-Sprache für CV-Varianten; Master-CV bleibt SSOT.
+
+limits:
+  max_bullets_per_employment: 5
+  max_bullets_per_project: 3
+  max_total_pages_hint: 2
+  max_employments: 4
+  max_projects: 4
+
+section_order:
+  - profile
+  - employments
+  - projects
+  - skills
+  - tools
+  - certifications
+
+evidence:
+  min_strength_for_inclusion: medium
+  exclude_markers:
+    - "[TODO]"
+  never_promote_todo_to_claim: true
+  note: >
+    Nur Bullets mit evidence_strength >= min_strength_for_inclusion.
+    Zeilen mit exclude_markers nie als harte Behauptung übernehmen.
+
+keyword_mirroring:
+  source: cv_master_only
+  no_invention: true
+  note: Keywords nur aus bestehendem Master-CV-Text spiegeln, nicht erfinden.

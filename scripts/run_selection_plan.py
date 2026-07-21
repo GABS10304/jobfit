@@ -1,8 +1,9 @@
-"""Run deterministic selection_plan against a JD (fixture or inline).
+"""Run deterministic selection_plan (+ optional CV render) against a JD.
 
 Usage:
   python scripts/run_selection_plan.py
-  python scripts/run_selection_plan.py --fixture domain/fixtures/ops_teamviewer_ai_product_discovery_hybrid.yaml
+  python scripts/run_selection_plan.py --jd-inline --render
+  python scripts/run_selection_plan.py --jd-inline --render --out /tmp/cv_variant.md
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend import data_loader, fit_engine
+from backend.generation.cv_variant import generate_cv_variant
 from backend.generation.selection_plan import selection_plan
 from backend.models import CvVariant
 
@@ -29,7 +31,6 @@ DEFAULT_FIXTURE = (
     / "ops_teamviewer_ai_product_discovery_hybrid.yaml"
 )
 
-# FLEX-like JD: AI/product discovery, stakeholder, change – used when --jd-inline.
 FLEX_LIKE_JD = (
     "Remote / hybrid AI Product Manager for B2B SaaS. "
     "Product ownership, product discovery, AI use case validation, "
@@ -66,6 +67,17 @@ def main() -> int:
         default=None,
         help="Optional role_ids subset for fit-check",
     )
+    parser.add_argument(
+        "--render",
+        action="store_true",
+        help="Also print ATS-friendly CV markdown from selection_plan",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Write rendered CV markdown to this path (implies --render)",
+    )
     args = parser.parse_args()
 
     jd = FLEX_LIKE_JD if args.jd_inline else _load_jd_from_fixture(args.fixture)
@@ -88,6 +100,16 @@ def main() -> int:
         max_pages_hint=rules.limits.max_total_pages_hint,
     )
     print(json.dumps(variant.model_dump(), ensure_ascii=False, indent=2))
+
+    if args.render or args.out is not None:
+        rendered = generate_cv_variant(plan, cv, rules)
+        if args.out is not None:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(rendered, encoding="utf-8")
+            print(f"\n--- CV written to {args.out} ---", file=sys.stderr)
+        print("\n--- CV (ATS markdown) ---\n")
+        print(rendered)
+
     return 0
 
 

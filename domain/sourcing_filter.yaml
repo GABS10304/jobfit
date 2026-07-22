@@ -1,5 +1,5 @@
 # Default sourcing filter contract for fetched job descriptions.
-# Used by scripts/fetch_jd.py (--fit-check) and future sourcing pipelines.
+# Used by scripts/fetch_jd.py and scripts/fetch_jobs_batch.py (--fit-check).
 
 default_pass:
   exclude_status_flags:

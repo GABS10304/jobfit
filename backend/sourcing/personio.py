@@ -9,12 +9,13 @@ from datetime import datetime, timezone
 from html import unescape
 from html.parser import HTMLParser
 from typing import Any, Literal
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 import httpx
 
 PERSONIO_HOST_SUFFIX = ".jobs.personio."
 DEFAULT_TIMEOUT = 30.0
+JOB_ID_PATTERN = re.compile(r"/job/(\d+)(?:\?[^\s\"'<>]*)?", re.IGNORECASE)
 
 
 class _TextExtractor(HTMLParser):
@@ -68,6 +69,73 @@ def is_personio_job_url(url: str) -> bool:
     host = (parsed.hostname or "").casefold()
     path = parsed.path or ""
     return PERSONIO_HOST_SUFFIX in host and "/job/" in path
+
+
+def is_personio_board_url(url: str) -> bool:
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").casefold()
+    path = parsed.path or ""
+    return PERSONIO_HOST_SUFFIX in host and "/job/" not in path
+
+
+def _board_origin(board_url: str) -> str:
+    parsed = urlparse(board_url)
+    return f"{parsed.scheme}://{parsed.netloc}"
+
+
+def normalize_board_url(url: str) -> str:
+    if not is_personio_board_url(url):
+        raise ValueError(f"Not a Personio board URL: {url}")
+    parsed = urlparse(url)
+    path = parsed.path or "/"
+    if path != "/":
+        path = "/"
+    normalized = parsed._replace(path=path, fragment="")
+    return urlunparse(normalized)
+
+
+def _canonical_job_url(origin: str, job_id: str, query: str | None = None) -> str:
+    path = f"/job/{job_id}"
+    if query:
+        return f"{origin}{path}?{query}"
+    return f"{origin}{path}"
+
+
+def extract_job_urls_from_html(html: str, board_url: str) -> list[str]:
+    """Extract unique Personio job detail URLs from a careers listing page."""
+    origin = _board_origin(board_url)
+    seen: set[str] = set()
+    urls: list[str] = []
+
+    for match in JOB_ID_PATTERN.finditer(html):
+        job_id = match.group(1)
+        fragment = match.group(0)
+        query = None
+        if "?" in fragment:
+            query = fragment.split("?", 1)[1]
+            for stop in ('"', "'", "<", " ", "\\"):
+                if stop in query:
+                    query = query.split(stop, 1)[0]
+        canonical = _canonical_job_url(origin, job_id, query)
+        if canonical not in seen:
+            seen.add(canonical)
+            urls.append(canonical)
+
+    return urls
+
+
+def _fetch_board_with_playwright(board_url: str, *, timeout_ms: int = 30000) -> str:
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            page = browser.new_page()
+            page.goto(board_url, wait_until="domcontentloaded", timeout=timeout_ms)
+            page.wait_for_selector("a[href*='/job/']", timeout=timeout_ms)
+            return page.content()
+        finally:
+            browser.close()
 
 
 def _utc_now_iso() -> str:
@@ -312,6 +380,22 @@ def _fetch_with_playwright(url: str, *, timeout_ms: int = 30000) -> str:
             return page.content()
         finally:
             browser.close()
+
+
+def discover_job_urls(company_board_url: str, *, use_playwright: bool = False) -> list[str]:
+    """Discover job detail URLs from a Personio company careers board."""
+    board_url = normalize_board_url(company_board_url)
+    if use_playwright:
+        html = _fetch_board_with_playwright(board_url)
+        return extract_job_urls_from_html(html, board_url)
+
+    html = fetch_page_html(board_url)
+    urls = extract_job_urls_from_html(html, board_url)
+    if urls:
+        return urls
+
+    html = _fetch_board_with_playwright(board_url)
+    return extract_job_urls_from_html(html, board_url)
 
 
 def fetch_personio_job(url: str, *, use_playwright: bool = False) -> NormalizedJobDescription:

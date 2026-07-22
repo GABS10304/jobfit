@@ -16,56 +16,18 @@ import json
 import sys
 from pathlib import Path
 
-import yaml
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend import data_loader, fit_engine
-from backend.sourcing.personio import NormalizedJobDescription, fetch_personio_job
-
-FILTER_PATH = REPO_ROOT / "domain" / "sourcing_filter.yaml"
-
-
-def _load_filter_contract() -> dict:
-    with FILTER_PATH.open(encoding="utf-8") as handle:
-        return yaml.safe_load(handle)
-
-
-def passes_default_filter(status_flag: str) -> bool:
-    contract = _load_filter_contract()
-    default_pass = contract.get("default_pass", {})
-    excluded = set(default_pass.get("exclude_status_flags", ["no_go"]))
-    included = set(
-        default_pass.get(
-            "include_status_flags",
-            ["proceed", "verify_product_ownership"],
-        )
-    )
-    if status_flag in excluded:
-        return False
-    return status_flag in included
-
-
-def _fit_check_jd_text(job: NormalizedJobDescription) -> str:
-    parts = [job.title]
-    if job.location:
-        parts.append(job.location)
-    if job.work_mode and job.work_mode.casefold() not in (job.location or "").casefold():
-        parts.append(job.work_mode)
-    if job.employment_type:
-        parts.append(job.employment_type)
-    parts.append(job.jd_text)
-    return "\n\n".join(parts)
-
-
-def _top_score(fit) -> tuple[int | None, str | None]:
-    candidates = fit.results or fit.excluded_roles
-    if not candidates:
-        return None, None
-    top = max(candidates, key=lambda role: role.score)
-    return top.score, top.role_id
+from backend.sourcing.filtering import (
+    FILTER_PATH,
+    fit_check_jd_text,
+    passes_default_filter,
+    top_fit_score,
+)
+from backend.sourcing.personio import fetch_personio_job
 
 
 def main() -> int:
@@ -110,11 +72,11 @@ def main() -> int:
         profile = data_loader.load_role_fit_profile()
         constraints = data_loader.load_constraints()
         fit = fit_engine.run_fit_check(
-            job_description=_fit_check_jd_text(job),
+            job_description=fit_check_jd_text(job),
             profile=profile,
             constraints=constraints,
         )
-        top_score, top_role = _top_score(fit)
+        top_score, top_role = top_fit_score(fit)
         passes = passes_default_filter(fit.status_flag)
         payload["fit_check"] = {
             "status_flag": fit.status_flag,

@@ -1,0 +1,13 @@
+# Default sourcing filter contract for fetched job descriptions.
+# Used by scripts/fetch_jd.py (--fit-check) and future sourcing pipelines.
+
+default_pass:
+  exclude_status_flags:
+    - no_go
+  include_status_flags:
+    - proceed
+    - verify_product_ownership
+
+notes:
+  - "verify_product_ownership counts as pass (manual review), not auto-reject."
+  - "Presence exception_denied maps to status_flag=no_go and is excluded."

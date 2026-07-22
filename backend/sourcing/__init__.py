@@ -1,6 +1,5 @@
-"""Job sourcing (Phase 3) – scraper / API clients.
+"""Job sourcing (Phase 3) – scraper / API clients."""
 
-Placeholder package. Intended entry points later:
-- fetch_jobs(...)
-- normalize_job(...)
-"""
+from backend.sourcing.personio import NormalizedJobDescription, fetch_personio_job
+
+__all__ = ["NormalizedJobDescription", "fetch_personio_job"]

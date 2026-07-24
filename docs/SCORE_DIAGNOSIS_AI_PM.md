@@ -121,10 +121,12 @@ Regression: `tests/test_smoke_ref_pack.py`, `test_v3_presence.py`, `test_smoke.p
 3. Optional: Title ist bereits in Sourcing-Fit-Text – beibehalten (credium `SaaS` → `b2b_saas`).
 4. Schwelle 75 erst anfassen, **nach** Signal-Modell-Review – sonst Watchlist→Pass ohne echten Fit-Gewinn.
 
+**Sprint 8:** Schema/Engine unterstützen **kein** required vs. optional / Tool-Tier → keine Profil-Demotion ohne Formeländerung. Ausarbeiteter Auftrag inkl. Simulation und Acceptance Tests: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md).
+
 ---
 
 ## 7. Nächster Sprint (Vorschlag)
 
-1. Review-Auftrag: **Tool-Signale vs. JD-Match** (Profil-Struktur, nicht Threshold-Hack).  
+1. Review-Auftrag abarbeiten: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md) (Option A empfohlen; C abgelehnt).  
 2. Danach erneuter Multi-Board-Lauf + Pass-Rate AI-PM.  
 3. Bis dahin: Watchlist + CV-Varianten für weak AI-PM-Matches weiter nutzen.

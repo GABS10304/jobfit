@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from backend.sourcing.filtering import passes_default_filter
+from backend.sourcing.filtering import evaluate_default_filter, passes_default_filter
 from backend.sourcing.personio import (
     discover_job_urls,
     extract_job_urls_from_html,
@@ -76,11 +76,68 @@ def test_discover_job_urls_playwright_fallback(board_fixture_html: str):
     assert len(urls) == 3
 
 
-def test_passes_default_filter_contract():
-    assert passes_default_filter("proceed")
-    assert passes_default_filter("verify_product_ownership")
-    assert not passes_default_filter("no_go")
-    assert not passes_default_filter("unknown_flag")
+def test_passes_default_filter_rejects_no_go():
+    assert not passes_default_filter(
+        "no_go",
+        top_score=90,
+        top_role_id="ai_product_manager",
+        title="AI Product Manager",
+    )
+
+
+def test_passes_default_filter_rejects_engineer_low_score():
+    """Engineer with proceed + weak score must FAIL (previous false positive)."""
+    assert not passes_default_filter(
+        "proceed",
+        top_score=36,
+        top_role_id="technical_product_manager",
+        title="3C - (Java) Full Stack Engineer (w/m/d)",
+    )
+    ok, reason = evaluate_default_filter(
+        "proceed",
+        top_score=36,
+        top_role_id="technical_product_manager",
+        title="3C - (Java) Full Stack Engineer (w/m/d)",
+    )
+    assert ok is False
+    assert reason is not None
+    assert "title_deny_keyword" in reason or "top_score" in reason
+
+
+def test_passes_default_filter_rejects_schadenpruefer_verify():
+    assert not passes_default_filter(
+        "verify_product_ownership",
+        top_score=22,
+        top_role_id="agile_transformation_consultant",
+        title="3C - Schadenprüfer / KFZ-Sachverständiger (m/w/d)",
+    )
+
+
+def test_passes_default_filter_ai_pm_proceed_high_score():
+    assert passes_default_filter(
+        "proceed",
+        top_score=88,
+        top_role_id="ai_product_manager",
+        title="AI Product Manager (m/w/d)",
+    )
+
+
+def test_passes_default_filter_verify_high_product_role_score():
+    assert passes_default_filter(
+        "verify_product_ownership",
+        top_score=80,
+        top_role_id="technical_product_manager",
+        title="Technical Product Manager",
+    )
+
+
+def test_passes_default_filter_rejects_non_product_top_role():
+    assert not passes_default_filter(
+        "proceed",
+        top_score=88,
+        top_role_id="scrum_master",
+        title="Scrum Master with product overlap",
+    )
 
 
 def test_batch_filter_pass_and_reject(job_fixture_html: str):
@@ -109,12 +166,13 @@ def test_batch_filter_pass_and_reject(job_fixture_html: str):
         with patch(
             "scripts.fetch_jobs_batch._run_fit_check",
             return_value={
-                "status_flag": "no_go",
+                "status_flag": "proceed",
                 "verify_product_ownership": False,
-                "presence_policy": {"level": "denied", "outcome": "denied"},
-                "top_score": 20,
-                "top_role_id": "scrum_master",
+                "presence_policy": {"level": "ok", "outcome": "allowed"},
+                "top_score": 36,
+                "top_role_id": "technical_product_manager",
                 "passes_default_filter": False,
+                "filter_reject_reason": "top_score=36<75",
             },
         ):
             rejected = _process_job(FLEX_JOB_URL, use_playwright=False, fit_check=True)
@@ -122,15 +180,4 @@ def test_batch_filter_pass_and_reject(job_fixture_html: str):
     assert passed["passes_default_filter"] is True
     assert "reject_reason" not in passed
     assert rejected["passes_default_filter"] is False
-    assert rejected["reject_reason"] == "filter: status_flag=no_go"
-
-
-def test_batch_filter_logic_mirrors_contract():
-    """Batch pass/fail follows sourcing_filter.yaml without network."""
-    cases = [
-        ("proceed", True),
-        ("verify_product_ownership", True),
-        ("no_go", False),
-    ]
-    for status_flag, expected in cases:
-        assert passes_default_filter(status_flag) is expected
+    assert rejected["reject_reason"] == "filter: top_score=36<75"

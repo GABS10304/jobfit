@@ -5,7 +5,7 @@ Usage:
   python scripts/fetch_jobs_batch.py --urls-file urls.txt
   python scripts/fetch_jobs_batch.py --board-url <url> --limit 5 --out results.json
 
-Filter contract (default pass): exclude no_go; include proceed and verify_product_ownership.
+Filter contract: exclude no_go; require min_top_score, product top role, no title deny keywords.
 See domain/sourcing_filter.yaml.
 """
 
@@ -22,7 +22,11 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend import data_loader, fit_engine
-from backend.sourcing.filtering import fit_check_jd_text, passes_default_filter, top_fit_score
+from backend.sourcing.filtering import (
+    evaluate_default_filter,
+    fit_check_jd_text,
+    top_fit_score,
+)
 from backend.sourcing.personio import (
     NormalizedJobDescription,
     discover_job_urls,
@@ -44,8 +48,13 @@ def _run_fit_check(job: NormalizedJobDescription) -> dict[str, Any]:
         constraints=constraints,
     )
     top_score, top_role = top_fit_score(fit)
-    passes = passes_default_filter(fit.status_flag)
-    return {
+    passes, reject_reason = evaluate_default_filter(
+        fit.status_flag,
+        top_score=top_score,
+        top_role_id=top_role,
+        title=job.title,
+    )
+    payload = {
         "status_flag": fit.status_flag,
         "verify_product_ownership": fit.verify_product_ownership,
         "presence_policy": fit.presence_policy.model_dump(),
@@ -53,6 +62,9 @@ def _run_fit_check(job: NormalizedJobDescription) -> dict[str, Any]:
         "top_role_id": top_role,
         "passes_default_filter": passes,
     }
+    if reject_reason:
+        payload["filter_reject_reason"] = reject_reason
+    return payload
 
 
 def _process_job(
@@ -83,7 +95,8 @@ def _process_job(
         entry["fit_check"] = fit_payload
         entry["passes_default_filter"] = fit_payload["passes_default_filter"]
         if not fit_payload["passes_default_filter"]:
-            entry["reject_reason"] = f"filter: status_flag={fit_payload['status_flag']}"
+            detail = fit_payload.get("filter_reject_reason") or fit_payload["status_flag"]
+            entry["reject_reason"] = f"filter: {detail}"
     else:
         entry["passes_default_filter"] = True
 

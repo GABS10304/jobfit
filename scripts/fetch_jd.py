@@ -5,7 +5,7 @@ Usage:
   python scripts/fetch_jd.py --url <personio_url> --fit-check
   python scripts/fetch_jd.py --url <personio_url> --fit-check --out /tmp/jd.json
 
-Filter contract (default pass): exclude no_go; include proceed and verify_product_ownership.
+Filter contract: exclude no_go; require min_top_score, product top role, no title deny keywords.
 See domain/sourcing_filter.yaml.
 """
 
@@ -23,8 +23,8 @@ if str(REPO_ROOT) not in sys.path:
 from backend import data_loader, fit_engine
 from backend.sourcing.filtering import (
     FILTER_PATH,
+    evaluate_default_filter,
     fit_check_jd_text,
-    passes_default_filter,
     top_fit_score,
 )
 from backend.sourcing.personio import fetch_personio_job
@@ -34,7 +34,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Fetch Personio JD JSON and optionally run fit-check.",
         epilog=(
-            "Filter contract: exclude no_go; include proceed and verify_product_ownership "
+            "Filter contract: no_go excluded; min_top_score + product role + title deny "
             f"({FILTER_PATH.relative_to(REPO_ROOT)})."
         ),
     )
@@ -77,8 +77,13 @@ def main() -> int:
             constraints=constraints,
         )
         top_score, top_role = top_fit_score(fit)
-        passes = passes_default_filter(fit.status_flag)
-        payload["fit_check"] = {
+        passes, reject_reason = evaluate_default_filter(
+            fit.status_flag,
+            top_score=top_score,
+            top_role_id=top_role,
+            title=job.title,
+        )
+        fit_payload = {
             "status_flag": fit.status_flag,
             "verify_product_ownership": fit.verify_product_ownership,
             "presence_policy": fit.presence_policy.model_dump(),
@@ -86,10 +91,15 @@ def main() -> int:
             "top_role_id": top_role,
             "passes_default_filter": passes,
         }
+        if reject_reason:
+            fit_payload["filter_reject_reason"] = reject_reason
+        payload["fit_check"] = fit_payload
         print(f"status_flag: {fit.status_flag}")
         print(f"presence: {fit.presence_policy.level} / {fit.presence_policy.outcome}")
         print(f"top_score: {top_score if top_score is not None else '-'}")
         print(f"passes_default_filter: {passes}")
+        if reject_reason:
+            print(f"filter_reject_reason: {reject_reason}")
 
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

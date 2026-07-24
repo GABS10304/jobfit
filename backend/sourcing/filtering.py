@@ -17,7 +17,39 @@ def load_filter_contract() -> dict:
         return yaml.safe_load(handle)
 
 
-def passes_default_filter(status_flag: str) -> bool:
+def _is_product_role(role_id: str | None, default_pass: dict) -> bool:
+    if not role_id:
+        return False
+    role_cf = role_id.casefold()
+    allowlist = {str(r).casefold() for r in default_pass.get("product_role_ids") or []}
+    if role_cf in allowlist:
+        return True
+    substrings = [
+        str(s).casefold()
+        for s in default_pass.get("product_role_id_substrings") or ["product"]
+    ]
+    return any(sub and sub in role_cf for sub in substrings)
+
+
+def _title_denied(title: str | None, default_pass: dict) -> str | None:
+    if not title:
+        return None
+    title_cf = title.casefold()
+    for raw in default_pass.get("title_deny_keywords") or []:
+        keyword = str(raw).casefold().strip()
+        if keyword and keyword in title_cf:
+            return keyword
+    return None
+
+
+def evaluate_default_filter(
+    status_flag: str,
+    *,
+    top_score: int | None = None,
+    top_role_id: str | None = None,
+    title: str | None = None,
+) -> tuple[bool, str | None]:
+    """Apply sourcing_filter.yaml; return (passes, reject_reason)."""
     contract = load_filter_contract()
     default_pass = contract.get("default_pass", {})
     excluded = set(default_pass.get("exclude_status_flags", ["no_go"]))
@@ -27,9 +59,43 @@ def passes_default_filter(status_flag: str) -> bool:
             ["proceed", "verify_product_ownership"],
         )
     )
+
     if status_flag in excluded:
-        return False
-    return status_flag in included
+        return False, f"status_flag={status_flag}"
+    if status_flag not in included:
+        return False, f"status_flag={status_flag}"
+
+    denied_kw = _title_denied(title, default_pass)
+    if denied_kw:
+        return False, f"title_deny_keyword={denied_kw}"
+
+    min_top_score = int(default_pass.get("min_top_score", 75))
+    if top_score is None or top_score < min_top_score:
+        score_text = "none" if top_score is None else str(top_score)
+        return False, f"top_score={score_text}<{min_top_score}"
+
+    if default_pass.get("require_product_role", True):
+        if not _is_product_role(top_role_id, default_pass):
+            role_text = top_role_id or "none"
+            return False, f"top_role_not_product={role_text}"
+
+    return True, None
+
+
+def passes_default_filter(
+    status_flag: str,
+    *,
+    top_score: int | None = None,
+    top_role_id: str | None = None,
+    title: str | None = None,
+) -> bool:
+    passes, _ = evaluate_default_filter(
+        status_flag,
+        top_score=top_score,
+        top_role_id=top_role_id,
+        title=title,
+    )
+    return passes
 
 
 def fit_check_jd_text(job: NormalizedJobDescription) -> str:

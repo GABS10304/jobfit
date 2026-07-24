@@ -1,5 +1,12 @@
 # Default sourcing filter contract for fetched job descriptions.
 # Used by scripts/fetch_jd.py and scripts/fetch_jobs_batch.py (--fit-check).
+# Layer only: does not change V3 fit-engine scoring or status_flag logic.
+#
+# Pass rules (all must hold):
+# 1) status_flag not in exclude list and in include list (no_go always out)
+# 2) top_score >= min_top_score (aligned with constraints min_score_for_review=75)
+# 3) if require_product_role: top_role_id matches product family (substring/allowlist)
+# 4) title must not contain any title_deny_keywords (case-insensitive)
 
 default_pass:
   exclude_status_flags:
@@ -7,7 +14,27 @@ default_pass:
   include_status_flags:
     - proceed
     - verify_product_ownership
+  # Same bar as domain/constraints.yaml → application_rules.min_score_for_review
+  min_top_score: 75
+  # Prefer product-tier roles from role_fit_profile (role_id contains "product", etc.)
+  require_product_role: true
+  product_role_id_substrings:
+    - product
+  # Optional explicit allowlist in addition to substring match
+  product_role_ids: []
+  # Obvious non-target titles (engineering / claims / expert roles)
+  title_deny_keywords:
+    - engineer
+    - entwickler
+    - fullstack
+    - full stack
+    - software developer
+    - sachverständiger
+    - schadenprüfer
+    - backend
+    - frontend
 
 notes:
-  - "verify_product_ownership counts as pass (manual review), not auto-reject."
+  - "verify_product_ownership may pass only with min_top_score + product top role."
   - "Presence exception_denied maps to status_flag=no_go and is excluded."
+  - "title_deny_keywords are a sourcing guardrail; extend in YAML without touching V3."

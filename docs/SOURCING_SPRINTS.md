@@ -4,7 +4,10 @@ Kurze E2E-Läufe gegen echte Personio-Boards. Keine V3-Logik-Änderung; nur Beob
 
 Filter-Stack: Title-Prefilter → V3 fit-check → `domain/sourcing_filter.yaml` (pass / watchlist / reject).
 
-CLI: `python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed --out …`
+CLI (single board): `python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed --out …`
+
+CLI (multi-board): `python scripts/fetch_jobs_multi_board.py --out …`  
+Boards: `domain/personio_boards.yaml`. `--include-weak-proceed` default **on**; optional `--limit-per-board N`, `--delay`, `--backoff`. Dead/429 boards werden übersprungen.
 
 ## Sprint 4 — FLEX (Baseline)
 
@@ -54,21 +57,67 @@ Kurz geprüft, dass Boards laden und Listings liefern (Stand Sprint 5):
 
 Weitere URL-Probes teils mit Personio **429** abgebrochen — bei Batch-Läufen Rate-Limits beachten.
 
-## Pass-Raten (kumuliert)
+## Sprint 6 — Multi-board batch
 
-| Board | Discovered | Fit-checked | Passed | Pass-Rate (discovered) | Pass-Rate (fit-checked) |
-|-------|------------|-------------|--------|------------------------|-------------------------|
-| FLEX | 17 | 2 | 0 | 0% | 0% |
-| credium | 2 | 1 | 0 | 0% | 0% |
-| **Summe** | **19** | **3** | **0** | **0%** | **0%** |
+| Feld | Wert |
+|------|------|
+| Boards-Datei | `domain/personio_boards.yaml` (7 Boards) |
+| Runner | `scripts/fetch_jobs_multi_board.py` |
+| Flags | `--include-weak-proceed` default on; delay 2.5s |
+| Artifact | `/tmp/multi_board_e2e.json` |
+| Boards ok / error / skipped | **7 / 0 / 0** |
+| Discovered | **54** |
+| Prefilter rejects | 49 |
+| Fit-checked | **5** |
+| Passed (≥75) | **0** |
+| Watchlist | **2** |
+| Rejected | 52 |
+
+Pro Board:
+
+| Board | Discovered | Fit-checked | Passed | Watchlist | Rejected |
+|-------|------------|-------------|--------|-----------|----------|
+| flex | 17 | 2 | 0 | 1 | 16 |
+| credium | 2 | 1 | 0 | 1 | 1 |
+| epages | 3 | 1 | 0 | 0 | 3 |
+| mercanis | 16 | 1 | 0 | 0 | 16 |
+| certivity | 3 | 0 | 0 | 0 | 3 |
+| ocumeda | 9 | 0 | 0 | 0 | 9 |
+| getsafe | 4 | 0 | 0 | 0 | 4 |
+
+Watchlist (overall):
+
+- flex — **AI Product Manager (m/w/d)** — `proceed`, score **32**, role `technical_product_manager`
+- credium — **AI Produkt Manager:in … (SaaS)** — `verify_product_ownership`, score **38**, role `ai_product_manager`
+
+Weitere Fit-Checks ohne Watchlist (no_go / nicht watchlist-fähig):
+
+- epages — Product Manager – E-Commerce Plattform → `no_go`
+- mercanis — Product Success Manager → `no_go`
+- flex — Omikron Product Manager Electronic Banking → `no_go`
+
+Lesart: Mehr Volumen (54 Listings / 5 Fit-Checks) bestätigt Sprint-5-Befund — **kein Strong-Pass**. Watchlist bleibt primärer Output. Engpass weiterhin Score 32–38 ≪ 75 bei echten AI-PM-Titeln; zusätzliche Boards ohne Product-Titel erhöhen nur Prefilter-Rejects.
+
+## Pass-Raten (kumuliert, Stand Sprint 6)
+
+| Board | Discovered | Fit-checked | Passed | Watchlist | Pass-Rate (fit-checked) |
+|-------|------------|-------------|--------|-----------|-------------------------|
+| flex | 17 | 2 | 0 | 1 | 0% |
+| credium | 2 | 1 | 0 | 1 | 0% |
+| epages | 3 | 1 | 0 | 0 | 0% |
+| mercanis | 16 | 1 | 0 | 0 | 0% |
+| certivity | 3 | 0 | 0 | 0 | — |
+| ocumeda | 9 | 0 | 0 | 0 | — |
+| getsafe | 4 | 0 | 0 | 0 | — |
+| **Summe** | **54** | **5** | **0** | **2** | **0%** |
 
 ## CLI-Lücke (notiert)
 
 - `--cv-from-watchlist` vorhanden (Weak-Match-CVs).
-- **`--cv-from-passed` fehlt** — Strong-Pass-CVs werden nicht auto-generiert. In Sprint 5 nicht gebraucht (0 passed); bei erstem Pass nachziehen.
+- **`--cv-from-passed` fehlt** — Strong-Pass-CVs werden nicht auto-generiert. Weiterhin 0 passed; bei erstem Pass nachziehen.
 
 ## Nächster Sprint (Empfehlung)
 
-1. **Mehr Boards parallel** (ePages, Mercanis, weitere DE/EU-SaaS) — Volumen statt Einzel-Board; Rate-Limit/Backoff einplanen.
-2. **BA-API / Aggregator** prüfen — Personio-Einzelboards liefern zu wenig Product-Fit-Kandidaten für statistisch sinnvolle Pass-Raten.
-3. **Allowlist feinjustieren** nur wenn Fake-Negatives klar sind — aktuell kommen AI-PM-Titel durch; Engpass ist **Score < 75**, nicht Title-Prefilter.
+1. **Diagnose niedriger AI-PM-Scores** über `role_fit`-Signale / Profile-Vollständigkeit — **ohne** V3-Thresholds zu ändern (Audit: welche Signale fehlen vs. JD).
+2. Watchlist als Betriebsmodus belassen; optional CV-Varianten aus den 2 Watchlist-Rows vergleichen.
+3. BA-API / Aggregator nur wenn mehr Product-Volumen nötig ist — Multi-Board allein hebt Pass-Rate nicht.

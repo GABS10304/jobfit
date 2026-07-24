@@ -1,0 +1,46 @@
+# Known Personio career boards for multi-board sourcing runs.
+# Verified live (HTTP 200 + listings) during Sprint 6; dead boards are skipped
+# gracefully by scripts/fetch_jobs_multi_board.py.
+
+boards:
+  - id: flex
+    name: FLEX Capital Management
+    url: https://flex-capital-management-gmbh.jobs.personio.de/
+    region: DE
+    notes: Portfolio board; Sprint 4 baseline
+
+  - id: credium
+    name: credium
+    url: https://credium.jobs.personio.de/?language=de
+    region: DE
+    notes: AI/PM SaaS; Sprint 5 board
+
+  - id: epages
+    name: ePages
+    url: https://epages-gmbh.jobs.personio.de/
+    region: DE
+    notes: E-commerce platform; Product Manager titles observed
+
+  - id: mercanis
+    name: Mercanis
+    url: https://mercanis.jobs.personio.de/
+    region: DE
+    notes: Procurement SaaS; Product Success Manager titles observed
+
+  - id: certivity
+    name: Certivity
+    url: https://certivity.jobs.personio.de/
+    region: DE
+    notes: Tech/product company; few product titles in discovery
+
+  - id: ocumeda
+    name: Ocumeda
+    url: https://ocumeda-ag.jobs.personio.de/
+    region: DE/CH
+    notes: Healthtech; few product titles in discovery
+
+  - id: getsafe
+    name: Getsafe
+    url: https://getsafe.jobs.personio.de/
+    region: DE
+    notes: Insurtech; product/tech openings

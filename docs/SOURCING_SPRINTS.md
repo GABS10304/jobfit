@@ -160,8 +160,19 @@ Lesart: Erste Strong-Passes auf Multi-Board. FLEX schließt Domain/Skill-Gap üb
 | getsafe | 4 | 0 | 0 | 0 | — |
 | **Summe** | **54** | **5** | **2** | **0** | **40%** |
 
+## Sprint 11 — Passed-CV Quality Review
+
+| Feld | Wert |
+|------|------|
+| Fokus | ATS-Review der 2 Passed-CVs; Renderer/Rules-Fixes ohne Master-CV-Rewrite |
+| Fixes | Provenance-Tags strippen; Meta-Bullets (`CV-Varianten`/`Original-CV`) exclude; Profil-Kapitalisierung |
+| Docs | [`CV_PASSED_REVIEW.md`](CV_PASSED_REVIEW.md), [`SOURCING_MVP_STATUS.md`](SOURCING_MVP_STATUS.md) |
+| CVs | `out/cv_passed/` regeneriert (gitignored) |
+
+Lesart: Checks überwiegend pass; Restpunkte sind Master-Wording, Zertifikatslänge und Project-Problem-Fragmente — nicht Score-/Lexikon-Themen.
+
 ## Nächster Sprint (Empfehlung)
 
-1. Passed-CVs manuell reviewen (Banner + Selection-Plan vs. JD).
+1. Master-Bullets mit Meta-/Proof-Wording bereinigen (SSOT).
 2. Weitere PE-/Portfolio-Boards nur wenn Volume nötig; Lexikon nicht weiter aufweichen ohne JD-Evidenz.
-3. Optional: Watchlist-Pfad belassen für Scores 50–74.
+3. Optional: Zertifikat-Limit + Project-Bullet-Priorisierung (approach/result vor problem).

@@ -23,10 +23,13 @@ evidence:
   min_strength_for_inclusion: medium
   exclude_markers:
     - "[TODO]"
+    - "CV-Varianten"
+    - "Original-CV"
   never_promote_todo_to_claim: true
   note: >
     Nur Bullets mit evidence_strength >= min_strength_for_inclusion.
     Zeilen mit exclude_markers nie als harte Behauptung übernehmen.
+    Provenance-Tags ([belegt] etc.) bleiben in der Master-CV, werden im Renderer gestrippt.
 
 keyword_mirroring:
   source: cv_master_only

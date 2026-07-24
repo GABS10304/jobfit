@@ -41,6 +41,8 @@ def test_render_contains_section_headers():
 
 
 def test_render_includes_selected_bullets_only():
+    from backend.generation.cv_variant import _ats_bullet_text
+
     plan, cv, _rules, text = _plan_and_render()
     assert cv.person.name in text
 
@@ -49,18 +51,21 @@ def test_render_includes_selected_bullets_only():
         assert master.company in text
         assert master.role_title in text
         for bullet in emp.bullets:
-            assert bullet.bullet_text in text
+            assert _ats_bullet_text(bullet.bullet_text) in text
 
     for proj in plan.projects:
         master = next(p for p in cv.projects if p.id == proj.project_id)
         assert master.title in text
         for bullet in proj.bullets:
-            assert bullet.bullet_text in text
+            assert _ats_bullet_text(bullet.bullet_text) in text
 
 
 def test_render_excludes_todo_markers():
     _plan, _cv, _rules, text = _plan_and_render()
     assert "[TODO]" not in text
+    assert "[belegt]" not in text
+    assert "[teilweise belegt]" not in text
+    assert "[qualitativ belegt]" not in text
 
 
 def test_render_deterministic():
@@ -74,5 +79,13 @@ def test_render_uses_role_based_profile_not_invented_claims():
     assert plan.selected_role_name in text or plan.selected_role_id in text
     # Profile uses master kernel when present – no free-form invention block.
     if cv.person.profile_kernel:
-        assert cv.person.profile_kernel in text
+        kernel = cv.person.profile_kernel.strip()
+        capitalized = kernel[0].upper() + kernel[1:]
+        assert capitalized in text or kernel in text
     assert "Ausrichtung:" in text
+
+
+def test_render_excludes_meta_documentation_bullets():
+    _plan, _cv, _rules, text = _plan_and_render()
+    assert "CV-Varianten" not in text
+    assert "Original-CV" not in text

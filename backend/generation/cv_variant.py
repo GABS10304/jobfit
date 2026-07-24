@@ -5,6 +5,8 @@ Deterministic only: no LLM, no invented achievements. V3 fit-check untouched.
 
 from __future__ import annotations
 
+import re
+
 from backend.models import (
     CvMaster,
     CvRules,
@@ -23,6 +25,18 @@ _SECTION_HEADERS: dict[str, str] = {
     "certifications": "Zertifizierungen",
 }
 
+# Master-CV provenance tags are SSOT annotations, not ATS content.
+_EVIDENCE_TAG_RE = re.compile(
+    r"\s*\[(?:TODO|(?:teilweise\s+|qualitativ\s+)?belegt(?:\s+durch\s+[^\]]+)?)\]",
+    re.IGNORECASE,
+)
+
+
+def _ats_bullet_text(text: str) -> str:
+    """Strip internal evidence/provenance tags; keep claim text unchanged."""
+    cleaned = _EVIDENCE_TAG_RE.sub("", text).strip()
+    return re.sub(r"\s{2,}", " ", cleaned)
+
 
 def _date_range(emp: Employment) -> str:
     end = "heute" if emp.current else (emp.end or "")
@@ -34,6 +48,8 @@ def _date_range(emp: Employment) -> str:
 def _profile_line(plan: SelectionPlan, cv_master: CvMaster) -> str:
     """Short role-based profile line – no invented achievements."""
     kernel = (cv_master.person.profile_kernel or "").strip()
+    if kernel:
+        kernel = kernel[0].upper() + kernel[1:]
     role = plan.selected_role_name or plan.selected_role_id
     if kernel:
         return f"Ausrichtung: {role}. {kernel}"
@@ -83,7 +99,9 @@ def _render_employments(plan: SelectionPlan, cv_master: CvMaster) -> list[str]:
         lines.append(f"{_date_range(emp)}{loc}")
         lines.append("")
         for bullet in selected.bullets:
-            lines.append(f"- {bullet.bullet_text}")
+            text = _ats_bullet_text(bullet.bullet_text)
+            if text:
+                lines.append(f"- {text}")
         lines.append("")
     return lines
 
@@ -101,7 +119,9 @@ def _render_projects(plan: SelectionPlan, cv_master: CvMaster) -> list[str]:
             lines.append(f"Rolle: {proj.role}")
         lines.append("")
         for bullet in selected.bullets:
-            lines.append(f"- {bullet.bullet_text}")
+            text = _ats_bullet_text(bullet.bullet_text)
+            if text:
+                lines.append(f"- {text}")
         lines.append("")
     return lines
 

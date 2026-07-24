@@ -39,6 +39,7 @@ def test_load_cv_rules():
     assert rules.limits.max_bullets_per_employment == 5
     assert rules.evidence.min_strength_for_inclusion == "medium"
     assert "[TODO]" in rules.evidence.exclude_markers
+    assert "CV-Varianten" in rules.evidence.exclude_markers
     assert rules.keyword_mirroring.no_invention is True
     assert "employments" in rules.section_order
 
@@ -123,3 +124,5 @@ def test_selection_plan_excludes_todo_bullets():
         for b in proj.bullets
     ]
     assert all("[TODO]" not in t for t in all_texts)
+    assert all("CV-Varianten" not in t for t in all_texts)
+    assert all("Original-CV" not in t for t in all_texts)

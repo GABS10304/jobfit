@@ -20,7 +20,10 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend import data_loader, fit_engine
-from backend.generation.cv_variant import generate_cv_variant
+from backend.generation.cv_variant import (
+    generate_cv_variant,
+    generate_cv_variant_plain,
+)
 from backend.generation.selection_plan import selection_plan
 from backend.models import CvVariant
 
@@ -70,13 +73,19 @@ def main() -> int:
     parser.add_argument(
         "--render",
         action="store_true",
-        help="Also print ATS-friendly CV markdown from selection_plan",
+        help="Also print ATS-friendly CV from selection_plan",
+    )
+    parser.add_argument(
+        "--format",
+        choices=("md", "txt"),
+        default="md",
+        help="CV render format: md (markdown headings) or txt (plain labels)",
     )
     parser.add_argument(
         "--out",
         type=Path,
         default=None,
-        help="Write rendered CV markdown to this path (implies --render)",
+        help="Write rendered CV to this path (implies --render)",
     )
     args = parser.parse_args()
 
@@ -102,12 +111,17 @@ def main() -> int:
     print(json.dumps(variant.model_dump(), ensure_ascii=False, indent=2))
 
     if args.render or args.out is not None:
-        rendered = generate_cv_variant(plan, cv, rules)
+        if args.format == "txt":
+            rendered = generate_cv_variant_plain(plan, cv, rules)
+            label = "ATS plain text"
+        else:
+            rendered = generate_cv_variant(plan, cv, rules)
+            label = "ATS markdown"
         if args.out is not None:
             args.out.parent.mkdir(parents=True, exist_ok=True)
             args.out.write_text(rendered, encoding="utf-8")
             print(f"\n--- CV written to {args.out} ---", file=sys.stderr)
-        print("\n--- CV (ATS markdown) ---\n")
+        print(f"\n--- CV ({label}) ---\n")
         print(rendered)
 
     return 0

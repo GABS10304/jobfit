@@ -26,6 +26,24 @@ def _plan_and_render():
     return plan, cv, rules, text
 
 
+def test_render_plain_uses_labels_not_markdown_headings():
+    from backend.generation.cv_variant import generate_cv_variant_plain
+
+    plan, cv, rules, md = _plan_and_render()
+    plain = generate_cv_variant_plain(plan, cv, rules)
+    assert "Profil:" in plain
+    assert "Berufserfahrung:" in plain
+    assert "## Profil" not in plain
+    assert "# " not in plain
+    assert "### " not in plain
+    assert cv.person.name in plain
+    assert "Ausrichtung:" in plain
+    # Same selected content as markdown path
+    for emp in plan.employments:
+        master = next(e for e in cv.employments if e.id == emp.employment_id)
+        assert master.company in plain
+
+
 def test_render_contains_section_headers():
     _plan, _cv, rules, text = _plan_and_render()
     assert "## Profil" in text

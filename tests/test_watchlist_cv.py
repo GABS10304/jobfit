@@ -130,7 +130,6 @@ def test_passed_cv_filename_labeled_passed():
 def test_write_passed_cv_from_row(flex_watchlist_row: dict, tmp_path: Path):
     from backend.generation.watchlist_cv import (
         PASSED_MATCH_LABEL,
-        prepend_passed_note,
         write_passed_cv_from_row,
     )
 
@@ -149,14 +148,23 @@ def test_write_passed_cv_from_row(flex_watchlist_row: dict, tmp_path: Path):
         },
     }
     with patch(
-        "backend.generation.watchlist_cv.render_passed_cv",
-        return_value=prepend_passed_note("# CV\n", title=row["title"], top_score=76),
+        "backend.generation.watchlist_cv._passed_plan_and_bodies",
+        return_value=(
+            "# CV\n",
+            "CV\n\nProfil:\nAusrichtung: TPM.\n",
+        ),
     ):
         path = write_passed_cv_from_row(row, tmp_path)
 
     assert path.is_file()
     assert PASSED_MATCH_LABEL in path.name
     assert "Strong-Pass" in path.read_text(encoding="utf-8")
+    txt = path.with_suffix(".txt")
+    assert txt.is_file()
+    plain = txt.read_text(encoding="utf-8")
+    assert "Strong-Pass" in plain
+    assert "## " not in plain
+    assert "> **" not in plain
 
 
 def test_batch_cv_from_watchlist_flag(tmp_path: Path):

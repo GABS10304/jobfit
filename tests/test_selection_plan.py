@@ -144,3 +144,77 @@ def test_selection_plan_excludes_todo_bullets():
     assert all("[TODO]" not in t for t in all_texts)
     assert all("CV-Varianten" not in t for t in all_texts)
     assert all("Original-CV" not in t for t in all_texts)
+
+
+AGILE_COACH_LIKE_JD = (
+    "Remote-first Agile Coach / Scrum Master for B2B SaaS enterprise transformation. "
+    "Team coaching, facilitation, retrospectives, leadership coaching, "
+    "change management, workshop design, org design, agile coaching, "
+    "stakeholder alignment, impediment removal, backlog refinement. "
+    "Coaching mandate is primary."
+)
+
+
+def _employment_titles(plan, cv) -> list[str]:
+    by_id = {e.id: e for e in cv.employments}
+    return [by_id[eid].role_title for eid in plan.selected_employment_ids]
+
+
+def test_employment_ranking_ai_pm_prefers_product_over_scrum():
+    """AI/Product PM JD: Product/AI stations dominate; Scrum Master not first."""
+    cv = data_loader.load_cv_master()
+    profile = data_loader.load_role_fit_profile()
+    constraints = data_loader.load_constraints()
+    rules = data_loader.load_cv_rules()
+
+    fit = fit_engine.run_fit_check(FLEX_LIKE_JD, profile, constraints)
+    plan = selection_plan(cv, profile, fit, FLEX_LIKE_JD, rules)
+
+    assert plan.selected_role_id in (
+        "ai_product_manager",
+        "technical_product_manager",
+        "product_transformation_lead",
+        "b2b_saas_govtech_product_lead",
+    )
+    titles = _employment_titles(plan, cv)
+    assert titles, "expected selected employments"
+    assert "Scrum Master" not in titles[0]
+    assert any("Product Manager" in t for t in titles[:2])
+
+    ids = plan.selected_employment_ids
+    assert "st-01-riwa" in ids
+    if "st-03-jtl" in ids and "st-04-gbs" in ids:
+        assert ids.index("st-04-gbs") < ids.index("st-03-jtl")
+
+
+def test_employment_ranking_agile_coach_lifts_coaching_stations():
+    """Coaching-heavy JD: Scrum/coaching stations rise vs AI-PM ordering."""
+    cv = data_loader.load_cv_master()
+    profile = data_loader.load_role_fit_profile()
+    constraints = data_loader.load_constraints()
+    rules = data_loader.load_cv_rules()
+
+    fit_pm = fit_engine.run_fit_check(FLEX_LIKE_JD, profile, constraints)
+    plan_pm = selection_plan(cv, profile, fit_pm, FLEX_LIKE_JD, rules)
+
+    fit_coach = fit_engine.run_fit_check(AGILE_COACH_LIKE_JD, profile, constraints)
+    plan_coach = selection_plan(cv, profile, fit_coach, AGILE_COACH_LIKE_JD, rules)
+
+    assert plan_coach.selected_role_id in (
+        "agile_coach",
+        "scrum_master",
+        "agile_transformation_consultant",
+    )
+
+    coach_ids = plan_coach.selected_employment_ids
+    assert "st-03-jtl" in coach_ids
+
+    # Relative to AI-PM plan: JTL should rank higher (lower index) under coaching JD.
+    if "st-03-jtl" in plan_pm.selected_employment_ids:
+        assert coach_ids.index("st-03-jtl") < plan_pm.selected_employment_ids.index(
+            "st-03-jtl"
+        )
+
+    # Coaching station should outrank product-leaning GBS when both present.
+    if "st-03-jtl" in coach_ids and "st-04-gbs" in coach_ids:
+        assert coach_ids.index("st-03-jtl") < coach_ids.index("st-04-gbs")

@@ -41,6 +41,55 @@ _PROJECT_KIND_TIEBREAK: dict[str, int] = {
 
 _TOKEN_RE = re.compile(r"[a-z0-9äöüß]{3,}", re.IGNORECASE)
 
+# Role families for employment ranking (mirrors fit_engine tier intent).
+_PRODUCT_ROLE_IDS = frozenset(
+    {
+        "ai_product_manager",
+        "technical_product_manager",
+        "b2b_saas_govtech_product_lead",
+        "product_transformation_lead",
+    }
+)
+_COACHING_ROLE_IDS = frozenset(
+    {
+        "agile_coach",
+        "agile_transformation_consultant",
+        "scrum_master",
+    }
+)
+
+# Title/task cues: product stations vs Scrum/coaching stations.
+_PRODUCT_EMP_CUES = (
+    "product manager",
+    "ki product",
+    "ai product",
+    "product owner",
+    "product discovery",
+    "product management",
+    "produktmanager",
+    "produktmanagement",
+    "customer discovery",
+    "agentic ai",
+    "use-case",
+    "use case",
+    "go-to-market",
+    "mvp",
+)
+_COACHING_EMP_CUES = (
+    "scrum master",
+    "team coach",
+    "agile coach",
+    "transformation coach",
+    "agile transformation",
+    "coachen",
+    "coaching",
+    "facilitation",
+    "retrospektiven",
+    "retrospective",
+    "scrum-facilitation",
+    "selbstorganisation",
+)
+
 
 def _normalize(text: str) -> str:
     return text.casefold()
@@ -250,10 +299,65 @@ def _rank_projects(
     return ranked
 
 
+def _employment_text_blob(emp: Employment) -> str:
+    return _normalize(
+        " ".join(
+            emp.core_tasks
+            + emp.outcomes
+            + emp.tools_methods
+            + [emp.role_title, emp.company, emp.relevance_note or ""]
+        )
+    )
+
+
+def _cue_hit_count(text: str, cues: tuple[str, ...]) -> int:
+    return sum(1 for cue in cues if cue in text)
+
+
+def _employment_role_alignment(
+    emp_text: str,
+    role_id: str,
+    role_signals: list[str],
+) -> tuple[float, list[str], int, int]:
+    """Weight station by selected role + product vs coaching cues.
+
+    Product/AI roles: product stations dominate; Scrum/coaching demoted.
+    Coaching roles: coaching/Scrum stations rise.
+    """
+    signal_hits = [
+        signal
+        for signal in role_signals
+        if any(
+            _phrase_in_text(candidate, emp_text)
+            for candidate in candidates_for_signal(signal)
+        )
+    ]
+    product_cues = _cue_hit_count(emp_text, _PRODUCT_EMP_CUES)
+    coaching_cues = _cue_hit_count(emp_text, _COACHING_EMP_CUES)
+
+    align = float(len(signal_hits)) * 12.0
+    if role_id in _PRODUCT_ROLE_IDS:
+        align += float(product_cues) * 20.0
+        # Pure coaching/Scrum stations drop hard; hybrids keep product weight.
+        if product_cues == 0:
+            align -= float(coaching_cues) * 18.0
+        else:
+            align -= float(coaching_cues) * 4.0
+    elif role_id in _COACHING_ROLE_IDS:
+        align += float(coaching_cues) * 20.0
+        align -= float(product_cues) * 6.0
+    else:
+        align += float(max(product_cues, coaching_cues)) * 8.0
+
+    return align, signal_hits, product_cues, coaching_cues
+
+
 def _rank_employments(
     employments: list[Employment],
     jd_tokens: set[str],
     rules: CvRules,
+    role_id: str,
+    role_signals: list[str],
 ) -> list[tuple[Employment, float, str]]:
     ranked: list[tuple[Employment, float, str]] = []
     for emp in employments:
@@ -261,19 +365,23 @@ def _rank_employments(
             emp.evidence_strength, rules.evidence.min_strength_for_inclusion
         ):
             continue
-        # Prefer current + strong evidence; boost if tools/tasks overlap JD tokens.
-        blob = " ".join(
-            emp.core_tasks + emp.outcomes + emp.tools_methods + [emp.role_title, emp.company]
-        )
+        # Prefer current + strong evidence; boost JD overlap and role alignment.
+        blob = _employment_text_blob(emp)
         overlap = _keyword_overlap(blob, jd_tokens)
+        align, signal_hits, product_cues, coaching_cues = _employment_role_alignment(
+            blob, role_id, role_signals
+        )
         score = (
             float(_evidence_rank(emp.evidence_strength)) * 20.0
             + (10.0 if emp.current else 0.0)
             + float(len(overlap))
+            + align
         )
         rationale = (
             f"evidence={emp.evidence_strength or 'unknown'}; "
-            f"current={emp.current}; jd_overlap={len(overlap)}"
+            f"current={emp.current}; jd_overlap={len(overlap)}; "
+            f"role_signals={len(signal_hits)}; "
+            f"product_cues={product_cues}; coaching_cues={coaching_cues}"
         )
         ranked.append((emp, score, rationale))
     ranked.sort(key=lambda row: (-row[1], row[0].id))
@@ -315,7 +423,11 @@ def selection_plan(
             jd_tokens.add(tok.casefold())
 
     emp_ranked = _rank_employments(
-        cv_master.employments, jd_tokens, cv_rules
+        cv_master.employments,
+        jd_tokens,
+        cv_rules,
+        top.role_id,
+        role_signals,
     )[: cv_rules.limits.max_employments]
 
     selected_emps: list[SelectedEmployment] = []
@@ -363,7 +475,7 @@ def selection_plan(
     rationale = (
         f"Rolle {top.role_id} aus {source} (score={top.score}). "
         f"{len(selected_emps)} Employments, {len(selected_projs)} Projects "
-        f"nach evidence/limits und JD-Overlap."
+        f"nach evidence/limits, JD-Overlap und Rollen-Alignment."
     )
     explain = {
         "role_pick": f"{top.role_id} via {source}",

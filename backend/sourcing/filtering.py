@@ -31,15 +31,56 @@ def _is_product_role(role_id: str | None, default_pass: dict) -> bool:
     return any(sub and sub in role_cf for sub in substrings)
 
 
-def _title_denied(title: str | None, default_pass: dict) -> str | None:
+def _keyword_hit(title: str | None, keywords: list | None) -> str | None:
     if not title:
         return None
     title_cf = title.casefold()
-    for raw in default_pass.get("title_deny_keywords") or []:
+    for raw in keywords or []:
         keyword = str(raw).casefold().strip()
         if keyword and keyword in title_cf:
             return keyword
     return None
+
+
+def _title_denied(title: str | None, default_pass: dict) -> str | None:
+    return _keyword_hit(title, default_pass.get("title_deny_keywords"))
+
+
+def _prefilter_deny_keywords(contract: dict) -> list:
+    prefilter = contract.get("title_prefilter") or {}
+    override = prefilter.get("deny_keywords") or []
+    if override:
+        return list(override)
+    default_pass = contract.get("default_pass") or {}
+    return list(default_pass.get("title_deny_keywords") or [])
+
+
+def evaluate_title_prefilter(title: str | None) -> tuple[bool, str | None]:
+    """Title gate before fit-check. Returns (passes, reject_reason).
+
+    Prefer allow_keywords; else deny → reject; else require product_keywords.
+    """
+    contract = load_filter_contract()
+    prefilter = contract.get("title_prefilter") or {}
+    if not prefilter.get("enabled", True):
+        return True, None
+
+    if not title or not str(title).strip():
+        return False, "title_prefilter:missing_title"
+
+    allow_hit = _keyword_hit(title, prefilter.get("allow_keywords"))
+    if allow_hit:
+        return True, None
+
+    deny_hit = _keyword_hit(title, _prefilter_deny_keywords(contract))
+    if deny_hit:
+        return False, f"title_prefilter:deny={deny_hit}"
+
+    product_hit = _keyword_hit(title, prefilter.get("product_keywords"))
+    if product_hit:
+        return True, None
+
+    return False, "title_prefilter:no_allow_or_product_keyword"
 
 
 def evaluate_default_filter(

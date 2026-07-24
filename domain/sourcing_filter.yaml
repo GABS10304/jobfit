@@ -2,11 +2,17 @@
 # Used by scripts/fetch_jd.py and scripts/fetch_jobs_batch.py (--fit-check).
 # Layer only: does not change V3 fit-engine scoring or status_flag logic.
 #
-# Pass rules (all must hold):
+# Pass rules after fit-check (all must hold):
 # 1) status_flag not in exclude list and in include list (no_go always out)
 # 2) top_score >= min_top_score (aligned with constraints min_score_for_review=75)
 # 3) if require_product_role: top_role_id matches product family (substring/allowlist)
 # 4) title must not contain any title_deny_keywords (case-insensitive)
+#
+# Title prefilter (before fit-check):
+# - Prefer allow_keywords match → keep
+# - Else deny_keywords hit → skip (reject_reason=title_prefilter)
+# - Else require product_keywords match → keep; otherwise skip
+# Shared deny list: title_prefilter.deny_keywords falls back to default_pass.title_deny_keywords
 
 default_pass:
   exclude_status_flags:
@@ -31,10 +37,33 @@ default_pass:
     - software developer
     - sachverständiger
     - schadenprüfer
+    - schaden
     - backend
     - frontend
+
+title_prefilter:
+  enabled: true
+  # Role phrases that should enter fit-check even on noisy portfolio boards
+  allow_keywords:
+    - product manager
+    - produktmanager
+    - product owner
+    - produktowner
+    - product lead
+    - produkt lead
+    - ai product
+    - technical product
+    - head of product
+    - director of product
+  # Broader product signal when allowlist misses (still subject to deny)
+  product_keywords:
+    - product
+    - produkt
+  # Optional override; empty → reuse default_pass.title_deny_keywords
+  deny_keywords: []
 
 notes:
   - "verify_product_ownership may pass only with min_top_score + product top role."
   - "Presence exception_denied maps to status_flag=no_go and is excluded."
   - "title_deny_keywords are a sourcing guardrail; extend in YAML without touching V3."
+  - "title_prefilter runs before fit-check; --limit applies after prefilter."

@@ -64,6 +64,17 @@ class NormalizedJobDescription:
         return asdict(self)
 
 
+@dataclass(frozen=True)
+class JobListing:
+    """Board listing entry: detail URL plus title when present on the careers page."""
+
+    url: str
+    title: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
 def is_personio_job_url(url: str) -> bool:
     parsed = urlparse(url)
     host = (parsed.hostname or "").casefold()
@@ -101,11 +112,58 @@ def _canonical_job_url(origin: str, job_id: str, query: str | None = None) -> st
     return f"{origin}{path}"
 
 
-def extract_job_urls_from_html(html: str, board_url: str) -> list[str]:
-    """Extract unique Personio job detail URLs from a careers listing page."""
+def _canonical_from_job_href(origin: str, href: str) -> str | None:
+    match = JOB_ID_PATTERN.search(href)
+    if not match:
+        return None
+    job_id = match.group(1)
+    query = None
+    if "?" in href:
+        query = href.split("?", 1)[1]
+        for stop in ('"', "'", "<", " ", "\\", "#"):
+            if stop in query:
+                query = query.split(stop, 1)[0]
+        if not query:
+            query = None
+    return _canonical_job_url(origin, job_id, query)
+
+
+def _title_from_job_anchor_html(inner_html: str) -> str | None:
+    """Prefer jb-title / h3 heading text inside a job-box anchor."""
+    heading = _first_match(
+        r'class="[^"]*(?:jb-title|jobTitle|job-position-title)[^"]*"[^>]*>(.*?)</(?:h\d|span|div)>',
+        inner_html,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if heading:
+        title = _html_to_text(heading).strip()
+        return title or None
+    text = _html_to_text(inner_html).strip()
+    if not text:
+        return None
+    # Board anchors often append location/meta after the title; keep first line/chunk.
+    first = re.split(r"[\n|]", text, maxsplit=1)[0].strip()
+    return first or None
+
+
+def extract_job_listings_from_html(html: str, board_url: str) -> list[JobListing]:
+    """Extract unique job URLs with titles when available from the careers listing."""
     origin = _board_origin(board_url)
     seen: set[str] = set()
-    urls: list[str] = []
+    listings: list[JobListing] = []
+
+    for match in re.finditer(
+        r'<a[^>]+href=["\']([^"\']*/job/\d+[^"\']*)["\'][^>]*>(.*?)</a>',
+        html,
+        flags=re.IGNORECASE | re.DOTALL,
+    ):
+        canonical = _canonical_from_job_href(origin, match.group(1))
+        if not canonical or canonical in seen:
+            continue
+        seen.add(canonical)
+        listings.append(
+            JobListing(url=canonical, title=_title_from_job_anchor_html(match.group(2)))
+        )
 
     for match in JOB_ID_PATTERN.finditer(html):
         job_id = match.group(1)
@@ -117,11 +175,17 @@ def extract_job_urls_from_html(html: str, board_url: str) -> list[str]:
                 if stop in query:
                     query = query.split(stop, 1)[0]
         canonical = _canonical_job_url(origin, job_id, query)
-        if canonical not in seen:
-            seen.add(canonical)
-            urls.append(canonical)
+        if canonical in seen:
+            continue
+        seen.add(canonical)
+        listings.append(JobListing(url=canonical, title=None))
 
-    return urls
+    return listings
+
+
+def extract_job_urls_from_html(html: str, board_url: str) -> list[str]:
+    """Extract unique Personio job detail URLs from a careers listing page."""
+    return [listing.url for listing in extract_job_listings_from_html(html, board_url)]
 
 
 def _fetch_board_with_playwright(board_url: str, *, timeout_ms: int = 30000) -> str:
@@ -382,20 +446,53 @@ def _fetch_with_playwright(url: str, *, timeout_ms: int = 30000) -> str:
             browser.close()
 
 
-def discover_job_urls(company_board_url: str, *, use_playwright: bool = False) -> list[str]:
-    """Discover job detail URLs from a Personio company careers board."""
+def discover_job_listings(
+    company_board_url: str, *, use_playwright: bool = False
+) -> list[JobListing]:
+    """Discover job listings (URL + optional title) from a Personio careers board."""
     board_url = normalize_board_url(company_board_url)
     if use_playwright:
         html = _fetch_board_with_playwright(board_url)
-        return extract_job_urls_from_html(html, board_url)
+        return extract_job_listings_from_html(html, board_url)
 
     html = fetch_page_html(board_url)
-    urls = extract_job_urls_from_html(html, board_url)
-    if urls:
-        return urls
+    listings = extract_job_listings_from_html(html, board_url)
+    if listings:
+        return listings
 
     html = _fetch_board_with_playwright(board_url)
-    return extract_job_urls_from_html(html, board_url)
+    return extract_job_listings_from_html(html, board_url)
+
+
+def discover_job_urls(company_board_url: str, *, use_playwright: bool = False) -> list[str]:
+    """Discover job detail URLs from a Personio company careers board."""
+    return [
+        listing.url
+        for listing in discover_job_listings(
+            company_board_url, use_playwright=use_playwright
+        )
+    ]
+
+
+def extract_title_from_job_html(html: str) -> str | None:
+    """Lightweight title extract for prefilter when board listing has no title."""
+    json_ld = _extract_json_ld(html)
+    if json_ld:
+        title = str(json_ld.get("title") or "").strip()
+        if title:
+            return title
+    title = _first_match(
+        r'<h1[^>]*class="[^"]*job-position-title[^"]*"[^>]*>(.*?)</h1>',
+        html,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if title:
+        return _html_to_text(title) or None
+    title = _first_match(r"<title>(.*?)</title>", html, flags=re.IGNORECASE | re.DOTALL)
+    if title:
+        title = re.sub(r"\s*\|\s*Jobs bei.*$", "", title, flags=re.IGNORECASE).strip()
+        return _html_to_text(title) or None
+    return None
 
 
 def fetch_personio_job(url: str, *, use_playwright: bool = False) -> NormalizedJobDescription:
@@ -412,3 +509,17 @@ def fetch_personio_job(url: str, *, use_playwright: bool = False) -> NormalizedJ
             html = _fetch_with_playwright(url)
             return parse_personio_html(html, url, fetched_at)
         raise
+
+
+def fetch_job_title(url: str, *, use_playwright: bool = False) -> str | None:
+    """Fetch only the job title (for title prefilter when listing title is missing)."""
+    if not is_personio_job_url(url):
+        raise ValueError(f"Not a Personio job URL: {url}")
+    html = fetch_page_html(url)
+    title = extract_title_from_job_html(html)
+    if title:
+        return title
+    if use_playwright:
+        return None
+    html = _fetch_with_playwright(url)
+    return extract_title_from_job_html(html)

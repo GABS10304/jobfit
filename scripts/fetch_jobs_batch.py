@@ -35,7 +35,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend import data_loader, fit_engine
-from backend.generation.watchlist_cv import write_watchlist_cvs
+from backend.generation.watchlist_cv import write_passed_cvs, write_watchlist_cvs
 from backend.models import FitCheckResponse
 from backend.sourcing.filtering import (
     evaluate_default_filter,
@@ -312,10 +312,24 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--cv-from-passed",
+        action="store_true",
+        help=(
+            "For each strong-pass item, run selection_plan + CV render and write "
+            "labeled passed markdown under --cv-out-passed."
+        ),
+    )
+    parser.add_argument(
         "--cv-out",
         type=Path,
         default=Path("out/cv_watchlist"),
         help="Directory for watchlist CV markdown (default: out/cv_watchlist)",
+    )
+    parser.add_argument(
+        "--cv-out-passed",
+        type=Path,
+        default=Path("out/cv_passed"),
+        help="Directory for passed CV markdown (default: out/cv_passed)",
     )
     args = parser.parse_args()
 
@@ -398,6 +412,23 @@ def main() -> int:
     elif args.cv_from_watchlist:
         print("\nwatchlist CVs: 0 (no watchlist rows)")
 
+    cv_passed_paths: list[str] = []
+    if args.cv_from_passed and passed:
+        fits_passed = {
+            str(row["url"]): row["_fit"]
+            for row in passed
+            if isinstance(row.get("_fit"), FitCheckResponse)
+        }
+        written_passed = write_passed_cvs(
+            passed, args.cv_out_passed, fits=fits_passed
+        )
+        cv_passed_paths = [str(path) for path in written_passed]
+        print(f"\npassed CVs: {len(written_passed)} → {args.cv_out_passed}")
+        for path in written_passed:
+            print(f"  {path}")
+    elif args.cv_from_passed:
+        print("\npassed CVs: 0 (no passed rows)")
+
     passed_out = _strip_private_fields(passed)
     rejected_out = _strip_private_fields(rejected)
     watchlist_out = _strip_private_fields(watchlist)
@@ -407,6 +438,7 @@ def main() -> int:
         "fit_check_enabled": args.fit_check,
         "include_weak_proceed": args.include_weak_proceed,
         "cv_from_watchlist": args.cv_from_watchlist,
+        "cv_from_passed": args.cv_from_passed,
         "discovered": len(listings),
         "prefilter_rejected_count": len(prefilter_rejected),
         "candidates_after_prefilter": candidates_after_prefilter,
@@ -427,6 +459,10 @@ def main() -> int:
         payload["cv_out"] = str(args.cv_out)
         payload["cv_watchlist_count"] = len(cv_paths)
         payload["cv_watchlist_paths"] = cv_paths
+    if args.cv_from_passed:
+        payload["cv_out_passed"] = str(args.cv_out_passed)
+        payload["cv_passed_count"] = len(cv_passed_paths)
+        payload["cv_passed_paths"] = cv_passed_paths
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

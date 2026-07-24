@@ -19,6 +19,7 @@ from backend.sourcing.filtering import fit_check_jd_text
 from backend.sourcing.personio import NormalizedJobDescription
 
 WEAK_MATCH_LABEL = "weak-match"
+PASSED_MATCH_LABEL = "passed"
 _SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 
@@ -178,5 +179,125 @@ def write_watchlist_cvs(
     for row in rows:
         url = str(row.get("url") or (row.get("job") or {}).get("url") or "")
         path = write_watchlist_cv_from_row(row, out_dir, fit=fit_map.get(url))
+        written.append(path)
+    return written
+
+
+def passed_cv_filename(
+    *,
+    title: str | None,
+    url: str | None = None,
+    top_score: int | None = None,
+) -> str:
+    """Filename labeled as strong pass (score ≥ 75)."""
+    parts = [PASSED_MATCH_LABEL]
+    if top_score is not None:
+        parts.append(f"score{int(top_score)}")
+    job_id = job_id_from_url(url)
+    if job_id:
+        parts.append(job_id)
+    parts.append(slugify_title(title))
+    return "_".join(parts) + ".md"
+
+
+def prepend_passed_note(
+    markdown: str,
+    *,
+    title: str | None = None,
+    top_score: int | None = None,
+) -> str:
+    """Insert a visible strong-pass banner above the CV body."""
+    score_text = "n/a" if top_score is None else str(top_score)
+    title_line = f" | Rolle: {title}" if title else ""
+    banner = (
+        f"> **Strong-Pass**{title_line} — "
+        f"Score {score_text} ≥ Strong-Match-Bar (75). "
+        f"Für Review / Bewerbung vorgesehen.\n"
+        f"> Label: `{PASSED_MATCH_LABEL}`\n"
+    )
+    body = markdown.lstrip("\n")
+    return banner + "\n" + body
+
+
+def render_passed_cv(
+    *,
+    jd_text: str,
+    fit: FitCheckResponse | None = None,
+    title: str | None = None,
+    top_score: int | None = None,
+) -> str:
+    """selection_plan + generate_cv_variant with strong-pass header note."""
+    cv = data_loader.load_cv_master()
+    profile = data_loader.load_role_fit_profile()
+    rules = data_loader.load_cv_rules()
+
+    if fit is None:
+        constraints = data_loader.load_constraints()
+        fit = fit_engine.run_fit_check(
+            job_description=jd_text,
+            profile=profile,
+            constraints=constraints,
+        )
+
+    plan = selection_plan(cv, profile, fit, jd_text, rules)
+    rendered = generate_cv_variant(plan, cv, rules)
+    return prepend_passed_note(
+        rendered,
+        title=title,
+        top_score=top_score,
+    )
+
+
+def write_passed_cv_from_row(
+    row: dict[str, Any],
+    out_dir: Path,
+    *,
+    fit: FitCheckResponse | None = None,
+) -> Path:
+    """Render and write one passed row; returns written path."""
+    job = row.get("job") or {}
+    if not isinstance(job, dict) or not job.get("jd_text"):
+        raise ValueError(f"passed row missing job.jd_text: {row.get('url')}")
+
+    fit_payload = row.get("fit_check") or {}
+    top_score = fit_payload.get("top_score")
+    if top_score is None and fit is not None:
+        candidates = fit.results or fit.excluded_roles
+        if candidates:
+            top_score = max(candidates, key=lambda role: role.score).score
+
+    title = row.get("title") or job.get("title")
+    url = row.get("url") or job.get("url")
+
+    jd_text = jd_text_from_job_dict(job)
+    markdown = render_passed_cv(
+        jd_text=jd_text,
+        fit=fit,
+        title=title,
+        top_score=top_score if top_score is None else int(top_score),
+    )
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / passed_cv_filename(
+        title=title,
+        url=url,
+        top_score=top_score if top_score is None else int(top_score),
+    )
+    path.write_text(markdown, encoding="utf-8")
+    return path
+
+
+def write_passed_cvs(
+    rows: list[dict[str, Any]],
+    out_dir: Path,
+    *,
+    fits: dict[str, FitCheckResponse] | None = None,
+) -> list[Path]:
+    """Write CV markdown for each strong-pass row. ``fits`` keyed by job URL."""
+    written: list[Path] = []
+    fit_map = fits or {}
+    for row in rows:
+        url = str(row.get("url") or (row.get("job") or {}).get("url") or "")
+        path = write_passed_cv_from_row(row, out_dir, fit=fit_map.get(url))
         written.append(path)
     return written

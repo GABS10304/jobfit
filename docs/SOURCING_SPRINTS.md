@@ -111,13 +111,57 @@ Lesart: Mehr Volumen (54 Listings / 5 Fit-Checks) bestätigt Sprint-5-Befund —
 | getsafe | 4 | 0 | 0 | 0 | — |
 | **Summe** | **54** | **5** | **0** | **2** | **0%** |
 
-## CLI-Lücke (notiert)
+## Sprint 7–9 (Score-Pfad, Kurz)
 
-- `--cv-from-watchlist` vorhanden (Weak-Match-CVs).
-- **`--cv-from-passed` fehlt** — Strong-Pass-CVs werden nicht auto-generiert. Weiterhin 0 passed; bei erstem Pass nachziehen.
+- Sprint 7: Lexikon-Synonyme → FLEX/credium AI-PM Top **46** (weiter ≪ 75).
+- Sprint 9: Option A′ (Tools optional) → **credium 79** (Pass), **FLEX 65** (Watchlist). Schwelle unverändert 75.
+- Details: [`SCORE_DIAGNOSIS_AI_PM.md`](SCORE_DIAGNOSIS_AI_PM.md), [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md).
+
+## Sprint 10 — FLEX Lexikon-Gap + Multi-Board Pass
+
+| Feld | Wert |
+|------|------|
+| Fokus | FLEX required-signal Gap 65→≥75 (nur Lexikon-Synonyme; keine Threshold-/CV-Erfindung) |
+| Lexikon | `evals`→`data_driven_decision_making`; PE/Mittelstand/`portcos`→`b2b_saas` |
+| Remeasure | FLEX AI-PM **76** (Pass); credium AI-PM **79** (unverändert Pass) |
+| Runner | `scripts/fetch_jobs_multi_board.py --include-weak-proceed --cv-from-passed` |
+| Artifact | `/tmp/multi_board_sprint10.json` |
+| Boards ok / error / skipped | **7 / 0 / 0** |
+| Discovered | **54** |
+| Fit-checked | **5** |
+| Passed (≥75) | **2** |
+| Watchlist | **0** |
+| Rejected | **52** |
+
+Passed:
+
+- flex — **AI Product Manager (m/w/d)** — `proceed`, score **76**, role `ai_product_manager`
+- credium — **AI Produkt Manager:in … (SaaS)** — `verify_product_ownership`, score **79**, role `ai_product_manager`
+
+CV-Pfade (`out/cv_passed/`, gitignored):
+
+- `passed_score76_2689046_ai-product-manager-m-w-d.md`
+- `passed_score79_2286082_ai-produkt-manager-in-m-w-d-geb-udemodernisierun.md`
+
+CLI: `--cv-from-passed` / `--cv-out-passed` in Batch + Multi-Board ergänzt.
+
+Lesart: Erste Strong-Passes auf Multi-Board. FLEX schließt Domain/Skill-Gap über JD-nahe Synonyme; `product_analytics` / `privacy` / `govtech` / `regulated` bleiben auf FLEX unmatched (kein JD-Wording).
+
+## Pass-Raten (kumuliert, Stand Sprint 10 Multi-Board)
+
+| Board | Discovered | Fit-checked | Passed | Watchlist | Pass-Rate (fit-checked) |
+|-------|------------|-------------|--------|-----------|-------------------------|
+| flex | 17 | 2 | 1 | 0 | 50% |
+| credium | 2 | 1 | 1 | 0 | 100% |
+| epages | 3 | 1 | 0 | 0 | 0% |
+| mercanis | 16 | 1 | 0 | 0 | 0% |
+| certivity | 3 | 0 | 0 | 0 | — |
+| ocumeda | 9 | 0 | 0 | 0 | — |
+| getsafe | 4 | 0 | 0 | 0 | — |
+| **Summe** | **54** | **5** | **2** | **0** | **40%** |
 
 ## Nächster Sprint (Empfehlung)
 
-1. **Diagnose niedriger AI-PM-Scores** über `role_fit`-Signale / Profile-Vollständigkeit — **ohne** V3-Thresholds zu ändern (Audit: welche Signale fehlen vs. JD).
-2. Watchlist als Betriebsmodus belassen; optional CV-Varianten aus den 2 Watchlist-Rows vergleichen.
-3. BA-API / Aggregator nur wenn mehr Product-Volumen nötig ist — Multi-Board allein hebt Pass-Rate nicht.
+1. Passed-CVs manuell reviewen (Banner + Selection-Plan vs. JD).
+2. Weitere PE-/Portfolio-Boards nur wenn Volume nötig; Lexikon nicht weiter aufweichen ohne JD-Evidenz.
+3. Optional: Watchlist-Pfad belassen für Scores 50–74.

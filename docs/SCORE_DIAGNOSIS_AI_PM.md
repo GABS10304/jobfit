@@ -1,7 +1,7 @@
 # Score-Diagnose: AI Product Manager (Sourcing Watchlist)
 
 **Datum:** 2026-07-24  
-**Sprint:** 7 (Diagnose + Lexikon) → 9 (Option A′ optional Tools)  
+**Sprint:** 7 (Diagnose + Lexikon) → 9 (Option A′ optional Tools) → 10 (FLEX Lexikon-Gap)  
 **Scope:** Diagnose niedriger Top-Scores bei Multi-Board-Sourcing (FLEX, credium).  
 **Nicht geändert:** V3-Schwellen (`min_score_for_review=75`), Ranking-Band, Präsenzlogik.
 
@@ -12,7 +12,7 @@
 | Frage | Antwort |
 |-------|---------|
 | Bottleneck Scraper? | **Nein** – Title-Prefilter + Gates liefern passende AI-PM-Titel. |
-| Bottleneck Scoring/Profil-Fit? | **Teilweise behoben (Sprint 9)** – Tool-Nenner entlastet; credium ≥75, FLEX weiter unter 75. |
+| Bottleneck Scoring/Profil-Fit? | **Behoben für FLEX+credium (Sprint 10)** – beide AI-PM ≥75. |
 | Ursache (Sprint 7) | Lexikon-Lücken + CV-Tool-Signale im Nenner. |
 | V3-Schwelle senken? | **Nein** (Option C abgelehnt). |
 
@@ -127,8 +127,36 @@ Auftrag: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md).
 
 ---
 
-## 7. Nächster Schritt
+## 7. Sprint 10 – FLEX Lexikon (required Gap)
 
-1. Gezielte Lexikon-/Domain-Synonyme für FLEX-PE/Portfolio-JDs (separater Auftrag).  
+Nach A′ FLEX **65** = 8/14 required + 3 optional (11/17). Für ≥75 braucht es **≥2** weitere required-Treffer.
+
+### Missing required (vor Fix)
+
+`data_driven_decision_making`, `product_analytics`, `privacy_by_design`, `b2b_saas`, `govtech`, `regulated_environments`
+
+### Safe Synonyme (nur JD-Wording)
+
+| Signal | Neue Phrasen | JD-Beleg FLEX |
+|--------|--------------|---------------|
+| `data_driven_decision_making` | `evals`, `eval` | „LLMs, RAG, Agenten, **Evals**“ |
+| `b2b_saas` | `software- und tech-mittelstand`, `tech-mittelstand`, `software-mittelstand`, `portfoliounternehmen`, `portcos` | PE Software-/Tech-Mittelstand; „**Portcos**“ |
+
+Nicht ergänzt (kein JD-Text): `product_analytics`, `privacy_by_design`, `govtech`, `regulated_environments`.
+
+### Before / After
+
+| Board | After A′ (Sprint 9) | After Lexikon (Sprint 10) | ≥75? |
+|-------|---------------------|---------------------------|------|
+| flex | 65 | **76** (10/14 req + 3 opt → 13/17) | **ja** |
+| credium | 79 | **79** | **ja** |
+
+Multi-Board (`/tmp/multi_board_sprint10.json`): **passed=2**, watchlist=0; CVs unter `out/cv_passed/`.
+
+---
+
+## 8. Nächster Schritt
+
+1. Passed-CVs reviewen; Lexikon nicht ohne neue JD-Evidenz erweitern.  
 2. Kein Senken von `min_score_for_review`.  
-3. Multi-Board-Lauf erneut für Pass-Rate AI-PM.
+3. Weitere Boards nur bei Bedarf an Product-Volumen.

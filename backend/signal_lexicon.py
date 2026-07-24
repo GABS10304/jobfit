@@ -55,6 +55,9 @@ SIGNAL_SYNONYMS: dict[str, tuple[str, ...]] = {
         "datenprodukte",
         "datenprodukt",
         "produktentscheidungen",
+        # AI-PM: evals as quality metrics for shipping decisions (FLEX-style JD)
+        "evals",
+        "eval",
     ),
     "stakeholder_communication": (
         "abstimmung",
@@ -548,6 +551,12 @@ SIGNAL_SYNONYMS: dict[str, tuple[str, ...]] = {
         "b2b-software",
         "b2b software",
         "saas",
+        # PE / portfolio software Mittelstand (FLEX-style) ≈ B2B software
+        "software- und tech-mittelstand",
+        "tech-mittelstand",
+        "software-mittelstand",
+        "portfoliounternehmen",
+        "portcos",
     ),
     "govtech": (
         "govtech",

@@ -36,12 +36,14 @@ from scripts.fetch_jobs_batch import (  # noqa: E402
     _process_job,
     _strip_private_fields,
 )
+from backend.generation.watchlist_cv import write_passed_cvs  # noqa: E402
 from backend.sourcing.personio import discover_job_listings  # noqa: E402
 
 DEFAULT_BOARDS_FILE = REPO_ROOT / "domain" / "personio_boards.yaml"
 DEFAULT_DELAY_SEC = 2.0
 DEFAULT_BACKOFF_SEC = 8.0
 MAX_BOARD_RETRIES = 2
+DEFAULT_CV_PASSED_OUT = REPO_ROOT / "out" / "cv_passed"
 
 
 def load_boards(path: Path) -> list[dict[str, Any]]:
@@ -316,6 +318,20 @@ def main() -> int:
         default=None,
         help="Optional subset of board ids from the YAML file",
     )
+    parser.add_argument(
+        "--cv-from-passed",
+        action="store_true",
+        help=(
+            "For each strong-pass row, run selection_plan + CV render and write "
+            "labeled passed markdown under --cv-out-passed."
+        ),
+    )
+    parser.add_argument(
+        "--cv-out-passed",
+        type=Path,
+        default=DEFAULT_CV_PASSED_OUT,
+        help=f"Directory for passed CV markdown (default: {DEFAULT_CV_PASSED_OUT})",
+    )
     args = parser.parse_args()
 
     boards = load_boards(args.boards_file)
@@ -380,11 +396,27 @@ def main() -> int:
         "limit_per_board": args.limit_per_board,
         "delay_sec": args.delay,
         "backoff_sec": args.backoff,
+        "cv_from_passed": args.cv_from_passed,
         "overall": overall,
         "boards": board_results,
         "passed": all_passed,
         "watchlist": all_watchlist if args.include_weak_proceed else [],
     }
+
+    cv_paths: list[str] = []
+    if args.cv_from_passed and all_passed:
+        written = write_passed_cvs(all_passed, args.cv_out_passed)
+        cv_paths = [str(path) for path in written]
+        print(f"\npassed CVs: {len(written)} → {args.cv_out_passed}")
+        for path in written:
+            print(f"  {path}")
+    elif args.cv_from_passed:
+        print("\npassed CVs: 0 (no passed rows)")
+
+    if args.cv_from_passed:
+        payload["cv_out_passed"] = str(args.cv_out_passed)
+        payload["cv_passed_count"] = len(cv_paths)
+        payload["cv_passed_paths"] = cv_paths
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

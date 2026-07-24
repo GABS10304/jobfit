@@ -11,6 +11,7 @@ from backend.generation.cv_variant import generate_cv_variant
 from backend.generation.selection_plan import selection_plan
 from backend.generation.watchlist_cv import (
     render_watchlist_cv,
+    write_passed_cvs,
     write_watchlist_cv_from_row,
     write_watchlist_cvs,
 )
@@ -21,4 +22,5 @@ __all__ = [
     "render_watchlist_cv",
     "write_watchlist_cv_from_row",
     "write_watchlist_cvs",
+    "write_passed_cvs",
 ]

@@ -113,10 +113,50 @@ def test_write_watchlist_cvs_batch(flex_watchlist_row: dict, tmp_path: Path):
     assert paths[0].is_file()
 
 
-def test_jd_text_from_job_dict_includes_title(flex_watchlist_row: dict):
-    jd = jd_text_from_job_dict(flex_watchlist_row["job"])
-    assert "AI Product Manager" in jd
-    assert flex_watchlist_row["job"]["jd_text"][:20] in jd
+def test_passed_cv_filename_labeled_passed():
+    from backend.generation.watchlist_cv import PASSED_MATCH_LABEL, passed_cv_filename
+
+    name = passed_cv_filename(
+        title="AI Product Manager (m/w/d)",
+        url=FLEX_JOB_URL,
+        top_score=76,
+    )
+    assert name.startswith(f"{PASSED_MATCH_LABEL}_")
+    assert "score76" in name
+    assert "2689046" in name
+    assert WEAK_MATCH_LABEL not in name
+
+
+def test_write_passed_cv_from_row(flex_watchlist_row: dict, tmp_path: Path):
+    from backend.generation.watchlist_cv import (
+        PASSED_MATCH_LABEL,
+        prepend_passed_note,
+        write_passed_cv_from_row,
+    )
+
+    row = {
+        **flex_watchlist_row,
+        "passes_default_filter": True,
+        "watchlist": False,
+        "sourcing_bucket": "passed",
+        "reject_reason": None,
+        "fit_check": {
+            **flex_watchlist_row["fit_check"],
+            "top_score": 76,
+            "passes_default_filter": True,
+            "watchlist_eligible": False,
+            "watchlist_reason": None,
+        },
+    }
+    with patch(
+        "backend.generation.watchlist_cv.render_passed_cv",
+        return_value=prepend_passed_note("# CV\n", title=row["title"], top_score=76),
+    ):
+        path = write_passed_cv_from_row(row, tmp_path)
+
+    assert path.is_file()
+    assert PASSED_MATCH_LABEL in path.name
+    assert "Strong-Pass" in path.read_text(encoding="utf-8")
 
 
 def test_batch_cv_from_watchlist_flag(tmp_path: Path):

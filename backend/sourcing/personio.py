@@ -57,7 +57,7 @@ class NormalizedJobDescription:
     employment_type: str | None
     jd_text: str
     url: str
-    source: Literal["personio"]
+    source: Literal["personio", "workday"]
     fetched_at: str
 
     def to_dict(self) -> dict[str, Any]:

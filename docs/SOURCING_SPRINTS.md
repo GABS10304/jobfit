@@ -288,8 +288,35 @@ Nach Cue-Fix: alle 5 Product-Titel `two_to_three_office_days` + `exception_denie
 |-------|------------|-------------|--------|-----------|-------------------------|
 | sipgate | 8 | 5 | 0 | 0 | 0% |
 
+## Sprint 19 — Workday JD Fetcher MVP
+
+Zweiter ATS nach Personio: URL → normalisierte JD JSON → optional Fit-Check + Sourcing-Filter. **Keine** Threshold-Änderung.
+
+| Feld | Wert |
+|------|------|
+| Modul | `backend/sourcing/workday.py` |
+| CLI | `scripts/fetch_jd.py` (ATS-Auto-Detect: Personio vs Workday via Host) |
+| Beispiel-URL | `https://ing.wd3.myworkdayjobs.com/de-DE/ICSGBLCOR/job/Nrnberg/Prozessmanager-Customer-Data--w-m-d-_REQ-10117364-1` |
+| Strategien | JSON-LD → DOM/OpenGraph → Playwright-Fallback |
+| Offline-Tests | `tests/test_workday.py` + Fixtures `workday_ing_*.html` |
+
+### Live Smoke (ING Workday, 2026-07-24)
+
+| Feld | Wert |
+|------|------|
+| title | Prozessmanager Customer Data (w/m/d) |
+| location | Nürnberg (JSON-LD; Frankfurt nur in CXS/UI) |
+| work_mode | Hybrid |
+| source | `workday` |
+| status_flag | `verify_product_ownership` |
+| presence | `remote_first_ok` / `ok` |
+| top_score | 36 (`scrum_master`) |
+| passes_default_filter | **False** (`top_role_not_product=scrum_master`) |
+
+Lesart: unverändert zum Fixture `domain/fixtures/ing-prozessmanager-customer-data.md` — Grenzfall, kein Product-Match, kein Review-Kandidat. Erwartung `verify` (nicht Pass) bestätigt; Filter lehnt ab.
+
 ## Nächster Sprint (Empfehlung)
 
 1. Conceptboard-Pass (93) + Analytics-Watchlist (57) gegen Lexikon/JD prüfen — ohne Threshold zu senken.
 2. sipgate bewusst als Presence-no_go belassen oder Board nur für Remote/≤1-Tag-Öffnungen priorisieren; Score-Lexikon hilft hier nicht gegen Bar 90.
-3. Master-Bullets Meta-/Proof-Wording bereinigen (SSOT); Volume-Boards ohne Product-Titel nur bei Bedarf behalten.
+3. Optional: Workday Board-Discovery (CXS search) analog Personio Multi-Board — nur wenn Volume nötig.

@@ -63,7 +63,7 @@ Watchlist-CVs nachträglich: `python scripts/run_watchlist_cv.py --from-json <ba
 
 ## Bekannte Limits
 
-- Nur Personio-Boards (kein LinkedIn/StepStone).
+- Personio-Boards + Workday Einzel-JD-Fetch (kein LinkedIn/StepStone; kein Workday Board-Discovery noch).
 - Rate-Limits (429) → Boards werden übersprungen/retries; Delay nötig.
 - Strong-Pass hängt am Lexikon + JD-Wording; kein Claim-Erfinden im CV.
 - Prefilter verwirft viele Nicht-Product-Titel (hohe Reject-Rate, wenige Fit-Checks).
@@ -79,5 +79,6 @@ Watchlist-CVs nachträglich: `python scripts/run_watchlist_cv.py --from-json <ba
 | 11 | Passed-CV Review; Renderer strippt Evidence-Tags |
 | 13 | Role-aware Employment-Ranking (Scrum-Master nur bei Coach-JD) |
 | 14 | Status-Docs finalisiert; Repo remote |
+| 19 | Workday JD-Fetcher MVP; ING Live = `verify` / Filter-Reject (Score 36) |
 
 Details: [`SOURCING_SPRINTS.md`](SOURCING_SPRINTS.md), [`SCORE_DIAGNOSIS_AI_PM.md`](SCORE_DIAGNOSIS_AI_PM.md).

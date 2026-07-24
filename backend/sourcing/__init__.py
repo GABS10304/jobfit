@@ -7,6 +7,7 @@ from backend.sourcing.personio import (
     discover_job_urls,
     fetch_personio_job,
 )
+from backend.sourcing.workday import fetch_workday_job, is_workday_job_url
 
 __all__ = [
     "JobListing",
@@ -14,4 +15,6 @@ __all__ = [
     "discover_job_listings",
     "discover_job_urls",
     "fetch_personio_job",
+    "fetch_workday_job",
+    "is_workday_job_url",
 ]

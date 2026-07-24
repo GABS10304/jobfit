@@ -1,12 +1,13 @@
-"""Fetch a Personio job posting and optionally run V3 fit-check.
+"""Fetch a job posting (Personio / Workday) and optionally run V3 fit-check.
 
 Usage:
   python scripts/fetch_jd.py --url https://example.jobs.personio.de/job/123456
-  python scripts/fetch_jd.py --url <personio_url> --fit-check
-  python scripts/fetch_jd.py --url <personio_url> --fit-check --out /tmp/jd.json
+  python scripts/fetch_jd.py --url https://tenant.wd3.myworkdayjobs.com/.../job/...
+  python scripts/fetch_jd.py --url <url> --fit-check
+  python scripts/fetch_jd.py --url <url> --fit-check --out /tmp/jd.json
 
-Filter contract: exclude no_go; require min_top_score, product top role, no title deny keywords.
-See domain/sourcing_filter.yaml.
+ATS is auto-detected from the URL host. Filter contract: exclude no_go; require
+min_top_score, product top role, no title deny keywords. See domain/sourcing_filter.yaml.
 """
 
 from __future__ import annotations
@@ -27,18 +28,34 @@ from backend.sourcing.filtering import (
     fit_check_jd_text,
     top_fit_score,
 )
-from backend.sourcing.personio import fetch_personio_job
+from backend.sourcing.personio import fetch_personio_job, is_personio_job_url
+from backend.sourcing.workday import fetch_workday_job, is_workday_job_url
+
+
+def _fetch_job(url: str, *, use_playwright: bool):
+    if is_personio_job_url(url):
+        return fetch_personio_job(url, use_playwright=use_playwright)
+    if is_workday_job_url(url):
+        return fetch_workday_job(url, use_playwright=use_playwright)
+    raise ValueError(
+        "Unsupported ATS URL (expected Personio *.jobs.personio.*/job/* "
+        f"or Workday *myworkdayjobs.com*/job/*): {url}"
+    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Fetch Personio JD JSON and optionally run fit-check.",
+        description="Fetch Personio/Workday JD JSON and optionally run fit-check.",
         epilog=(
             "Filter contract: no_go excluded; min_top_score + product role + title deny "
             f"({FILTER_PATH.relative_to(REPO_ROOT)})."
         ),
     )
-    parser.add_argument("--url", required=True, help="Personio job URL (*.jobs.personio.*/job/*)")
+    parser.add_argument(
+        "--url",
+        required=True,
+        help="Personio or Workday job URL (ATS auto-detected from host)",
+    )
     parser.add_argument(
         "--fit-check",
         action="store_true",
@@ -57,7 +74,7 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    job = fetch_personio_job(args.url, use_playwright=args.playwright)
+    job = _fetch_job(args.url, use_playwright=args.playwright)
     payload = job.to_dict()
 
     print(f"title: {job.title}")

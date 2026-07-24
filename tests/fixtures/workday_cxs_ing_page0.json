@@ -1,0 +1,37 @@
+{
+  "total": 7,
+  "jobPostings": [
+    {
+      "title": "Contractor - Regulatory Test Lead",
+      "externalPath": "/job/New-York/Contractor---Regulatory-Test-Lead_REQ-TEST-0",
+      "timeType": "Full time",
+      "locationsText": "New York",
+      "postedOn": "Posted Today",
+      "bulletFields": [
+        "REQ-TEST-0"
+      ]
+    },
+    {
+      "title": "AI Product Manager",
+      "externalPath": "/job/Nrnberg/AI-Product-Manager_REQ-TEST-1",
+      "timeType": "Full time",
+      "locationsText": "Nürnberg",
+      "postedOn": "Posted Today",
+      "bulletFields": [
+        "REQ-TEST-1"
+      ]
+    },
+    {
+      "title": "CTS Product Expert",
+      "externalPath": "/job/Amsterdam/CTS-Product-Expert_REQ-TEST-1b",
+      "timeType": "Full time",
+      "locationsText": "Amsterdam",
+      "postedOn": "Posted Today",
+      "bulletFields": [
+        "REQ-TEST-1b"
+      ]
+    }
+  ],
+  "facets": [],
+  "userAuthenticated": false
+}

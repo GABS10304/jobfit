@@ -1,21 +1,33 @@
-"""Fetch and parse Workday job posting pages into normalized JD JSON."""
+"""Fetch and parse Workday job posting pages into normalized JD JSON.
+
+Board discovery uses the public CXS careers search API:
+  POST https://{tenant}.wdN.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
+"""
 
 from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from html import unescape
 from html.parser import HTMLParser
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 import httpx
 
-from backend.sourcing.personio import NormalizedJobDescription
+from backend.sourcing.personio import JobListing, NormalizedJobDescription
 
 WORKDAY_HOST_MARKERS = ("myworkdayjobs.com", "myworkday.com")
 DEFAULT_TIMEOUT = 30.0
+CXS_PAGE_SIZE = 20  # Workday CXS hard cap per request
+LOCALE_PATH_RE = re.compile(r"^[a-z]{2}-[a-z]{2}$", re.IGNORECASE)
+TENANT_HOST_RE = re.compile(
+    r"^(?P<tenant>[^.]+)\.wd\d+\.myworkdayjobs\.com$",
+    re.IGNORECASE,
+)
 
 
 class _TextExtractor(HTMLParser):
@@ -56,6 +68,83 @@ def is_workday_job_url(url: str) -> bool:
     if not any(marker in host for marker in WORKDAY_HOST_MARKERS):
         return False
     return "/job/" in path
+
+
+def is_workday_board_url(url: str) -> bool:
+    """True for Workday careers site roots (listing), not individual /job/ URLs."""
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").casefold()
+    path = (parsed.path or "").rstrip("/")
+    if "myworkdayjobs.com" not in host:
+        return False
+    if "/job/" in (parsed.path or ""):
+        return False
+    if "/wday/" in (parsed.path or "").casefold():
+        return False
+    parts = [p for p in path.split("/") if p]
+    return bool(parts)
+
+
+@dataclass(frozen=True)
+class WorkdayBoardRef:
+    """Parsed Workday careers board coordinates for CXS + public URLs."""
+
+    origin: str
+    tenant: str
+    site: str
+    locale: str | None
+    board_url: str
+
+    @property
+    def cxs_jobs_url(self) -> str:
+        return f"{self.origin}/wday/cxs/{self.tenant}/{self.site}/jobs"
+
+    def job_url(self, external_path: str) -> str:
+        path = external_path if external_path.startswith("/") else f"/{external_path}"
+        if not path.startswith("/job/"):
+            raise ValueError(f"Not a Workday externalPath job path: {external_path}")
+        if self.locale:
+            return f"{self.origin}/{self.locale}/{self.site}{path}"
+        return f"{self.origin}/{self.site}{path}"
+
+
+def parse_workday_board_url(url: str) -> WorkdayBoardRef:
+    """Extract tenant/site/locale from a myworkdayjobs.com careers URL."""
+    if not is_workday_board_url(url):
+        raise ValueError(f"Not a Workday board URL: {url}")
+
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    match = TENANT_HOST_RE.match(host)
+    if not match:
+        raise ValueError(
+            f"Unsupported Workday host (expected {{tenant}}.wdN.myworkdayjobs.com): {host}"
+        )
+    tenant = match.group("tenant")
+
+    parts = [p for p in (parsed.path or "").split("/") if p]
+    locale: str | None = None
+    if len(parts) >= 2 and LOCALE_PATH_RE.match(parts[0]):
+        locale = parts[0]
+        site = parts[1]
+    elif parts:
+        site = parts[0]
+    else:
+        raise ValueError(f"Workday board URL missing site path: {url}")
+
+    origin = f"{parsed.scheme}://{parsed.netloc}"
+    if locale:
+        board_path = f"/{locale}/{site}"
+    else:
+        board_path = f"/{site}"
+    board_url = urlunparse(parsed._replace(path=board_path, params="", query="", fragment=""))
+    return WorkdayBoardRef(
+        origin=origin,
+        tenant=tenant,
+        site=site,
+        locale=locale,
+        board_url=board_url,
+    )
 
 
 def _utc_now_iso() -> str:
@@ -353,3 +442,149 @@ def fetch_workday_job(url: str, *, use_playwright: bool = False) -> NormalizedJo
     except ValueError:
         html = _fetch_with_playwright(url)
         return parse_workday_html(html, url, fetched_at)
+
+
+def fetch_cxs_jobs(
+    board: WorkdayBoardRef,
+    *,
+    offset: int = 0,
+    limit: int = CXS_PAGE_SIZE,
+    search_text: str = "",
+    timeout: float = DEFAULT_TIMEOUT,
+) -> dict[str, Any]:
+    """POST one CXS jobs search page; returns raw JSON payload."""
+    page_limit = max(1, min(int(limit), CXS_PAGE_SIZE))
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "User-Agent": (
+            "Mozilla/5.0 (compatible; job-fit-system/1.0; +https://github.com/local/job-fit-system)"
+        ),
+        "Origin": board.origin,
+        "Referer": board.board_url,
+    }
+    payload = {
+        "appliedFacets": {},
+        "limit": page_limit,
+        "offset": max(0, int(offset)),
+        "searchText": search_text or "",
+    }
+    with httpx.Client(timeout=timeout, follow_redirects=True, headers=headers) as client:
+        response = client.post(board.cxs_jobs_url, json=payload)
+        response.raise_for_status()
+        data = response.json()
+    if not isinstance(data, dict):
+        raise ValueError("Workday CXS response is not a JSON object")
+    return data
+
+
+def listings_from_cxs_payload(
+    payload: dict[str, Any], board: WorkdayBoardRef
+) -> list[JobListing]:
+    """Map a CXS jobs JSON page to JobListing rows (URL + title)."""
+    postings = payload.get("jobPostings")
+    if not isinstance(postings, list):
+        return []
+
+    listings: list[JobListing] = []
+    seen: set[str] = set()
+    for item in postings:
+        if not isinstance(item, dict):
+            continue
+        external_path = str(item.get("externalPath") or "").strip()
+        if not external_path:
+            continue
+        try:
+            url = board.job_url(external_path)
+        except ValueError:
+            continue
+        if url in seen:
+            continue
+        seen.add(url)
+        title_raw = str(item.get("title") or "").strip()
+        title = unescape(title_raw) if title_raw else None
+        listings.append(JobListing(url=url, title=title))
+    return listings
+
+
+CxsPageFetcher = Callable[..., dict[str, Any]]
+
+
+def discover_job_listings(
+    board_url: str,
+    *,
+    max_results: int | None = None,
+    page_size: int = CXS_PAGE_SIZE,
+    search_text: str = "",
+    fetch_page: CxsPageFetcher | None = None,
+) -> list[JobListing]:
+    """Discover job listings (URL + title) via Workday CXS search pagination.
+
+    ``fetch_page`` is injectable for offline tests:
+      fetch_page(board, offset=..., limit=..., search_text=...) -> dict
+    """
+    board = parse_workday_board_url(board_url)
+    fetcher: CxsPageFetcher = fetch_page or (
+        lambda b, *, offset, limit, search_text: fetch_cxs_jobs(
+            b, offset=offset, limit=limit, search_text=search_text
+        )
+    )
+
+    listings: list[JobListing] = []
+    seen: set[str] = set()
+    offset = 0
+    total: int | None = None
+    page_limit = max(1, min(int(page_size), CXS_PAGE_SIZE))
+
+    while True:
+        if max_results is not None and len(listings) >= max_results:
+            break
+        payload = fetcher(
+            board, offset=offset, limit=page_limit, search_text=search_text
+        )
+        if total is None:
+            raw_total = payload.get("total")
+            total = int(raw_total) if isinstance(raw_total, int) else None
+
+        page = listings_from_cxs_payload(payload, board)
+        if not page:
+            break
+
+        for listing in page:
+            if listing.url in seen:
+                continue
+            seen.add(listing.url)
+            listings.append(listing)
+            if max_results is not None and len(listings) >= max_results:
+                break
+
+        offset += page_limit
+        if total is not None and offset >= total:
+            break
+        if len(page) < page_limit:
+            break
+
+    if max_results is not None:
+        return listings[:max_results]
+    return listings
+
+
+def discover_job_urls(
+    board_url: str,
+    *,
+    max_results: int | None = None,
+    page_size: int = CXS_PAGE_SIZE,
+    search_text: str = "",
+    fetch_page: CxsPageFetcher | None = None,
+) -> list[str]:
+    """Discover job detail URLs from a Workday careers board (CXS)."""
+    return [
+        listing.url
+        for listing in discover_job_listings(
+            board_url,
+            max_results=max_results,
+            page_size=page_size,
+            search_text=search_text,
+            fetch_page=fetch_page,
+        )
+    ]

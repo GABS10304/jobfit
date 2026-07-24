@@ -1,0 +1,27 @@
+{
+  "total": 7,
+  "jobPostings": [
+    {
+      "title": "Senior Product Manager Platform",
+      "externalPath": "/job/Frankfurt/Senior-Product-Manager-Platform_REQ-TEST-2",
+      "timeType": "Full time",
+      "locationsText": "Frankfurt",
+      "postedOn": "Posted 2 Days Ago",
+      "bulletFields": [
+        "REQ-TEST-2"
+      ]
+    },
+    {
+      "title": "HR Business Partner",
+      "externalPath": "/job/Amsterdam/HR-Business-Partner_REQ-TEST-3",
+      "timeType": "Full time",
+      "locationsText": "Amsterdam",
+      "postedOn": "Posted 3 Days Ago",
+      "bulletFields": [
+        "REQ-TEST-3"
+      ]
+    }
+  ],
+  "facets": [],
+  "userAuthenticated": false
+}

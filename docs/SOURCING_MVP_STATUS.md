@@ -63,7 +63,7 @@ Watchlist-CVs nachträglich: `python scripts/run_watchlist_cv.py --from-json <ba
 
 ## Bekannte Limits
 
-- Personio-Boards + Workday Einzel-JD-Fetch (kein LinkedIn/StepStone; kein Workday Board-Discovery noch).
+- Personio-Boards + Workday Board-Discovery (CXS) + Workday Einzel-JD-Fetch (kein LinkedIn/StepStone).
 - Rate-Limits (429) → Boards werden übersprungen/retries; Delay nötig.
 - Strong-Pass hängt am Lexikon + JD-Wording; kein Claim-Erfinden im CV.
 - Prefilter verwirft viele Nicht-Product-Titel (hohe Reject-Rate, wenige Fit-Checks).

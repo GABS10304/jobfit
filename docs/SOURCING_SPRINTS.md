@@ -315,8 +315,33 @@ Zweiter ATS nach Personio: URL → normalisierte JD JSON → optional Fit-Check 
 
 Lesart: unverändert zum Fixture `domain/fixtures/ing-prozessmanager-customer-data.md` — Grenzfall, kein Product-Match, kein Review-Kandidat. Erwartung `verify` (nicht Pass) bestätigt; Filter lehnt ab.
 
+## Sprint 20 — Workday Board Discovery (CXS)
+
+Board/Listing → Job-URLs via öffentlicher CXS-Search, danach gleicher Fit-/Filter-Pfad wie Personio-Batch. **Keine** Threshold-Änderung.
+
+| Feld | Wert |
+|------|------|
+| Modul | `backend/sourcing/workday.py` (`discover_job_urls` / `discover_job_listings`, CXS POST) |
+| CLI | `scripts/fetch_jobs_workday_board.py --board-url … [--limit N] [--fit-check]` |
+| Fallback | `--urls-file` (URL-Liste ohne CXS) |
+| CXS | `POST /wday/cxs/{tenant}/{site}/jobs` (`limit`≤20, `offset`, `searchText`) |
+| Offline-Tests | `tests/test_workday.py` + `tests/fixtures/workday_cxs_ing_page*.json` |
+
+### Live Smoke (ING CXS, 2026-07-24)
+
+| Feld | Wert |
+|------|------|
+| Board | `https://ing.wd3.myworkdayjobs.com/de-DE/ICSGBLCOR` |
+| CLI | `--search-text "Product Manager" --limit 5 --fit-check --include-weak-proceed` |
+| Discovered (CXS pages bis ≥limit candidates) | 40 |
+| Prefilter candidates | 9 (31 rejected) |
+| Fit-checked | **5** |
+| Passed | 0 |
+| Watchlist | 1 (`Product Area Lead – Wholesale Banking Advanced Analytics`, score 54) |
+| Lesart | CXS stabil; Title-Prefilter greift auf CXS-Titel; Pipeline analog Personio. Keine Threshold-Änderung. |
+
 ## Nächster Sprint (Empfehlung)
 
 1. Conceptboard-Pass (93) + Analytics-Watchlist (57) gegen Lexikon/JD prüfen — ohne Threshold zu senken.
 2. sipgate bewusst als Presence-no_go belassen oder Board nur für Remote/≤1-Tag-Öffnungen priorisieren; Score-Lexikon hilft hier nicht gegen Bar 90.
-3. Optional: Workday Board-Discovery (CXS search) analog Personio Multi-Board — nur wenn Volume nötig.
+3. Optional: Workday Multi-Board YAML analog Personio, wenn Volume nötig.

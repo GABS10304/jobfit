@@ -2,11 +2,16 @@
 # Used by scripts/fetch_jd.py and scripts/fetch_jobs_batch.py (--fit-check).
 # Layer only: does not change V3 fit-engine scoring or status_flag logic.
 #
-# Pass rules after fit-check (all must hold):
+# Pass rules after fit-check (all must hold) — "strong match":
 # 1) status_flag not in exclude list and in include list (no_go always out)
 # 2) top_score >= min_top_score (aligned with constraints min_score_for_review=75)
 # 3) if require_product_role: top_role_id matches product family (substring/allowlist)
 # 4) title must not contain any title_deny_keywords (case-insensitive)
+#
+# Watchlist (optional, scripts/fetch_jobs_batch.py --include-weak-proceed):
+# - Same gates as pass except score: proceed/verify + product role + no title deny
+# - top_score present and < min_top_score → bucket "watchlist" (NOT passed)
+# - Does not lower min_top_score; useful when boards surface product titles with weak V3 scores
 #
 # Title prefilter (before fit-check):
 # - Prefer allow_keywords match → keep
@@ -21,6 +26,7 @@ default_pass:
     - proceed
     - verify_product_ownership
   # Same bar as domain/constraints.yaml → application_rules.min_score_for_review
+  # Strong-match bar only — do not lower for weak product titles; use watchlist instead.
   min_top_score: 75
   # Prefer product-tier roles from role_fit_profile (role_id contains "product", etc.)
   require_product_role: true
@@ -40,6 +46,11 @@ default_pass:
     - schaden
     - backend
     - frontend
+
+watchlist:
+  # Surfaced only when batch uses --include-weak-proceed
+  enabled: true
+  # Eligibility mirrors default_pass status/product/title gates; score must be < min_top_score
 
 title_prefilter:
   enabled: true
@@ -67,3 +78,4 @@ notes:
   - "Presence exception_denied maps to status_flag=no_go and is excluded."
   - "title_deny_keywords are a sourcing guardrail; extend in YAML without touching V3."
   - "title_prefilter runs before fit-check; --limit applies after prefilter."
+  - "watchlist is not a pass; min_top_score stays 75 for strong match."

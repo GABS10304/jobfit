@@ -4,10 +4,14 @@ Usage:
   python scripts/fetch_jobs_batch.py --board-url https://flex-capital-management-gmbh.jobs.personio.de/
   python scripts/fetch_jobs_batch.py --urls-file urls.txt
   python scripts/fetch_jobs_batch.py --board-url <url> --limit 5 --out results.json
+  python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed --out results.json
 
 Filter contract: title prefilter before fit-check; then exclude no_go; require
-min_top_score, product top role, no title deny keywords.
+min_top_score (75, strong match), product top role, no title deny keywords.
 See domain/sourcing_filter.yaml.
+
+--include-weak-proceed: also list proceed/verify product titles with score <75
+as watchlist (not passed). Does not lower min_top_score.
 
 --limit N applies AFTER title prefilter (N product-ish candidates, not first N board URLs).
 """
@@ -28,6 +32,7 @@ from backend import data_loader, fit_engine
 from backend.sourcing.filtering import (
     evaluate_default_filter,
     evaluate_title_prefilter,
+    evaluate_watchlist,
     fit_check_jd_text,
     top_fit_score,
 )
@@ -64,6 +69,12 @@ def _run_fit_check(job: NormalizedJobDescription) -> dict[str, Any]:
         top_role_id=top_role,
         title=job.title,
     )
+    watchlist_ok, watchlist_reason = evaluate_watchlist(
+        fit.status_flag,
+        top_score=top_score,
+        top_role_id=top_role,
+        title=job.title,
+    )
     payload = {
         "status_flag": fit.status_flag,
         "verify_product_ownership": fit.verify_product_ownership,
@@ -71,9 +82,12 @@ def _run_fit_check(job: NormalizedJobDescription) -> dict[str, Any]:
         "top_score": top_score,
         "top_role_id": top_role,
         "passes_default_filter": passes,
+        "watchlist_eligible": watchlist_ok and not passes,
     }
     if reject_reason:
         payload["filter_reject_reason"] = reject_reason
+    if watchlist_ok and not passes and watchlist_reason:
+        payload["watchlist_reason"] = watchlist_reason
     return payload
 
 
@@ -161,16 +175,28 @@ def _process_job(
         fit_payload = _run_fit_check(job)
         entry["fit_check"] = fit_payload
         entry["passes_default_filter"] = fit_payload["passes_default_filter"]
-        if not fit_payload["passes_default_filter"]:
+        entry["watchlist"] = bool(fit_payload.get("watchlist_eligible"))
+        if fit_payload["passes_default_filter"]:
+            entry["sourcing_bucket"] = "passed"
+        elif entry["watchlist"]:
+            entry["sourcing_bucket"] = "watchlist"
+            detail = fit_payload.get("watchlist_reason") or fit_payload.get(
+                "filter_reject_reason"
+            )
+            entry["reject_reason"] = f"watchlist: {detail}"
+        else:
+            entry["sourcing_bucket"] = "rejected"
             detail = fit_payload.get("filter_reject_reason") or fit_payload["status_flag"]
             entry["reject_reason"] = f"filter: {detail}"
     else:
         entry["passes_default_filter"] = True
+        entry["watchlist"] = False
+        entry["sourcing_bucket"] = "passed"
 
     return entry
 
 
-def _print_summary_table(rows: list[dict[str, Any]]) -> None:
+def _print_summary_table(rows: list[dict[str, Any]], *, show_watchlist: bool) -> None:
     headers = ("title", "status_flag", "top_score", "pass", "url")
     table_rows: list[tuple[str, str, str, str, str]] = []
 
@@ -189,8 +215,13 @@ def _print_summary_table(rows: list[dict[str, Any]]) -> None:
         status_flag = str(fit.get("status_flag") or "-")
         top_score = fit.get("top_score")
         top_score_text = str(top_score) if top_score is not None else "-"
-        passed = "PASS" if row.get("passes_default_filter") else "FAIL"
-        table_rows.append((title, status_flag, top_score_text, passed, row["url"]))
+        if row.get("passes_default_filter"):
+            outcome = "PASS"
+        elif show_watchlist and row.get("watchlist"):
+            outcome = "WATCH"
+        else:
+            outcome = "FAIL"
+        table_rows.append((title, status_flag, top_score_text, outcome, row["url"]))
 
     widths = [len(header) for header in headers]
     for values in table_rows:
@@ -243,6 +274,14 @@ def main() -> int:
         default=None,
         help="Process at most N jobs AFTER title prefilter",
     )
+    parser.add_argument(
+        "--include-weak-proceed",
+        action="store_true",
+        help=(
+            "Also list proceed/verify product titles with score < min_top_score "
+            "as watchlist (not passed). Does not lower the strong-match bar."
+        ),
+    )
     args = parser.parse_args()
 
     board_url = args.board_url
@@ -290,13 +329,26 @@ def main() -> int:
         )
 
     passed = [row for row in rows if row.get("passes_default_filter")]
-    rejected = [row for row in rows if not row.get("passes_default_filter")]
+    watchlist = [
+        row
+        for row in rows
+        if args.include_weak_proceed
+        and row.get("watchlist")
+        and not row.get("passes_default_filter")
+    ]
+    watchlist_urls = {row["url"] for row in watchlist}
+    rejected = [
+        row
+        for row in rows
+        if not row.get("passes_default_filter") and row["url"] not in watchlist_urls
+    ]
 
-    _print_summary_table(rows)
+    _print_summary_table(rows, show_watchlist=args.include_weak_proceed)
 
-    payload = {
+    payload: dict[str, Any] = {
         "board_url": board_url,
         "fit_check_enabled": args.fit_check,
+        "include_weak_proceed": args.include_weak_proceed,
         "discovered": len(listings),
         "prefilter_rejected_count": len(prefilter_rejected),
         "candidates_after_prefilter": candidates_after_prefilter,
@@ -306,15 +358,23 @@ def main() -> int:
         "limited": limited,
         "processed": len(rows),
         "passed_count": len(passed),
+        "watchlist_count": len(watchlist) if args.include_weak_proceed else 0,
         "rejected_count": len(rejected),
         "passed": passed,
         "rejected": rejected,
     }
+    if args.include_weak_proceed:
+        payload["watchlist"] = watchlist
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\nwritten: {args.out}")
-    print(f"passed: {len(passed)} | rejected: {len(rejected)}")
+    if args.include_weak_proceed:
+        print(
+            f"passed: {len(passed)} | watchlist: {len(watchlist)} | rejected: {len(rejected)}"
+        )
+    else:
+        print(f"passed: {len(passed)} | rejected: {len(rejected)}")
 
     return 0
 

@@ -83,16 +83,14 @@ def evaluate_title_prefilter(title: str | None) -> tuple[bool, str | None]:
     return False, "title_prefilter:no_allow_or_product_keyword"
 
 
-def evaluate_default_filter(
+def _status_and_title_gates(
     status_flag: str,
     *,
-    top_score: int | None = None,
-    top_role_id: str | None = None,
-    title: str | None = None,
+    top_role_id: str | None,
+    title: str | None,
+    default_pass: dict,
 ) -> tuple[bool, str | None]:
-    """Apply sourcing_filter.yaml; return (passes, reject_reason)."""
-    contract = load_filter_contract()
-    default_pass = contract.get("default_pass", {})
+    """Shared gates for strong pass and weak watchlist (excludes score)."""
     excluded = set(default_pass.get("exclude_status_flags", ["no_go"]))
     included = set(
         default_pass.get(
@@ -110,17 +108,76 @@ def evaluate_default_filter(
     if denied_kw:
         return False, f"title_deny_keyword={denied_kw}"
 
-    min_top_score = int(default_pass.get("min_top_score", 75))
-    if top_score is None or top_score < min_top_score:
-        score_text = "none" if top_score is None else str(top_score)
-        return False, f"top_score={score_text}<{min_top_score}"
-
     if default_pass.get("require_product_role", True):
         if not _is_product_role(top_role_id, default_pass):
             role_text = top_role_id or "none"
             return False, f"top_role_not_product={role_text}"
 
     return True, None
+
+
+def evaluate_default_filter(
+    status_flag: str,
+    *,
+    top_score: int | None = None,
+    top_role_id: str | None = None,
+    title: str | None = None,
+) -> tuple[bool, str | None]:
+    """Apply sourcing_filter.yaml; return (passes, reject_reason)."""
+    contract = load_filter_contract()
+    default_pass = contract.get("default_pass", {})
+
+    ok, reason = _status_and_title_gates(
+        status_flag,
+        top_role_id=top_role_id,
+        title=title,
+        default_pass=default_pass,
+    )
+    if not ok:
+        return False, reason
+
+    min_top_score = int(default_pass.get("min_top_score", 75))
+    if top_score is None or top_score < min_top_score:
+        score_text = "none" if top_score is None else str(top_score)
+        return False, f"top_score={score_text}<{min_top_score}"
+
+    return True, None
+
+
+def evaluate_watchlist(
+    status_flag: str,
+    *,
+    top_score: int | None = None,
+    top_role_id: str | None = None,
+    title: str | None = None,
+) -> tuple[bool, str | None]:
+    """Weak product match below min_top_score; never counts as passed.
+
+    Eligible when status/title/product gates pass and score is present but
+    below the strong-match bar (default 75). Rejected roles (e.g. no_go) stay out.
+    """
+    contract = load_filter_contract()
+    default_pass = contract.get("default_pass", {})
+    watchlist = contract.get("watchlist") or {}
+    if not watchlist.get("enabled", True):
+        return False, "watchlist_disabled"
+
+    ok, reason = _status_and_title_gates(
+        status_flag,
+        top_role_id=top_role_id,
+        title=title,
+        default_pass=default_pass,
+    )
+    if not ok:
+        return False, reason
+
+    min_top_score = int(default_pass.get("min_top_score", 75))
+    if top_score is None:
+        return False, f"top_score=none<{min_top_score}"
+    if top_score >= min_top_score:
+        return False, f"top_score={top_score}>={min_top_score}"
+
+    return True, f"weak_score={top_score}<{min_top_score}"
 
 
 def passes_default_filter(

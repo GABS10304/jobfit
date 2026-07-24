@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -10,6 +11,7 @@ import pytest
 from backend.sourcing.filtering import (
     evaluate_default_filter,
     evaluate_title_prefilter,
+    evaluate_watchlist,
     passes_default_filter,
 )
 from backend.sourcing.personio import (
@@ -227,6 +229,59 @@ def test_passes_default_filter_rejects_non_product_top_role():
     )
 
 
+def test_watchlist_accepts_weak_product_proceed():
+    ok, reason = evaluate_watchlist(
+        "proceed",
+        top_score=32,
+        top_role_id="technical_product_manager",
+        title="AI Product Manager (m/w/d)",
+    )
+    assert ok is True
+    assert reason == "weak_score=32<75"
+    # Strong pass still fails — watchlist is not a pass
+    assert not passes_default_filter(
+        "proceed",
+        top_score=32,
+        top_role_id="technical_product_manager",
+        title="AI Product Manager (m/w/d)",
+    )
+
+
+def test_watchlist_rejects_no_go_even_with_product_title():
+    ok, reason = evaluate_watchlist(
+        "no_go",
+        top_score=40,
+        top_role_id="ai_product_manager",
+        title="Omikron - Product Manager Electronic Banking (m/w/d)",
+    )
+    assert ok is False
+    assert reason == "status_flag=no_go"
+
+
+def test_watchlist_rejects_strong_score():
+    ok, reason = evaluate_watchlist(
+        "proceed",
+        top_score=88,
+        top_role_id="ai_product_manager",
+        title="AI Product Manager (m/w/d)",
+    )
+    assert ok is False
+    assert reason is not None
+    assert ">=75" in reason
+
+
+def test_watchlist_rejects_title_deny():
+    ok, reason = evaluate_watchlist(
+        "proceed",
+        top_score=40,
+        top_role_id="technical_product_manager",
+        title="3C - (Java) Full Stack Engineer (w/m/d)",
+    )
+    assert ok is False
+    assert reason is not None
+    assert "title_deny_keyword" in reason
+
+
 def test_batch_filter_pass_and_reject(job_fixture_html: str):
     from scripts.fetch_jobs_batch import _process_job
 
@@ -307,6 +362,8 @@ def test_limit_applies_after_prefilter(board_fixture_html: str, tmp_path: Path):
             "status": "ok",
             "title": listing_title,
             "passes_default_filter": True,
+            "watchlist": False,
+            "sourcing_bucket": "passed",
             "job": {"title": listing_title, "url": url},
             "fit_check": {
                 "status_flag": "proceed",
@@ -340,3 +397,58 @@ def test_limit_applies_after_prefilter(board_fixture_html: str, tmp_path: Path):
     assert "Product Manager" in processed_title
     assert "Engineer" not in processed_title
     assert out_path.is_file()
+
+
+def test_include_weak_proceed_buckets_watchlist(board_fixture_html: str, tmp_path: Path):
+    from scripts import fetch_jobs_batch as batch
+
+    listings = extract_job_listings_from_html(board_fixture_html, FLEX_BOARD_URL)
+    listings = [item for item in listings if item.title and "AI Product Manager" in item.title]
+    out_path = tmp_path / "watchlist_out.json"
+
+    def fake_process(url, *, use_playwright, fit_check, listing_title=None):
+        return {
+            "url": url,
+            "status": "ok",
+            "title": listing_title,
+            "passes_default_filter": False,
+            "watchlist": True,
+            "sourcing_bucket": "watchlist",
+            "reject_reason": "watchlist: weak_score=32<75",
+            "job": {"title": listing_title, "url": url},
+            "fit_check": {
+                "status_flag": "proceed",
+                "top_score": 32,
+                "top_role_id": "technical_product_manager",
+                "passes_default_filter": False,
+                "watchlist_eligible": True,
+                "filter_reject_reason": "top_score=32<75",
+                "watchlist_reason": "weak_score=32<75",
+            },
+        }
+
+    with (
+        patch.object(batch, "discover_job_listings", return_value=listings),
+        patch.object(batch, "_process_job", side_effect=fake_process),
+        patch(
+            "sys.argv",
+            [
+                "fetch_jobs_batch.py",
+                "--board-url",
+                FLEX_BOARD_URL,
+                "--include-weak-proceed",
+                "--out",
+                str(out_path),
+            ],
+        ),
+    ):
+        code = batch.main()
+
+    assert code == 0
+    payload = json.loads(out_path.read_text(encoding="utf-8"))
+    assert payload["passed_count"] == 0
+    assert payload["watchlist_count"] == 1
+    assert payload["include_weak_proceed"] is True
+    assert payload["watchlist"][0]["title"] == "AI Product Manager (m/w/d)"
+    assert payload["watchlist"][0]["reject_reason"].startswith("watchlist:")
+    assert all(row["url"] != payload["watchlist"][0]["url"] for row in payload["rejected"])

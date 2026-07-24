@@ -108,8 +108,8 @@
   - Externe Marketing-Agenturen steuern.
 - **Messbare Ergebnisse:**
   - Digitale Lead-Akquisition in Industrie-Software nachgewiesen. [belegt]
-  - Niedrigere Marketingkosten und mehr qualifizierte Leads als Messeformate in den CV-Varianten genannt. [teilweise belegt]
-  - Produkt/Proof ist weiterhin live. [belegt]
+  - Niedrigere Marketingkosten und mehr qualifizierte Leads als Messeformate. [teilweise belegt]
+  - Lead-Gen-Produkt (Konfiguratoren/Landingpages) bleibt öffentlich verfügbar. [belegt]
 - **Tools/Methoden:** Online-Marketing, Lead Generation, Konfiguratoren, Landingpages, SEO/SEA, E-Mail-Marketing, Webinar-Marketing, Agency Management
 - **Wofür war ich dort relevant?** Nachweis, dass digitale Lead-Akquisition auch in erklärungsbedürftigen Industrie-Märkten funktioniert.
 - **Belegstärke:** teilweise belegt
@@ -175,7 +175,7 @@
 - **Deine Rolle:** Product-/Marketing-/Growth-Umsetzung
 - **Problem:** Lead-Akquisition in Industrie-Software war unklar bzw. unterschätzt.
 - **Vorgehen:** Digitale Lead-Gen, Konfiguratoren, Landingpages, Kampagnen und Webinare.
-- **Ergebnis:** Nachweis, dass digitale Lead-Akquisition in der Branche funktioniert; Produkt bleibt live.
+- **Ergebnis:** Nachweis, dass digitale Lead-Akquisition in der Branche funktioniert; Lead-Gen-Produkt bleibt öffentlich verfügbar.
 - **Welche Zielrollen unterstützt das?** Product Manager, Growth-/Marketing-nahe Product Rollen, Product/Transformation Lead
 - **Belegstärke:** teilweise belegt
 
@@ -232,11 +232,12 @@
 - Valueflow
 
 ## Zertifikate
+- Professional Scrum Product Owner I (Scrum.org)
 - Professional Scrum Master II (Scrum.org)
 - Professional Agile Leadership – Evidence-Based Management (Scrum.org)
-- Professional Scrum Product Owner I (Scrum.org)
 - Professional Agile Leadership I (Scrum.org)
 - Professional Scrum Master I (Scrum.org)
+- Produktmanagement und Produktmarketing für Technologieprodukte (ProduktManageMentor / ProductFocus)
 - Kanban System Design (Kanban University)
 - Agile Coach (Open Agile / IHK)
 - Agiler Projektmanager (IHK Bremen)
@@ -244,7 +245,6 @@
 - Agile Coach 1 – Practitioner (Skilldrops)
 - Scrum Master 2 – Advanced (Skilldrops)
 - Agile Leadership – Evidence Based Management 1 – Practitioner (Skilldrops)
-- Produktmanagement und Produktmarketing für Technologieprodukte (ProduktManageMentor / ProductFocus)
 - Agiler Coach (Indisoft)
 
 ## Offene TODOs / unclear

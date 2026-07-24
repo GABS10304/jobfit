@@ -151,11 +151,13 @@ def _render_tools(cv_master: CvMaster) -> list[str]:
     return lines
 
 
-def _render_certifications(cv_master: CvMaster) -> list[str]:
+def _render_certifications(cv_master: CvMaster, cv_rules: CvRules) -> list[str]:
     lines = [f"## {_SECTION_HEADERS['certifications']}", ""]
-    for cert in cv_master.certifications:
+    limit = cv_rules.limits.max_certifications
+    certs = cv_master.certifications[:limit] if limit > 0 else []
+    for cert in certs:
         lines.append(f"- {cert}")
-    if cv_master.certifications:
+    if certs:
         lines.append("")
     return lines
 
@@ -185,7 +187,7 @@ def generate_cv_variant(
         elif section == "tools":
             parts.extend(_render_tools(cv_master))
         elif section == "certifications":
-            parts.extend(_render_certifications(cv_master))
+            parts.extend(_render_certifications(cv_master, cv_rules))
         else:
             # Unknown section key in cv_rules – skip, do not invent content.
             continue

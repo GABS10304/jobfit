@@ -10,6 +10,8 @@ limits:
   max_total_pages_hint: 2
   max_employments: 4
   max_projects: 4
+  # Top-N aus cv_master.certifications (Listenreihenfolge = Relevanz).
+  max_certifications: 6
 
 section_order:
   - profile

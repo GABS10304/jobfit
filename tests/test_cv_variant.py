@@ -89,3 +89,15 @@ def test_render_excludes_meta_documentation_bullets():
     _plan, _cv, _rules, text = _plan_and_render()
     assert "CV-Varianten" not in text
     assert "Original-CV" not in text
+    assert "Produkt/Proof" not in text
+
+
+def test_render_limits_certifications():
+    _plan, cv, rules, text = _plan_and_render()
+    limit = rules.limits.max_certifications
+    assert limit > 0
+    assert len(cv.certifications) >= limit
+    for cert in cv.certifications[:limit]:
+        assert f"- {cert}" in text
+    for cert in cv.certifications[limit:]:
+        assert f"- {cert}" not in text

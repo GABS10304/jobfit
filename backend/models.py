@@ -267,6 +267,7 @@ class CvRulesLimits(BaseModel):
     max_total_pages_hint: int = 2
     max_employments: int = 4
     max_projects: int = 4
+    max_certifications: int = 6
 
 
 class CvRulesEvidence(BaseModel):

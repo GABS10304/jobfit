@@ -37,11 +37,29 @@ def test_load_cv_rules():
     rules = data_loader.load_cv_rules()
     assert rules.language.default == "de"
     assert rules.limits.max_bullets_per_employment == 5
+    assert rules.limits.max_certifications == 6
     assert rules.evidence.min_strength_for_inclusion == "medium"
     assert "[TODO]" in rules.evidence.exclude_markers
     assert "CV-Varianten" in rules.evidence.exclude_markers
     assert rules.keyword_mirroring.no_invention is True
     assert "employments" in rules.section_order
+
+
+def test_project_bullets_prefer_result_and_approach():
+    cv = data_loader.load_cv_master()
+    profile = data_loader.load_role_fit_profile()
+    constraints = data_loader.load_constraints()
+    rules = data_loader.load_cv_rules()
+    fit = fit_engine.run_fit_check(FLEX_LIKE_JD, profile, constraints)
+    plan = selection_plan(cv, profile, fit, FLEX_LIKE_JD, rules)
+
+    for proj in plan.projects:
+        master = next(p for p in cv.projects if p.id == proj.project_id)
+        texts = [b.bullet_text for b in proj.bullets]
+        if master.result and master.result in texts and master.problem in texts:
+            assert texts.index(master.result) < texts.index(master.problem)
+        if master.approach and master.approach in texts and master.problem in texts:
+            assert texts.index(master.approach) < texts.index(master.problem)
 
 
 def test_selection_plan_deterministic_flex_like_jd():

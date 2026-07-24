@@ -26,6 +26,19 @@ _EVIDENCE_RANK: dict[str, int] = {
     "weak": 1,
 }
 
+# Prefer outcome/approach wording over raw problem fragments in ATS bullets.
+_PROJECT_KIND_BONUS: dict[str, float] = {
+    "result": 3.0,
+    "approach": 2.0,
+    "problem": 0.0,
+}
+_PROJECT_KIND_TIEBREAK: dict[str, int] = {
+    "result": 0,
+    "approach": 1,
+    "problem": 2,
+    "generic": 3,
+}
+
 _TOKEN_RE = re.compile(r"[a-z0-9äöüß]{3,}", re.IGNORECASE)
 
 
@@ -105,14 +118,17 @@ def _employment_bullet_candidates(emp: Employment) -> list[tuple[str, Optional[s
     return items
 
 
-def _project_bullet_candidates(proj: Project) -> list[tuple[str, Optional[str]]]:
+def _project_bullet_candidates(
+    proj: Project,
+) -> list[tuple[str, Optional[str], str]]:
+    """(text, evidence_strength, kind) – approach/result before problem."""
     strength = proj.evidence_strength
     parts = [
-        proj.problem,
-        proj.approach,
-        proj.result,
+        (proj.approach, "approach"),
+        (proj.result, "result"),
+        (proj.problem, "problem"),
     ]
-    return [(p, strength) for p in parts if p]
+    return [(text, strength, kind) for text, kind in parts if text]
 
 
 def _score_bullet(
@@ -120,6 +136,7 @@ def _score_bullet(
     evidence_strength: Optional[str],
     jd_tokens: set[str],
     rules: CvRules,
+    kind: str = "generic",
 ) -> tuple[float, list[str], str] | None:
     if _has_exclude_marker(text, rules.evidence.exclude_markers):
         return None
@@ -128,41 +145,60 @@ def _score_bullet(
     ):
         return None
     overlap = _keyword_overlap(text, jd_tokens)
-    score = float(_evidence_rank(evidence_strength)) * 10.0 + float(len(overlap))
+    score = (
+        float(_evidence_rank(evidence_strength)) * 10.0
+        + float(len(overlap))
+        + _PROJECT_KIND_BONUS.get(kind, 0.0)
+    )
     rationale = (
         f"evidence={evidence_strength or 'unknown'}; "
-        f"jd_overlap={len(overlap)}"
+        f"jd_overlap={len(overlap)}; kind={kind}"
     )
     return score, overlap, rationale
 
 
 def _select_bullets(
-    candidates: list[tuple[str, Optional[str]]],
+    candidates: list[tuple[str, Optional[str]]]
+    | list[tuple[str, Optional[str], str]],
     source_type: Literal["employment", "project"],
     source_id: str,
     jd_tokens: set[str],
     rules: CvRules,
     max_bullets: int,
 ) -> list[SelectedBullet]:
-    scored: list[SelectedBullet] = []
-    for text, strength in candidates:
-        result = _score_bullet(text, strength, jd_tokens, rules)
+    scored: list[tuple[SelectedBullet, str]] = []
+    for item in candidates:
+        if len(item) == 3:
+            text, strength, kind = item
+        else:
+            text, strength = item
+            kind = "generic"
+        result = _score_bullet(text, strength, jd_tokens, rules, kind)
         if result is None:
             continue
         score, overlap, rationale = result
         scored.append(
-            SelectedBullet(
-                source_type=source_type,
-                source_id=source_id,
-                bullet_text=text,
-                evidence_strength=strength,
-                jd_keyword_overlap=overlap,
-                rank_score=score,
-                rationale=rationale,
+            (
+                SelectedBullet(
+                    source_type=source_type,
+                    source_id=source_id,
+                    bullet_text=text,
+                    evidence_strength=strength,
+                    jd_keyword_overlap=overlap,
+                    rank_score=score,
+                    rationale=rationale,
+                ),
+                kind,
             )
         )
-    scored.sort(key=lambda b: (-b.rank_score, b.bullet_text))
-    return scored[:max_bullets]
+    scored.sort(
+        key=lambda row: (
+            -row[0].rank_score,
+            _PROJECT_KIND_TIEBREAK.get(row[1], 3),
+            row[0].bullet_text,
+        )
+    )
+    return [bullet for bullet, _kind in scored[:max_bullets]]
 
 
 def _rank_projects(
@@ -339,7 +375,8 @@ def selection_plan(
             f"max_employments={cv_rules.limits.max_employments}, "
             f"max_projects={cv_rules.limits.max_projects}, "
             f"max_bullets_emp={cv_rules.limits.max_bullets_per_employment}, "
-            f"max_bullets_proj={cv_rules.limits.max_bullets_per_project}"
+            f"max_bullets_proj={cv_rules.limits.max_bullets_per_project}, "
+            f"max_certifications={cv_rules.limits.max_certifications}"
         ),
         "keyword_mirroring": cv_rules.keyword_mirroring.note
         or "cv_master_only / no_invention",

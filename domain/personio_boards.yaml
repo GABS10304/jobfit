@@ -1,6 +1,7 @@
 # Known Personio career boards for multi-board sourcing runs.
-# Verified live (HTTP 200 + listings) during Sprint 6; dead boards are skipped
-# gracefully by scripts/fetch_jobs_multi_board.py.
+# Verified live (discover_job_urls > 0) during Sprint 6 / Sprint 17.
+# Dead boards: set disabled: true (skipped by load_boards) or leave for
+# graceful skip by scripts/fetch_jobs_multi_board.py (empty/error/429).
 
 boards:
   - id: flex
@@ -44,3 +45,59 @@ boards:
     url: https://getsafe.jobs.personio.de/
     region: DE
     notes: Insurtech; product/tech openings
+
+  # --- Sprint 17 additions (verified discover > 0) ---
+
+  - id: conceptboard
+    name: Conceptboard
+    url: https://conceptboard.jobs.personio.de/
+    region: DE
+    notes: Collaboration SaaS; Senior Product Manager + Product Analytics titles
+
+  - id: sipgate
+    name: sipgate
+    url: https://sipgate.jobs.personio.de/
+    region: DE
+    notes: Telecom/tech; multiple Produktmanagement titles incl. AI & Flow
+
+  - id: cloover
+    name: Cloover
+    url: https://cloover.jobs.personio.com/
+    region: DE/EU
+    notes: Climate/fintech SaaS; Senior Product Manager observed
+
+  - id: chrono24
+    name: Chrono24
+    url: https://chrono24.jobs.personio.de/
+    region: DE
+    notes: Marketplace; product/tech openings (Director of Product observed on site)
+
+  - id: metro-markets
+    name: METRO Markets
+    url: https://metro-markets-gmbh.jobs.personio.de/
+    region: DE/EU
+    notes: B2B marketplace; Product Manager titles observed
+
+  - id: pitch
+    name: Pitch
+    url: https://pitch.jobs.personio.de/
+    region: DE/EU
+    notes: Presentation SaaS; tech openings
+
+  - id: codecentric
+    name: codecentric
+    url: https://codecentric.jobs.personio.de/
+    region: DE
+    notes: Software consultancy/tech; high listing volume
+
+  - id: finanztip
+    name: Finanztip
+    url: https://finanztip.jobs.personio.de/
+    region: DE
+    notes: Consumer finance media/tech; product/tech openings
+
+  - id: clark
+    name: CLARK
+    url: https://clark.jobs.personio.de/
+    region: DE
+    notes: Insurtech; few listings at Sprint 17 probe

@@ -171,8 +171,77 @@ Lesart: Erste Strong-Passes auf Multi-Board. FLEX schließt Domain/Skill-Gap üb
 
 Lesart: Checks überwiegend pass; Restpunkte sind Master-Wording, Zertifikatslänge und Project-Problem-Fragmente — nicht Score-/Lexikon-Themen.
 
+## Sprint 17 — Board-Expansion + Remeasure
+
+| Feld | Wert |
+|------|------|
+| Fokus | +9 verifizierte Personio-Boards (DE/EU product/tech); Multi-Board Remeasure |
+| Boards-Datei | `domain/personio_boards.yaml` (**16** aktiv; `disabled: true` wird von `load_boards` übersprungen) |
+| Runner | `scripts/fetch_jobs_multi_board.py --include-weak-proceed --cv-from-passed --delay 3.0 --backoff 10` |
+| Artifact | `/tmp/multi_board_sprint17.json` |
+| Boards ok / error / skipped | **16 / 0 / 0** |
+| Discovered | **155** |
+| Fit-checked | **16** |
+| Passed (≥75) | **3** |
+| Watchlist | **1** |
+| Rejected | **151** |
+
+Neu in YAML (Probe `discover_job_urls` / listings > 0):
+
+| id | Board | Listings (Probe) | Product-ish (Stichprobe) |
+|----|-------|------------------|--------------------------|
+| conceptboard | Conceptboard | 9 | Senior Product Manager; Product Analytics Manager |
+| sipgate | sipgate | 8 | mehrere Produktmanagement-Titel inkl. AI & Flow |
+| cloover | Cloover | 14 | Senior Product Manager |
+| chrono24 | Chrono24 | 20 | (Director of Product auf Site; Lauf: 0 Fit-Checks) |
+| metro-markets | METRO Markets | 3 | (Lauf: keine Product-Titel in Discovery) |
+| pitch | Pitch | 10 | tech openings |
+| codecentric | codecentric | 22 | consultancy/tech volume |
+| finanztip | Finanztip | 12 | false-positive „Production“ → no_go |
+| clark | CLARK | 3 | few listings |
+
+Passed:
+
+- flex — **AI Product Manager (m/w/d)** — `proceed`, score **76**, role `ai_product_manager`
+- credium — **AI Produkt Manager:in … (SaaS)** — `verify_product_ownership`, score **79**, role `ai_product_manager`
+- conceptboard — **Senior Product Manager (m/w/d)** — `proceed`, score **93**, role `ai_product_manager` *(neu)*
+
+Watchlist:
+
+- conceptboard — **Product Analytics Manager - Customer Retention & Expansion (m/w/d)** — score **57**, role `ai_product_manager`
+
+CV-Pfade (`out/cv_passed/`, gitignored) — neu:
+
+- `passed_score93_2544351_senior-product-manager-m-w-d.md` (+ `.txt` / `.pdf`)
+
+Unverändert regeneriert: score76 FLEX, score79 credium (jeweils `.md` / `.txt` / `.pdf`).
+
+Lesart: Board-Volume 54→155, Fit-Checks 5→16, Strong-Passes 2→**3**. Neuer Pass kommt von Conceptboard (Senior PM, 93). sipgate/cloover liefern Fit-Checks ohne Pass/Watchlist; mehrere Volume-Boards erhöhen nur Prefilter-Rejects. Keine Scoring-/Schwellen-Änderung.
+
+## Pass-Raten (kumuliert, Stand Sprint 17 Multi-Board)
+
+| Board | Discovered | Fit-checked | Passed | Watchlist | Pass-Rate (fit-checked) |
+|-------|------------|-------------|--------|-----------|-------------------------|
+| flex | 17 | 2 | 1 | 0 | 50% |
+| credium | 2 | 1 | 1 | 0 | 100% |
+| epages | 3 | 1 | 0 | 0 | 0% |
+| mercanis | 16 | 1 | 0 | 0 | 0% |
+| certivity | 3 | 0 | 0 | 0 | — |
+| ocumeda | 9 | 0 | 0 | 0 | — |
+| getsafe | 4 | 0 | 0 | 0 | — |
+| conceptboard | 9 | 2 | 1 | 1 | 50% |
+| sipgate | 8 | 5 | 0 | 0 | 0% |
+| cloover | 14 | 3 | 0 | 0 | 0% |
+| chrono24 | 20 | 0 | 0 | 0 | — |
+| metro-markets | 3 | 0 | 0 | 0 | — |
+| pitch | 10 | 0 | 0 | 0 | — |
+| codecentric | 22 | 0 | 0 | 0 | — |
+| finanztip | 12 | 1 | 0 | 0 | 0% |
+| clark | 3 | 0 | 0 | 0 | — |
+| **Summe** | **155** | **16** | **3** | **1** | **19%** |
+
 ## Nächster Sprint (Empfehlung)
 
-1. Master-Bullets mit Meta-/Proof-Wording bereinigen (SSOT).
-2. Weitere PE-/Portfolio-Boards nur wenn Volume nötig; Lexikon nicht weiter aufweichen ohne JD-Evidenz.
-3. Optional: Zertifikat-Limit + Project-Bullet-Priorisierung (approach/result vor problem).
+1. Conceptboard-Pass (93) + Analytics-Watchlist (57) gegen Lexikon/JD prüfen — ohne Threshold zu senken.
+2. sipgate Produktmanagement-Titel: warum kein Pass/Watchlist (Role-Gate vs. Score).
+3. Master-Bullets Meta-/Proof-Wording bereinigen (SSOT); Volume-Boards ohne Product-Titel nur bei Bedarf behalten.

@@ -55,6 +55,8 @@ def load_boards(path: Path) -> list[dict[str, Any]]:
     for entry in boards:
         if not isinstance(entry, dict):
             continue
+        if entry.get("disabled") is True:
+            continue
         url = str(entry.get("url") or "").strip()
         board_id = str(entry.get("id") or "").strip()
         if not url or not board_id:

@@ -25,6 +25,14 @@ class RoleFitResult(BaseModel):
     score: int = Field(..., ge=0, le=100)
     matched_signals: list[str]
     missing_signals: list[str]
+    matched_optional_signals: list[str] = Field(
+        default_factory=list,
+        description="Optional tools matched in JD (bonus; in numerator + denominator).",
+    )
+    missing_optional_signals: list[str] = Field(
+        default_factory=list,
+        description="Optional tools not in JD (excluded from score denominator).",
+    )
     reason: str = ""
     passes_review_threshold: bool = False
 
@@ -124,6 +132,14 @@ class RoleSignals(BaseModel):
     core_signals_skills: list[str] = Field(default_factory=list)
     core_signals_domains: list[str] = Field(default_factory=list)
     core_signals_tools: list[str] = Field(default_factory=list)
+    optional_signals_tools: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Tool signals that count only when matched (A′ bonus). "
+            "Unmatched optional tools do not increase the score denominator. "
+            "Profiles without this field behave bit-identically to V3 (required-only)."
+        ),
+    )
     supporting_evidence: list[EvidenceItem] = Field(default_factory=list)
     example_projects: list[ExampleProject] = Field(default_factory=list)
     match_patterns_positive: list[str] = Field(default_factory=list)

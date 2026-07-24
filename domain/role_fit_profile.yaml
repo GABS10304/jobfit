@@ -31,7 +31,10 @@ roles:
       - regulated_environments
       - enterprise_software
       - customer_intelligence
-    core_signals_tools:
+    # Required tools empty: CV-stack tools are optional (Option A′ / Sprint 9).
+    # Unmatched optional tools do not inflate the score denominator.
+    core_signals_tools: []
+    optional_signals_tools:
       - sql
       - python
       - pandas
@@ -105,7 +108,9 @@ roles:
       - govtech
       - enterprise_software
       - search_products
-    core_signals_tools:
+    # Same Option A′ as ai_product_manager: stack tools optional for JD scoring.
+    core_signals_tools: []
+    optional_signals_tools:
       - sql
       - python
       - pandas

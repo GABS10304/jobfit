@@ -38,10 +38,12 @@ expected:
     no_hard_sales: passed
     product_ownership_required: unclear
   # Top-3 role_ids in ranked order (results + excluded_roles)
+  # Sprint 9 Option A′: AI/TPM tools optional → higher AI-PM/TPM scores on
+  # tool-light JDs; Band-12 still keeps product_transformation_lead > agile_project_lead.
   top_role_ids:
+    - ai_product_manager
+    - technical_product_manager
     - product_transformation_lead
-    - agile_project_lead
-    - b2b_saas_govtech_product_lead
   # product_transformation_lead must rank above agile_project_lead (Band-12 Policy)
   ranking_assertions:
     - product_role: product_transformation_lead
@@ -50,7 +52,14 @@ expected:
   min_scored_roles: 1
 
 reference_scores_snapshot:
-  # Orientierungs-Snapshot vom 2026-07-19; nicht hart asserten außer top_role_ids.
+  # Orientierungs-Snapshot; top_role_ids hart assertet.
+  # 2026-07-19 baseline → 2026-07-24 Sprint 9 Option A′ (optional tools).
+  - role_id: ai_product_manager
+    score: 50
+    tier: 1
+  - role_id: technical_product_manager
+    score: 46
+    tier: 1
   - role_id: product_transformation_lead
     score: 40
     tier: 1
@@ -60,15 +69,9 @@ reference_scores_snapshot:
   - role_id: b2b_saas_govtech_product_lead
     score: 35
     tier: 1
-  - role_id: technical_product_manager
-    score: 27
-    tier: 1
   - role_id: client_solutions_lead
     score: 38
     tier: 2
-  - role_id: ai_product_manager
-    score: 25
-    tier: 1
   - role_id: product_operations
     score: 36
     tier: 2

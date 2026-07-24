@@ -263,6 +263,7 @@ def selection_plan(
             (role_meta.core_signals_skills if role_meta else [])
             + (role_meta.core_signals_domains if role_meta else [])
             + (role_meta.core_signals_tools if role_meta else [])
+            + (role_meta.optional_signals_tools if role_meta else [])
             + top.matched_signals
         )
     )

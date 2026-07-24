@@ -1,9 +1,9 @@
 # Score-Diagnose: AI Product Manager (Sourcing Watchlist)
 
 **Datum:** 2026-07-24  
-**Sprint:** 7  
+**Sprint:** 7 (Diagnose + Lexikon) → 9 (Option A′ optional Tools)  
 **Scope:** Diagnose niedriger Top-Scores bei Multi-Board-Sourcing (FLEX, credium).  
-**Nicht geändert:** V3-Schwellen, Scoring-Formel, Ranking-Band, Präsenzlogik.
+**Nicht geändert:** V3-Schwellen (`min_score_for_review=75`), Ranking-Band, Präsenzlogik.
 
 ---
 
@@ -12,10 +12,9 @@
 | Frage | Antwort |
 |-------|---------|
 | Bottleneck Scraper? | **Nein** – Title-Prefilter + Gates liefern passende AI-PM-Titel. |
-| Bottleneck Scoring/Profil-Fit? | **Ja** – Top-Scores 32–38 → nach Lexikon-Fix **46/46**, Ziel **75**. |
-| Ursache | Mischung aus **Lexikon-Lücken** (JD-Sprache) und **Profil-Unter-/Fehlspezifikation** (viele CV-Tool-Signale im Nenner, die JDs selten nennen). |
-| JD-Mismatch? | Teilweise – FLEX (PE/Portfolio) und credium (PropTech/ESG) ≠ GovTech-Schwerpunkt; trotzdem echte AI-PM-JDs. |
-| V3-Formel ändern? | **Nein in diesem Sprint.** Empfehlung für späteren Review-Auftrag. |
+| Bottleneck Scoring/Profil-Fit? | **Teilweise behoben (Sprint 9)** – Tool-Nenner entlastet; credium ≥75, FLEX weiter unter 75. |
+| Ursache (Sprint 7) | Lexikon-Lücken + CV-Tool-Signale im Nenner. |
+| V3-Schwelle senken? | **Nein** (Option C abgelehnt). |
 
 ---
 
@@ -23,12 +22,10 @@
 
 Quelle: `/tmp/multi_board_e2e.json` (Multi-Board-Lauf), Fit-Text wie Sourcing: `fit_check_jd_text` = Title + Location + Work-Mode + Employment + `jd_text`.
 
-| Board | Titel | Gate | Baseline Top | Baseline Rolle |
-|-------|-------|------|--------------|----------------|
+| Board | Titel | Gate | Baseline Top (vor Lexikon) | Baseline Rolle |
+|-------|-------|------|----------------------------|----------------|
 | flex | AI Product Manager (m/w/d) | `proceed` | **32** | `technical_product_manager` |
 | credium | AI Produkt Manager:in … (SaaS) | `verify_product_ownership` | **38** | `ai_product_manager` |
-
-Filter: `weak_score<75` → Watchlist, nicht Pass.
 
 ---
 
@@ -83,50 +80,55 @@ Score = `round(100 * matched / total)` über `core_signals_*` der Rolle. Synonym
 ### Lesart
 
 - **Nicht** primär „Kandidat passt nicht zu AI-PM“.
-- **Primär:** Matching misst „wie viele *Profil*-Signale die JD wörtlich triggert“ – schwere CV-Tool-Liste + fehlende DE-Synonyme → systematisch niedrige Scores bei echten AI-PM-JDs.
+- **Primär (Sprint 7):** Matching misst „wie viele *Profil*-Signale die JD wörtlich triggert“ – schwere CV-Tool-Liste + fehlende DE-Synonyme.
 - Evidence-Bullets in `role_fit_profile` beeinflussen den Score **nicht** (nur Explainability/Generation).
 
 ---
 
-## 5. Minimaler Daten-Fix (dieser Sprint)
+## 5. Sprint 7 – Minimaler Daten-Fix
 
 ### Erlaubt / gemacht
 
 1. **`backend/signal_lexicon.py`** – Synonyme für bestehende Signal-IDs (keine Formel-/Schwellenänderung).
 2. **`domain/role_fit_profile.yaml`** – ein zusätzliches Evidence-Bullet (MCP/Claude-Desktop), bereits in `cv_master` belegt; **Score-neutral**.
 
-### Nicht gemacht (V3 Freeze / Review nötig)
+### Nicht gemacht in Sprint 7
 
-- Keine Änderung an `min_score_for_review` (75) oder Score-Formel.
-- Kein Entfernen/Umbauen von `core_signals_tools` (würde Nenner ändern → großer Score-Sprung, Review-Auftrag).
-- Keine neuen Signal-IDs ohne Profil-Review.
+- Keine Änderung an `min_score_for_review` (75).
+- Kein Umbau von `core_signals_tools` (→ Review-Auftrag Sprint 8/9).
 
-### Before / After (gleiche zwei JDs, `fit_check_jd_text`)
+### Before / After Lexikon (gleiche zwei JDs)
 
-| Board | Baseline Top | After Top | Delta | After `ai_product_manager` |
-|-------|--------------|-----------|-------|----------------------------|
+| Board | Baseline Top | After Lexikon Top | Delta | After `ai_product_manager` |
+|-------|--------------|-------------------|-------|----------------------------|
 | flex | 32 (`technical_product_manager`) | **46** (`ai_product_manager`) | **+14** | 46 (11/24) |
 | credium | 38 (`ai_product_manager`) | **46** (`ai_product_manager`) | **+8** | 46 (11/24) |
-
-Regression: `tests/test_smoke_ref_pack.py`, `test_v3_presence.py`, `test_smoke.py` → **48 passed**.
 
 **Weiterhin unter 75** – Lexikon allein schließt die Lücke nicht.
 
 ---
 
-## 6. Empfehlung für späteren Review-Auftrag
+## 6. Sprint 9 – Option A′ (optional Tools)
 
-1. **Signal-Modell trennen:** CV-Evidence-Tools (streamlit, ollama, mcp, …) nicht 1:1 als JD-Match-Nenner; oder Tools nur scoren, wenn die JD überhaupt Tooling erwähnt.
-2. **Domain-Gewichtung / Soft-Domains:** `govtech` nicht hart bestrafen, wenn JD reguliert/PropTech/PE-Software ist.
-3. Optional: Title ist bereits in Sourcing-Fit-Text – beibehalten (credium `SaaS` → `b2b_saas`).
-4. Schwelle 75 erst anfassen, **nach** Signal-Modell-Review – sonst Watchlist→Pass ohne echten Fit-Gewinn.
+Auftrag: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md).
 
-**Sprint 8:** Schema/Engine unterstützen **kein** required vs. optional / Tool-Tier → keine Profil-Demotion ohne Formeländerung. Ausarbeiteter Auftrag inkl. Simulation und Acceptance Tests: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md).
+- Schema: `optional_signals_tools`; Engine A′ (matched optional = Bonus num+den; unmatched optional ≠ Nenner).
+- `ai_product_manager` + `technical_product_manager`: Tools nach `optional_signals_tools`.
+- Schwelle unverändert **75**.
+
+### Before / After Option A′
+
+| Board | After Lexikon (Sprint 7) | After A′ (Sprint 9) | ≥75? |
+|-------|--------------------------|---------------------|------|
+| flex | 46 (11/24) | **65** (8/14 req + 3 opt → 11/17) | nein |
+| credium | 46 (11/24) | **79** (11/14 req) | **ja** |
+
+**Ergebnis:** credium AI-PM passiert Review-Schwelle; FLEX bleibt Watchlist (Domain/Skill-Gap, nicht Tool-Nenner).
 
 ---
 
-## 7. Nächster Sprint (Vorschlag)
+## 7. Nächster Schritt
 
-1. Review-Auftrag abarbeiten: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md) (Option A empfohlen; C abgelehnt).  
-2. Danach erneuter Multi-Board-Lauf + Pass-Rate AI-PM.  
-3. Bis dahin: Watchlist + CV-Varianten für weak AI-PM-Matches weiter nutzen.
+1. Gezielte Lexikon-/Domain-Synonyme für FLEX-PE/Portfolio-JDs (separater Auftrag).  
+2. Kein Senken von `min_score_for_review`.  
+3. Multi-Board-Lauf erneut für Pass-Rate AI-PM.

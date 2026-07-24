@@ -92,11 +92,20 @@ def matched_candidate(signal: str, jd_normalized: str) -> str | None:
     return None
 
 
-def _all_signals(role: RoleSignals) -> list[str]:
+def _required_signals(role: RoleSignals) -> list[str]:
+    """Skills + domains + required tools. Always in the score denominator."""
     return [
         *role.core_signals_skills,
         *role.core_signals_domains,
         *role.core_signals_tools,
+    ]
+
+
+def _all_signals(role: RoleSignals) -> list[str]:
+    """Flat union for callers that need every signal id (required + optional)."""
+    return [
+        *_required_signals(role),
+        *role.optional_signals_tools,
     ]
 
 
@@ -111,17 +120,27 @@ def _role_reason(
     role: RoleSignals,
     *,
     score: int,
-    matched: list[str],
-    missing: list[str],
-    total: int,
+    matched_required: list[str],
+    missing_required: list[str],
+    matched_optional: list[str],
+    denominator: int,
 ) -> str:
     tier = role_rank_tier(role.role_id)
     tier_label = _TIER_REASON.get(tier, "sonstige Rolle")
-    if total == 0:
+    if denominator == 0:
         return f"Keine Kernsignale definiert ({tier_label})."
-    top = ", ".join(matched[:3]) if matched else "—"
+    numerator = len(matched_required) + len(matched_optional)
+    req_total = len(matched_required) + len(missing_required)
+    top = ", ".join((matched_required + matched_optional)[:3]) or "—"
+    optional_note = (
+        f", optional+{len(matched_optional)}"
+        if role.optional_signals_tools
+        else ""
+    )
     return (
-        f"{len(matched)}/{total} Signale gematcht (Score {score}). "
+        f"{numerator}/{denominator} Signale gematcht "
+        f"(Score {score}; required {len(matched_required)}/{req_total}"
+        f"{optional_note}). "
         f"Rank-Tier: {tier_label}. Top-Matches: {top}."
     )
 
@@ -132,28 +151,54 @@ def score_role(
     *,
     min_score_for_review: int,
 ) -> RoleFitResult:
+    """Score role against JD.
+
+    Required signals (skills ∪ domains ∪ core_signals_tools) always enter the
+    denominator. Optional tools (optional_signals_tools) use A′ semantics:
+    matched → count in numerator and denominator (bonus); unmatched → ignored
+    in the denominator so absent stack names do not inflate the score gap.
+    Profiles without optional_signals_tools stay bit-identical to V3.
+    """
     jd = _normalize(job_description)
-    signals = _all_signals(role)
+    required = _required_signals(role)
+    optional = list(role.optional_signals_tools)
 
-    matched: list[str] = []
-    missing: list[str] = []
-    for signal in signals:
+    matched_required: list[str] = []
+    missing_required: list[str] = []
+    for signal in required:
         if _signal_matches(signal, jd):
-            matched.append(signal)
+            matched_required.append(signal)
         else:
-            missing.append(signal)
+            missing_required.append(signal)
 
-    total = len(signals)
-    score = 0 if total == 0 else round(100 * len(matched) / total)
+    matched_optional: list[str] = []
+    missing_optional: list[str] = []
+    for signal in optional:
+        if _signal_matches(signal, jd):
+            matched_optional.append(signal)
+        else:
+            missing_optional.append(signal)
+
+    # A′: den = required + matched optional only
+    numerator = len(matched_required) + len(matched_optional)
+    denominator = len(required) + len(matched_optional)
+    score = 0 if denominator == 0 else round(100 * numerator / denominator)
 
     return RoleFitResult(
         role_id=role.role_id,
         role_name=role.role_name,
         score=score,
-        matched_signals=matched,
-        missing_signals=missing,
+        matched_signals=matched_required + matched_optional,
+        missing_signals=missing_required,
+        matched_optional_signals=matched_optional,
+        missing_optional_signals=missing_optional,
         reason=_role_reason(
-            role, score=score, matched=matched, missing=missing, total=total
+            role,
+            score=score,
+            matched_required=matched_required,
+            missing_required=missing_required,
+            matched_optional=matched_optional,
+            denominator=denominator,
         ),
         passes_review_threshold=score >= min_score_for_review,
     )

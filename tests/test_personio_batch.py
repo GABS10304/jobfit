@@ -294,28 +294,34 @@ def test_batch_filter_pass_and_reject(job_fixture_html: str):
     with patch("scripts.fetch_jobs_batch.fetch_personio_job", return_value=job):
         with patch(
             "scripts.fetch_jobs_batch._run_fit_check",
-            return_value={
-                "status_flag": "proceed",
-                "verify_product_ownership": False,
-                "presence_policy": {"level": "ok", "outcome": "allowed"},
-                "top_score": 88,
-                "top_role_id": "ai_product_manager",
-                "passes_default_filter": True,
-            },
+            return_value=(
+                None,
+                {
+                    "status_flag": "proceed",
+                    "verify_product_ownership": False,
+                    "presence_policy": {"level": "ok", "outcome": "allowed"},
+                    "top_score": 88,
+                    "top_role_id": "ai_product_manager",
+                    "passes_default_filter": True,
+                },
+            ),
         ):
             passed = _process_job(FLEX_JOB_URL, use_playwright=False, fit_check=True)
 
         with patch(
             "scripts.fetch_jobs_batch._run_fit_check",
-            return_value={
-                "status_flag": "proceed",
-                "verify_product_ownership": False,
-                "presence_policy": {"level": "ok", "outcome": "allowed"},
-                "top_score": 36,
-                "top_role_id": "technical_product_manager",
-                "passes_default_filter": False,
-                "filter_reject_reason": "top_score=36<75",
-            },
+            return_value=(
+                None,
+                {
+                    "status_flag": "proceed",
+                    "verify_product_ownership": False,
+                    "presence_policy": {"level": "ok", "outcome": "allowed"},
+                    "top_score": 36,
+                    "top_role_id": "technical_product_manager",
+                    "passes_default_filter": False,
+                    "filter_reject_reason": "top_score=36<75",
+                },
+            ),
         ):
             rejected = _process_job(FLEX_JOB_URL, use_playwright=False, fit_check=True)
 

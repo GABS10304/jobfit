@@ -19,5 +19,6 @@ __pycache__/
 
 # Generated outputs (Phase 2+)
 /output/
+/out/
 /applications/
 *.pdf

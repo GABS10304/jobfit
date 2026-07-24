@@ -5,6 +5,8 @@ Usage:
   python scripts/fetch_jobs_batch.py --urls-file urls.txt
   python scripts/fetch_jobs_batch.py --board-url <url> --limit 5 --out results.json
   python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed --out results.json
+  python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed \\
+      --cv-from-watchlist --cv-out out/cv_watchlist --limit 3
 
 Filter contract: title prefilter before fit-check; then exclude no_go; require
 min_top_score (75, strong match), product top role, no title deny keywords.
@@ -12,6 +14,10 @@ See domain/sourcing_filter.yaml.
 
 --include-weak-proceed: also list proceed/verify product titles with score <75
 as watchlist (not passed). Does not lower min_top_score.
+
+--cv-from-watchlist: for each watchlist row, run selection_plan + generate_cv_variant
+and write labeled weak-match markdown under --cv-out (default out/cv_watchlist).
+Implies --include-weak-proceed. Strong passed stays separate (no auto CV here).
 
 --limit N applies AFTER title prefilter (N product-ish candidates, not first N board URLs).
 """
@@ -29,6 +35,8 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend import data_loader, fit_engine
+from backend.generation.watchlist_cv import write_watchlist_cvs
+from backend.models import FitCheckResponse
 from backend.sourcing.filtering import (
     evaluate_default_filter,
     evaluate_title_prefilter,
@@ -54,7 +62,9 @@ def _load_urls_from_file(path: Path) -> list[JobListing]:
     ]
 
 
-def _run_fit_check(job: NormalizedJobDescription) -> dict[str, Any]:
+def _run_fit_check(
+    job: NormalizedJobDescription,
+) -> tuple[FitCheckResponse, dict[str, Any]]:
     profile = data_loader.load_role_fit_profile()
     constraints = data_loader.load_constraints()
     fit = fit_engine.run_fit_check(
@@ -88,7 +98,7 @@ def _run_fit_check(job: NormalizedJobDescription) -> dict[str, Any]:
         payload["filter_reject_reason"] = reject_reason
     if watchlist_ok and not passes and watchlist_reason:
         payload["watchlist_reason"] = watchlist_reason
-    return payload
+    return fit, payload
 
 
 def _resolve_listing_title(
@@ -172,8 +182,10 @@ def _process_job(
     }
 
     if fit_check:
-        fit_payload = _run_fit_check(job)
+        fit, fit_payload = _run_fit_check(job)
         entry["fit_check"] = fit_payload
+        # In-memory only: reuse for --cv-from-watchlist; stripped before JSON write.
+        entry["_fit"] = fit
         entry["passes_default_filter"] = fit_payload["passes_default_filter"]
         entry["watchlist"] = bool(fit_payload.get("watchlist_eligible"))
         if fit_payload["passes_default_filter"]:
@@ -194,6 +206,14 @@ def _process_job(
         entry["sourcing_bucket"] = "passed"
 
     return entry
+
+
+def _strip_private_fields(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Drop non-JSON helpers (e.g. cached FitCheckResponse) before serialize."""
+    cleaned: list[dict[str, Any]] = []
+    for row in rows:
+        cleaned.append({key: value for key, value in row.items() if not key.startswith("_")})
+    return cleaned
 
 
 def _print_summary_table(rows: list[dict[str, Any]], *, show_watchlist: bool) -> None:
@@ -282,7 +302,25 @@ def main() -> int:
             "as watchlist (not passed). Does not lower the strong-match bar."
         ),
     )
+    parser.add_argument(
+        "--cv-from-watchlist",
+        action="store_true",
+        help=(
+            "For each watchlist item, run selection_plan + CV render and write "
+            "labeled weak-match markdown under --cv-out. Implies "
+            "--include-weak-proceed. Does not write CVs for strong passed."
+        ),
+    )
+    parser.add_argument(
+        "--cv-out",
+        type=Path,
+        default=Path("out/cv_watchlist"),
+        help="Directory for watchlist CV markdown (default: out/cv_watchlist)",
+    )
     args = parser.parse_args()
+
+    if args.cv_from_watchlist:
+        args.include_weak_proceed = True
 
     board_url = args.board_url
     if args.board_url:
@@ -345,10 +383,30 @@ def main() -> int:
 
     _print_summary_table(rows, show_watchlist=args.include_weak_proceed)
 
+    cv_paths: list[str] = []
+    if args.cv_from_watchlist and watchlist:
+        fits = {
+            str(row["url"]): row["_fit"]
+            for row in watchlist
+            if isinstance(row.get("_fit"), FitCheckResponse)
+        }
+        written = write_watchlist_cvs(watchlist, args.cv_out, fits=fits)
+        cv_paths = [str(path) for path in written]
+        print(f"\nwatchlist CVs: {len(written)} → {args.cv_out}")
+        for path in written:
+            print(f"  {path}")
+    elif args.cv_from_watchlist:
+        print("\nwatchlist CVs: 0 (no watchlist rows)")
+
+    passed_out = _strip_private_fields(passed)
+    rejected_out = _strip_private_fields(rejected)
+    watchlist_out = _strip_private_fields(watchlist)
+
     payload: dict[str, Any] = {
         "board_url": board_url,
         "fit_check_enabled": args.fit_check,
         "include_weak_proceed": args.include_weak_proceed,
+        "cv_from_watchlist": args.cv_from_watchlist,
         "discovered": len(listings),
         "prefilter_rejected_count": len(prefilter_rejected),
         "candidates_after_prefilter": candidates_after_prefilter,
@@ -360,11 +418,15 @@ def main() -> int:
         "passed_count": len(passed),
         "watchlist_count": len(watchlist) if args.include_weak_proceed else 0,
         "rejected_count": len(rejected),
-        "passed": passed,
-        "rejected": rejected,
+        "passed": passed_out,
+        "rejected": rejected_out,
     }
     if args.include_weak_proceed:
-        payload["watchlist"] = watchlist
+        payload["watchlist"] = watchlist_out
+    if args.cv_from_watchlist:
+        payload["cv_out"] = str(args.cv_out)
+        payload["cv_watchlist_count"] = len(cv_paths)
+        payload["cv_watchlist_paths"] = cv_paths
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

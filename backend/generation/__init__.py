@@ -4,10 +4,12 @@ Entry points:
 - selection_plan(...) – deterministic content selection (MVP)
 - generate_cv_variant(...) – ATS-friendly markdown from SelectionPlan
 - generate_cv_variant_plain(...) – ATS plain-text (simple labels, no md headings)
+- generate_cv_variant_pdf(...) – boring single-column ATS PDF from plain/md text
 - watchlist_cv helpers – weak-match CV render from sourcing watchlist
 - generate_cover_letter(...) – later
 """
 
+from backend.generation.cv_pdf import generate_cv_variant_pdf
 from backend.generation.cv_variant import (
     generate_cv_variant,
     generate_cv_variant_plain,
@@ -24,6 +26,7 @@ __all__ = [
     "selection_plan",
     "generate_cv_variant",
     "generate_cv_variant_plain",
+    "generate_cv_variant_pdf",
     "render_watchlist_cv",
     "write_watchlist_cv_from_row",
     "write_watchlist_cvs",

@@ -12,6 +12,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from backend import data_loader, fit_engine
+from backend.generation.cv_pdf import generate_cv_variant_pdf
 from backend.generation.cv_variant import (
     generate_cv_variant,
     generate_cv_variant_plain,
@@ -135,7 +136,7 @@ def write_watchlist_cv_from_row(
     *,
     fit: FitCheckResponse | None = None,
 ) -> Path:
-    """Render and write one watchlist row; returns written path."""
+    """Render and write one watchlist row (.md + .pdf); returns .md path."""
     job = row.get("job") or {}
     if not isinstance(job, dict) or not job.get("jd_text"):
         raise ValueError(f"watchlist row missing job.jd_text: {row.get('url')}")
@@ -167,6 +168,7 @@ def write_watchlist_cv_from_row(
         top_score=top_score if top_score is None else int(top_score),
     )
     path.write_text(markdown, encoding="utf-8")
+    generate_cv_variant_pdf(markdown, path.with_suffix(".pdf"))
     return path
 
 
@@ -176,7 +178,7 @@ def write_watchlist_cvs(
     *,
     fits: dict[str, FitCheckResponse] | None = None,
 ) -> list[Path]:
-    """Write CV markdown for each watchlist row. ``fits`` keyed by job URL."""
+    """Write CV markdown (+ .pdf sibling) for each watchlist row. ``fits`` keyed by job URL."""
     written: list[Path] = []
     fit_map = fits or {}
     for row in rows:
@@ -304,7 +306,7 @@ def write_passed_cv_from_row(
     *,
     fit: FitCheckResponse | None = None,
 ) -> Path:
-    """Render and write one passed row (.md + .txt sibling); returns .md path."""
+    """Render and write one passed row (.md + .txt + .pdf); returns .md path."""
     job = row.get("job") or {}
     if not isinstance(job, dict) or not job.get("jd_text"):
         raise ValueError(f"passed row missing job.jd_text: {row.get('url')}")
@@ -333,6 +335,7 @@ def write_passed_cv_from_row(
     )
     path.write_text(markdown, encoding="utf-8")
     path.with_suffix(".txt").write_text(plain, encoding="utf-8")
+    generate_cv_variant_pdf(plain, path.with_suffix(".pdf"))
     return path
 
 
@@ -342,7 +345,7 @@ def write_passed_cvs(
     *,
     fits: dict[str, FitCheckResponse] | None = None,
 ) -> list[Path]:
-    """Write CV markdown (+ .txt sibling) for each strong-pass row."""
+    """Write CV markdown (+ .txt + .pdf siblings) for each strong-pass row."""
     written: list[Path] = []
     fit_map = fits or {}
     for row in rows:

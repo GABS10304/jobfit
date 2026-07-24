@@ -93,6 +93,9 @@ def test_write_watchlist_cv_from_row_writes_file(flex_watchlist_row: dict, tmp_p
     content = path.read_text(encoding="utf-8")
     assert "Weak-Match / Watchlist" in content
     assert "# Gabriel" in content
+    pdf = path.with_suffix(".pdf")
+    assert pdf.is_file()
+    assert pdf.stat().st_size > 0
     render_mock.assert_called_once()
     call_kwargs = render_mock.call_args.kwargs
     assert "AI Product Manager" in (call_kwargs.get("title") or "")
@@ -165,6 +168,9 @@ def test_write_passed_cv_from_row(flex_watchlist_row: dict, tmp_path: Path):
     assert "Strong-Pass" in plain
     assert "## " not in plain
     assert "> **" not in plain
+    pdf = path.with_suffix(".pdf")
+    assert pdf.is_file()
+    assert pdf.stat().st_size > 0
 
 
 def test_batch_cv_from_watchlist_flag(tmp_path: Path):

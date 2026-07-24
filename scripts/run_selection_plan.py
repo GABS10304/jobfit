@@ -24,6 +24,7 @@ from backend.generation.cv_variant import (
     generate_cv_variant,
     generate_cv_variant_plain,
 )
+from backend.generation.cv_pdf import generate_cv_variant_pdf
 from backend.generation.selection_plan import selection_plan
 from backend.models import CvVariant
 
@@ -77,15 +78,16 @@ def main() -> int:
     )
     parser.add_argument(
         "--format",
-        choices=("md", "txt"),
+        choices=("md", "txt", "pdf"),
         default="md",
-        help="CV render format: md (markdown headings) or txt (plain labels)",
+        help="CV render format: md, txt (plain), or pdf (ATS single-column)",
     )
     parser.add_argument(
         "--out",
         type=Path,
         default=None,
-        help="Write rendered CV to this path (implies --render)",
+        help="Write rendered CV to this path (implies --render). "
+        "For md/txt also writes a .pdf sibling automatically.",
     )
     args = parser.parse_args()
 
@@ -111,18 +113,39 @@ def main() -> int:
     print(json.dumps(variant.model_dump(), ensure_ascii=False, indent=2))
 
     if args.render or args.out is not None:
+        plain = generate_cv_variant_plain(plan, cv, rules)
+        markdown = generate_cv_variant(plan, cv, rules)
         if args.format == "txt":
-            rendered = generate_cv_variant_plain(plan, cv, rules)
+            rendered = plain
             label = "ATS plain text"
+        elif args.format == "pdf":
+            rendered = plain
+            label = "ATS PDF (from plain text)"
         else:
-            rendered = generate_cv_variant(plan, cv, rules)
+            rendered = markdown
             label = "ATS markdown"
+
         if args.out is not None:
             args.out.parent.mkdir(parents=True, exist_ok=True)
-            args.out.write_text(rendered, encoding="utf-8")
-            print(f"\n--- CV written to {args.out} ---", file=sys.stderr)
-        print(f"\n--- CV ({label}) ---\n")
-        print(rendered)
+            if args.format == "pdf":
+                pdf_path = args.out if args.out.suffix.lower() == ".pdf" else args.out.with_suffix(".pdf")
+                generate_cv_variant_pdf(plain, pdf_path)
+                print(f"\n--- CV PDF written to {pdf_path} ---", file=sys.stderr)
+            else:
+                args.out.write_text(rendered, encoding="utf-8")
+                pdf_sibling = args.out.with_suffix(".pdf")
+                generate_cv_variant_pdf(
+                    plain if args.format == "txt" else rendered,
+                    pdf_sibling,
+                )
+                print(f"\n--- CV written to {args.out} ---", file=sys.stderr)
+                print(f"--- CV PDF sibling written to {pdf_sibling} ---", file=sys.stderr)
+
+        if args.format != "pdf":
+            print(f"\n--- CV ({label}) ---\n")
+            print(rendered)
+        else:
+            print(f"\n--- CV ({label}) ---", file=sys.stderr)
 
     return 0
 

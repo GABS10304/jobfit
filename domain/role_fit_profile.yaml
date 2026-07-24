@@ -51,6 +51,8 @@ roles:
         reason: Lokale Python/Streamlit/LangChain/Ollama-Umgebung für DSGVO-konforme Analyse von Tickets, Freitexten und Reports.
       - project_name: GovTech Analytics
         reason: Analytics-Prozesse mit Datenschutzbeauftragten und Engineering aufgebaut.
+      - project_name: MCP / Claude-Desktop Prototyping
+        reason: Feasibility-first-Validierung von AI-Use-Cases mit MCP-Prototypen und Claude Desktop (belegt in cv_master).
     example_projects:
       - project_name: RIWA - AI-nahe Produktarbeit
         employer_or_client: RIWA

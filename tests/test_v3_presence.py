@@ -69,8 +69,20 @@ def client() -> TestClient:
         ("2 Präsenztage pro Woche im Büro.", "penalty", True),
         ("3 Präsenztage pro Woche im Büro.", "penalty", True),
         ("4 Präsenztage pro Woche im Büro.", "failed", False),
+        # sipgate-style: frequency without "Tage"; hyphen + en-dash
+        ("Lust 2-3 Mal die Woche an unseren Campus zu kommen.", "penalty", True),
+        ("Lust, 2–3 Mal die Woche an unseren Campus zu kommen.", "penalty", True),
+        ("gerne 2 bis 3 Tage pro Woche bei uns am Campus.", "penalty", True),
     ],
-    ids=["1_day_ok", "2_days_penalty", "3_days_penalty", "gt3_days_no_go"],
+    ids=[
+        "1_day_ok",
+        "2_days_penalty",
+        "3_days_penalty",
+        "gt3_days_no_go",
+        "mal_die_woche_hyphen",
+        "mal_die_woche_en_dash",
+        "bis_tage_pro_woche",
+    ],
 )
 def test_v3_boundary_office_days_constraint_layer(
     presence_phrase: str, expected_status: str, requires_exception: bool

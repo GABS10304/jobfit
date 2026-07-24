@@ -54,6 +54,8 @@ _REMOTE_FIRST_OK = (
 )
 
 # V3: 2–3 Office-Tage → Penalty (Ausnahme nur bei außergewöhnlich starker Rolle).
+# Include "Mal die Woche" (sipgate-style) and en-dash variants; casefold alone
+# does not normalize "–" → "-".
 _PRESENCE_PENALTY_2_TO_3 = (
     "2 tage büro",
     "2 days in the office",
@@ -65,6 +67,9 @@ _PRESENCE_PENALTY_2_TO_3 = (
     "zwei tage vor ort",
     "2 tage pro woche",
     "zwei tage pro woche",
+    "2-3 tage pro woche",
+    "2–3 tage pro woche",
+    "2 bis 3 tage pro woche",
     "2 bürotage",
     "zwei bürotage",
     "3 tage büro",
@@ -79,6 +84,11 @@ _PRESENCE_PENALTY_2_TO_3 = (
     "drei tage pro woche",
     "3 bürotage",
     "drei bürotage",
+    # Frequency without "Tage" (e.g. "2–3 Mal die Woche am Campus")
+    "2-3 mal die woche",
+    "2–3 mal die woche",
+    "2 bis 3 mal die woche",
+    "zwei bis drei mal die woche",
 )
 
 # >3 days / feste Präsenzpflicht / predominantly onsite → hard no-go.

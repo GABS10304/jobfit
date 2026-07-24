@@ -240,8 +240,56 @@ Lesart: Board-Volume 54→155, Fit-Checks 5→16, Strong-Passes 2→**3**. Neuer
 | clark | 3 | 0 | 0 | 0 | — |
 | **Summe** | **155** | **16** | **3** | **1** | **19%** |
 
+## Sprint 18 — sipgate Diagnose (0 Passes) + Presence-Cue Fix
+
+| Feld | Wert |
+|------|------|
+| Fokus | Warum sipgate 5 Product-Fit-Checks / 0 Passes (Sprint 17); nur sichere Lexikon-Fix |
+| Board | `https://sipgate.jobs.personio.de/` |
+| Runner | `scripts/fetch_jobs_batch.py --include-weak-proceed` |
+| Artifact | `/tmp/sipgate_sprint18.json` |
+| Discovered | **8** |
+| Prefilter rejects | 3 |
+| Fit-checked | **5** |
+| Passed (≥75) | **0** |
+| Watchlist | **0** |
+| Rejected | **8** |
+| Thresholds | unverändert (Pass 75; Präsenz-Ausnahme 90) |
+
+### Diagnose (Sprint-17 Artifact + Remeasure)
+
+Alle 5 Fit-Checks: `status_flag=no_go` wegen **Präsenz**, nicht Title-Allowlist-FP und nicht „falsche“ Non-Product-Top-Role als Hauptursache.
+
+| Titel | status_flag | top_score | top_role | presence | reject |
+|-------|-------------|-----------|----------|----------|--------|
+| Produktmanagement | no_go | 43 *(vor Fix: null / unclear)* | `product_operations` | 2–3 Tage, exception_denied | `status_flag=no_go` |
+| Produktmanagement AI & sipgate Flow | no_go | 38 *(vor Fix: null / unclear)* | `technical_product_manager` | 2–3 Tage, exception_denied | `status_flag=no_go` |
+| Produktmanagement Contact Center | no_go | 57 | `technical_product_manager` | 2–3 Tage, exception_denied | `status_flag=no_go` |
+| Produktmanagement Expansion & Growth | no_go | 36 | `ai_product_manager` | 2–3 Tage, exception_denied | `status_flag=no_go` |
+| Produktmanagement Contact Center Growth | no_go | 46 | `technical_product_manager` | 2–3 Tage, exception_denied | `status_flag=no_go` |
+
+Prefilter-Rejects (kein Fit-Check): Growth Manager - AI Agents; Event-/Veranstaltungsmanagement; Studentische Aushilfe Retrospektiven Moderation.
+
+Lesart vor Fix: 2/5 JDs mit Wording **„2–3 Mal die Woche … Campus“** → Presence `unclear` → hartes no_go (Score/Role null). 3/5 korrekt als 2–3 Office-Tage, Scores 36–57 ≪ Ausnahme-Bar 90 → `exception_denied`.
+
+### Fix (klein, sicher)
+
+- `backend/constraints_engine.py`: Presence-Penalty-Cues für `2-3` / `2–3` / `2 bis 3 mal die woche` (+ explizite `… tage pro woche`-Varianten inkl. En-Dash).
+- Tests: `tests/test_v3_presence.py` (sipgate-Phrasen).
+- **Keine** Threshold-/Filter-Schwellen-Änderung; kein Role-Profile-Hack für Pass-Erzwingen.
+
+### Remeasure (sipgate allein)
+
+Nach Cue-Fix: alle 5 Product-Titel `two_to_three_office_days` + `exception_denied`; Scores 36–57 sichtbar; **weiter 0 Pass / 0 Watchlist**. Engpass bleibt Präsenz-Ausnahme (Score ≥90) bei Campus 2–3×/Woche — nicht Lexikon-Pass-Pfad.
+
+## Pass-Raten (sipgate, Stand Sprint 18)
+
+| Board | Discovered | Fit-checked | Passed | Watchlist | Pass-Rate (fit-checked) |
+|-------|------------|-------------|--------|-----------|-------------------------|
+| sipgate | 8 | 5 | 0 | 0 | 0% |
+
 ## Nächster Sprint (Empfehlung)
 
 1. Conceptboard-Pass (93) + Analytics-Watchlist (57) gegen Lexikon/JD prüfen — ohne Threshold zu senken.
-2. sipgate Produktmanagement-Titel: warum kein Pass/Watchlist (Role-Gate vs. Score).
+2. sipgate bewusst als Presence-no_go belassen oder Board nur für Remote/≤1-Tag-Öffnungen priorisieren; Score-Lexikon hilft hier nicht gegen Bar 90.
 3. Master-Bullets Meta-/Proof-Wording bereinigen (SSOT); Volume-Boards ohne Product-Titel nur bei Bedarf behalten.

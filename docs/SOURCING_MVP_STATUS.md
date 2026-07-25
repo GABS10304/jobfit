@@ -18,8 +18,8 @@ Passed-CVs: `out/cv_passed/` (gitignored). Review: [`CV_PASSED_REVIEW.md`](CV_PA
 ## Pipeline
 
 ```
-Board-Liste (personio_boards.yaml)
-  → discover (Personio listings)
+Board-Liste (personio_boards.yaml | workday_boards.yaml)
+  → discover (Personio HTML | Workday CXS)
     → title prefilter (domain/sourcing_filter.yaml)
     → V3 fit-check (role_fit_profile + signal_lexicon; Option A′ optional tools)
     → label: passed (≥75) | watchlist (weak proceed) | reject
@@ -59,12 +59,23 @@ python scripts/fetch_jobs_multi_board.py \
 
 Single-Board: `python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed --out …`
 
+Workday Multi-Board:
+
+```bash
+python scripts/fetch_jobs_multi_workday.py \
+  --out /tmp/multi_workday_e2e.json \
+  --limit-per-board 3 \
+  --delay 2.0
+```
+
+Workday Single-Board: `python scripts/fetch_jobs_workday_board.py --board-url <url> --search-text "Product Manager" --limit 5 --fit-check`
+
 Watchlist-CVs nachträglich: `python scripts/run_watchlist_cv.py --from-json <batch.json>`
 
 ## Bekannte Limits
 
-- Personio-Boards + Workday Board-Discovery (CXS) + Workday Einzel-JD-Fetch (kein LinkedIn/StepStone).
-- Rate-Limits (429) → Boards werden übersprungen/retries; Delay nötig.
+- Personio-Boards + Workday Multi-Board (CXS) + Workday Einzel-JD-Fetch (kein LinkedIn/StepStone).
+- Rate-Limits (429) / WAF-HTML → Boards werden übersprungen/retries; Delay nötig.
 - Strong-Pass hängt am Lexikon + JD-Wording; kein Claim-Erfinden im CV.
 - Prefilter verwirft viele Nicht-Product-Titel (hohe Reject-Rate, wenige Fit-Checks).
 - Generated `out/` ist gitignored; Reviews liegen in Docs.
@@ -80,5 +91,7 @@ Watchlist-CVs nachträglich: `python scripts/run_watchlist_cv.py --from-json <ba
 | 13 | Role-aware Employment-Ranking (Scrum-Master nur bei Coach-JD) |
 | 14 | Status-Docs finalisiert; Repo remote |
 | 19 | Workday JD-Fetcher MVP; ING Live = `verify` / Filter-Reject (Score 36) |
+| 20 | Workday Board-Discovery (CXS); ING `--limit 5` → 0 Pass / 1 Watchlist |
+| 21 | Workday Multi-Board YAML + Runner; Salesforce-Familie CXS-ok, ING oft WAF |
 
 Details: [`SOURCING_SPRINTS.md`](SOURCING_SPRINTS.md), [`SCORE_DIAGNOSIS_AI_PM.md`](SCORE_DIAGNOSIS_AI_PM.md).

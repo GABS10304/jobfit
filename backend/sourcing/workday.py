@@ -472,7 +472,20 @@ def fetch_cxs_jobs(
     with httpx.Client(timeout=timeout, follow_redirects=True, headers=headers) as client:
         response = client.post(board.cxs_jobs_url, json=payload)
         response.raise_for_status()
-        data = response.json()
+        content_type = (response.headers.get("content-type") or "").casefold()
+        body = response.text
+        if "json" not in content_type and body.lstrip()[:1] in {"<", ""}:
+            raise ValueError(
+                "Workday CXS returned non-JSON (possible WAF/HTML challenge) "
+                f"for {board.cxs_jobs_url}"
+            )
+        try:
+            data = response.json()
+        except json.JSONDecodeError as exc:
+            raise ValueError(
+                "Workday CXS returned non-JSON (possible WAF/HTML challenge) "
+                f"for {board.cxs_jobs_url}"
+            ) from exc
     if not isinstance(data, dict):
         raise ValueError("Workday CXS response is not a JSON object")
     return data

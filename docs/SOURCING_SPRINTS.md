@@ -340,8 +340,32 @@ Board/Listing → Job-URLs via öffentlicher CXS-Search, danach gleicher Fit-/Fi
 | Watchlist | 1 (`Product Area Lead – Wholesale Banking Advanced Analytics`, score 54) |
 | Lesart | CXS stabil; Title-Prefilter greift auf CXS-Titel; Pipeline analog Personio. Keine Threshold-Änderung. |
 
+## Sprint 21 — Workday Multi-Board Runner
+
+Personio-Multi-Board-Spiegel für Workday: Board-YAML + CXS-Loop → Prefilter → Fit → Watchlist. **Keine** Threshold-Änderung.
+
+| Feld | Wert |
+|------|------|
+| Boards | `domain/workday_boards.yaml` (ING + Salesforce/Slack/Tableau/Heroku) |
+| Runner | `scripts/fetch_jobs_multi_workday.py` |
+| Defaults | `--search-text "Product Manager"`, `--include-weak-proceed` ON |
+| Offline-Tests | `tests/test_workday_multi_board.py` |
+
+### Live Smoke (limit 3/board, 2026-07-25)
+
+| Board | Status | Discovered | Fit-checked | Passed | Watchlist |
+|-------|--------|------------|-------------|--------|-----------|
+| ing | error (WAF HTML) | 0 | 0 | 0 | 0 |
+| salesforce | ok | 20 | 3 | 0 | 0 |
+| slack | ok | 3 | 1 | 0 | 0 |
+| tableau | ok | 1 | 0 | 0 | 0 |
+| heroku | skipped (empty) | 0 | 0 | 0 | 0 |
+| **overall** | 3 ok / 1 error / 1 skipped | **24** | **4** | **0** | **0** |
+
+Artifact: `/tmp/multi_workday_sprint21.json`. Lesart: Multi-Board-Pfad analog Personio; Salesforce-Familie CXS stabil; ING aktuell WAF → graceful skip (Sprint-20-Baseline behalten). Fit-Rejects u. a. `no_go` (Presence/Employment) — **keine** Threshold-Änderung.
+
 ## Nächster Sprint (Empfehlung)
 
 1. Conceptboard-Pass (93) + Analytics-Watchlist (57) gegen Lexikon/JD prüfen — ohne Threshold zu senken.
 2. sipgate bewusst als Presence-no_go belassen oder Board nur für Remote/≤1-Tag-Öffnungen priorisieren; Score-Lexikon hilft hier nicht gegen Bar 90.
-3. Optional: Workday Multi-Board YAML analog Personio, wenn Volume nötig.
+3. Weitere unabhängige Workday-Tenants verifizieren (viele WAF); ING-CXS erneut, wenn Challenge weg.

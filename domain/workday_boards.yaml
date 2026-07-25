@@ -1,0 +1,35 @@
+# Known Workday career boards for multi-board sourcing runs (CXS).
+# Verified via POST /wday/cxs/{tenant}/{site}/jobs during Sprint 20/21.
+# Dead / WAF boards: set disabled: true (skipped by load_boards) or leave for
+# graceful skip by scripts/fetch_jobs_multi_workday.py (empty/error/HTML-challenge).
+
+boards:
+  - id: ing
+    name: ING
+    url: https://ing.wd3.myworkdayjobs.com/de-DE/ICSGBLCOR
+    region: DE/EU
+    notes: Sprint 20 CXS baseline (Product Manager search). Sprint 21 probe often returns WAF HTML → runner skips.
+
+  - id: salesforce
+    name: Salesforce
+    url: https://salesforce.wd12.myworkdayjobs.com/External_Career_Site
+    region: Global
+    notes: Sprint 21 CXS-ok; high Product Manager volume
+
+  - id: slack
+    name: Slack (Salesforce)
+    url: https://salesforce.wd12.myworkdayjobs.com/Slack
+    region: Global
+    notes: Sprint 21 CXS-ok; Salesforce tenant, Slack site
+
+  - id: tableau
+    name: Tableau (Salesforce)
+    url: https://salesforce.wd12.myworkdayjobs.com/Tableau
+    region: Global
+    notes: Sprint 21 CXS-ok; Salesforce tenant, Tableau site
+
+  - id: heroku
+    name: Heroku (Salesforce)
+    url: https://salesforce.wd12.myworkdayjobs.com/Heroku
+    region: Global
+    notes: Sprint 21 CXS responds; often empty for Product Manager search

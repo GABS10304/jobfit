@@ -34,7 +34,7 @@ from scripts.fetch_jobs_batch import (  # noqa: E402
 )
 from backend.models import FitCheckResponse  # noqa: E402
 from backend.generation.watchlist_cv import write_passed_cvs, write_watchlist_cvs  # noqa: E402
-from backend.sourcing.personio import JobListing  # noqa: E402
+from backend.sourcing.personio import JobListing, filter_listings_by_location  # noqa: E402
 from backend.sourcing.workday import (  # noqa: E402
     CXS_PAGE_SIZE,
     fetch_cxs_jobs,
@@ -103,8 +103,9 @@ def _discover_with_prefilter(
     search_text: str,
     limit: int | None,
     use_playwright: bool,
+    location_keywords: list[str] | None = None,
 ) -> tuple[list[JobListing], list[JobListing], list[dict[str, Any]], int]:
-    """Paginate CXS, title-prefilter as we go; stop when enough candidates.
+    """Paginate CXS, location+title-prefilter as we go; stop when enough candidates.
 
     Returns (all_seen_listings, candidates, prefilter_rejected, discovered_count).
     """
@@ -142,8 +143,13 @@ def _discover_with_prefilter(
             all_listings.append(listing)
             fresh.append(listing)
 
+        geo_kept, geo_rejected = filter_listings_by_location(
+            fresh, location_keywords
+        )
+        rejected.extend(geo_rejected)
+
         page_candidates, page_rejected = _prefilter_listings(
-            fresh, use_playwright=use_playwright
+            geo_kept, use_playwright=use_playwright
         )
         candidates.extend(page_candidates)
         rejected.extend(page_rejected)
@@ -175,6 +181,15 @@ def main() -> int:
         "--search-text",
         default="",
         help="Optional CXS searchText to narrow listings (board mode only)",
+    )
+    parser.add_argument(
+        "--location-keywords",
+        nargs="*",
+        default=None,
+        help=(
+            "Keep CXS listings whose locationsText matches any keyword "
+            "(substring). Missing location kept. Omit flag = no location filter."
+        ),
     )
     parser.add_argument(
         "--fit-check",
@@ -246,6 +261,7 @@ def main() -> int:
             search_text=args.search_text,
             limit=args.limit,
             use_playwright=args.playwright,
+            location_keywords=args.location_keywords,
         )
     else:
         listings = _load_urls_from_file(args.urls_file)

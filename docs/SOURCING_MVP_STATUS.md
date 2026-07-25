@@ -1,6 +1,6 @@
 # Sourcing MVP Status
 
-Kurzstatus der lokalen Pipeline (Personio → Fit → CV). Stand: Sprint 14.
+Kurzstatus der lokalen Pipeline (Personio → Fit → CV; Workday optional). Stand: Sprint A–C (2026-07-25).
 
 ## Ergebnis (aktuell)
 
@@ -10,88 +10,61 @@ Multi-Board **kann Strong Passes** erzeugen (Score ≥ 75, Schwelle unverändert
 |-------|-------|------:|--------|
 | FLEX | AI Product Manager | **76** | passed |
 | credium | AI Produkt Manager (SaaS) | **79** | passed |
+| conceptboard | Senior Product Manager | **93** | passed (KEEP, siehe Review) |
 
-Passed-CVs: `out/cv_passed/` (gitignored). Review: [`CV_PASSED_REVIEW.md`](CV_PASSED_REVIEW.md).
+Passed-CVs: `out/cv_passed/` (gitignored). Reviews: [`CV_PASSED_REVIEW.md`](CV_PASSED_REVIEW.md), [`CONCEPTBOARD_PASS_REVIEW.md`](CONCEPTBOARD_PASS_REVIEW.md).
 
-**Option A′** (optional Tools im Score): umgesetzt und aktiv; Tools erhöhen den Nenner nur wenn gematcht. Details: [`REVIEW_AUFTRAG_TOOL_SIGNALS.md`](REVIEW_AUFTRAG_TOOL_SIGNALS.md). Keine V3-Threshold-Änderung.
+**Option A′** (optional Tools im Score): aktiv. Keine V3-Threshold-Änderung.
 
 ## Pipeline
 
 ```
 Board-Liste (personio_boards.yaml | workday_boards.yaml)
   → discover (Personio HTML | Workday CXS)
+    → location prefilter (Workday, optional DE/Remote keywords)
     → title prefilter (domain/sourcing_filter.yaml)
     → V3 fit-check (role_fit_profile + signal_lexicon; Option A′ optional tools)
     → label: passed (≥75) | watchlist (weak proceed) | reject
     → optional: selection_plan + CV-Render → out/cv_passed | out/cv_watchlist
 ```
 
-| Stufe | Was passiert | Output |
-|-------|--------------|--------|
-| Scraper | Personio Board + Job-HTML → normalisierte JD | `job.jd_text`, URL, Titel |
-| Filter | Title-Prefilter; Product-Role-Gate | candidates / rejects |
-| Fit-Check | Deterministische V3-Scores pro Zielrolle | top_score, role_id, matched_signals |
-| Passed / Watchlist | Score ≥ 75 → passed; schwache Product-Hits → watchlist | JSON + optional Markdown-CVs |
-| CV | `selection_plan` + `generate_cv_variant` (kein LLM) | ATS-Markdown DE |
-
-## End-to-End ausführen
+## Weekly Run (empfohlen)
 
 ```bash
 cd /path/to/job-fit-system
 source .venv/bin/activate
 
-# Alle Boards aus domain/personio_boards.yaml → Fit + Passed-CVs
-python scripts/fetch_jobs_multi_board.py \
-  --out /tmp/multi_board_e2e.json \
-  --include-weak-proceed \
-  --cv-from-passed \
-  --cv-out-passed out/cv_passed
+# Personio alle Boards → Fit + Passed-CVs
+./scripts/weekly_sourcing_run.sh
 
-# Subset (schnell, rate-limit-schonend)
-python scripts/fetch_jobs_multi_board.py \
-  --board-ids flex credium \
-  --limit-per-board 5 \
-  --delay 2.5 \
-  --backoff 8 \
-  --out /tmp/multi_board_subset.json \
-  --cv-from-passed
+# Optional zusätzlich Workday (YAML location_keywords)
+./scripts/weekly_sourcing_run.sh --with-workday
 ```
 
-Single-Board: `python scripts/fetch_jobs_batch.py --board-url <url> --include-weak-proceed --out …`
+Ergebnis-JSON unter `out/weekly/`; CVs unter `out/cv_passed/`.
 
-Workday Multi-Board:
+## End-to-End (manuell)
 
 ```bash
+# Personio subset
+python scripts/fetch_jobs_multi_board.py \
+  --board-ids flex credium conceptboard \
+  --out /tmp/multi_board_subset.json \
+  --include-weak-proceed \
+  --cv-from-passed
+
+# Workday mit DE/Remote-Keywords aus YAML
 python scripts/fetch_jobs_multi_workday.py \
-  --out /tmp/multi_workday_e2e.json \
-  --limit-per-board 3 \
-  --delay 2.0
+  --board-ids salesforce \
+  --limit-per-board 5 \
+  --out /tmp/multi_workday.json
 ```
-
-Workday Single-Board: `python scripts/fetch_jobs_workday_board.py --board-url <url> --search-text "Product Manager" --limit 5 --fit-check`
-
-Watchlist-CVs nachträglich: `python scripts/run_watchlist_cv.py --from-json <batch.json>`
 
 ## Bekannte Limits
 
-- Personio-Boards + Workday Multi-Board (CXS) + Workday Einzel-JD-Fetch (kein LinkedIn/StepStone).
-- Rate-Limits (429) / WAF-HTML → Boards werden übersprungen/retries; Delay nötig.
-- Strong-Pass hängt am Lexikon + JD-Wording; kein Claim-Erfinden im CV.
-- Prefilter verwirft viele Nicht-Product-Titel (hohe Reject-Rate, wenige Fit-Checks).
-- Generated `out/` ist gitignored; Reviews liegen in Docs.
-- Kein Auto-Apply, kein Tracking-UI in diesem MVP.
+- Personio-Boards + Workday Multi-Board (CXS); ING Workday oft WAF → disabled.
+- Workday `Remote` matcht auch US-Remote — ggf. Keywords ohne nacktes Remote nutzen.
+- Title-Prefilter lässt „Product Marketing“ teils durch (Watchlist, selten Strong Pass).
+- Kein Auto-Apply, kein LinkedIn/StepStone.
 
-## Sprint-Pfad (kurz)
-
-| Sprint | Ergebnis |
-|--------|----------|
-| 9 | Option A′ → credium **79**, FLEX noch Watchlist (65) |
-| 10 | Lexikon-Gap FLEX → **76** + **79**; erste Strong-Passes |
-| 11 | Passed-CV Review; Renderer strippt Evidence-Tags |
-| 13 | Role-aware Employment-Ranking (Scrum-Master nur bei Coach-JD) |
-| 14 | Status-Docs finalisiert; Repo remote |
-| 19 | Workday JD-Fetcher MVP; ING Live = `verify` / Filter-Reject (Score 36) |
-| 20 | Workday Board-Discovery (CXS); ING `--limit 5` → 0 Pass / 1 Watchlist |
-| 21 | Workday Multi-Board YAML + Runner; Salesforce-Familie CXS-ok, ING oft WAF |
-
-Details: [`SOURCING_SPRINTS.md`](SOURCING_SPRINTS.md), [`SCORE_DIAGNOSIS_AI_PM.md`](SCORE_DIAGNOSIS_AI_PM.md).
+Details: [`SOURCING_SPRINTS.md`](SOURCING_SPRINTS.md).

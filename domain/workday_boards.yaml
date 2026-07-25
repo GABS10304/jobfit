@@ -1,35 +1,62 @@
 # Known Workday career boards for multi-board sourcing runs (CXS).
 # Verified via POST /wday/cxs/{tenant}/{site}/jobs during Sprint 20/21.
-# Dead / WAF boards: set disabled: true (skipped by load_boards) or leave for
-# graceful skip by scripts/fetch_jobs_multi_workday.py (empty/error/HTML-challenge).
+# Dead / WAF boards: set disabled: true (skipped by load_boards).
+
+defaults:
+  # EU / remote-first oriented search; override via CLI --search-text
+  search_text: "Product Manager"
+  # Post-CXS location filter (case-insensitive substring). Listings without
+  # locationsText are kept (fail-open). Empty list = no location filter.
+  location_keywords:
+    - Germany
+    - Deutschland
+    - Remote
+    - Berlin
+    - München
+    - Munich
+    - Hamburg
+    - Frankfurt
+    - Köln
+    - Cologne
+    - Stuttgart
+    - Nürnberg
+    - Nuremberg
+    - Zürich
+    - Zurich
+    - Wien
+    - Vienna
+    - Amsterdam
+    - EMEA
+    - DACH
 
 boards:
   - id: ing
     name: ING
     url: https://ing.wd3.myworkdayjobs.com/de-DE/ICSGBLCOR
     region: DE/EU
-    notes: Sprint 20 CXS baseline (Product Manager search). Sprint 21 probe often returns WAF HTML → runner skips.
+    disabled: true
+    notes: "WAF/HTML challenge on CXS (Sprint 21). Re-enable when JSON CXS stable. Sprint-20 baseline retained."
 
   - id: salesforce
     name: Salesforce
     url: https://salesforce.wd12.myworkdayjobs.com/External_Career_Site
     region: Global
-    notes: Sprint 21 CXS-ok; high Product Manager volume
+    notes: CXS-ok; high Product Manager volume — use location_keywords for DE/Remote
 
   - id: slack
     name: Slack (Salesforce)
     url: https://salesforce.wd12.myworkdayjobs.com/Slack
     region: Global
-    notes: Sprint 21 CXS-ok; Salesforce tenant, Slack site
+    notes: CXS-ok; Salesforce tenant, Slack site
 
   - id: tableau
     name: Tableau (Salesforce)
     url: https://salesforce.wd12.myworkdayjobs.com/Tableau
     region: Global
-    notes: Sprint 21 CXS-ok; Salesforce tenant, Tableau site
+    notes: CXS-ok; Salesforce tenant, Tableau site
 
   - id: heroku
     name: Heroku (Salesforce)
     url: https://salesforce.wd12.myworkdayjobs.com/Heroku
     region: Global
-    notes: Sprint 21 CXS responds; often empty for Product Manager search
+    notes: CXS responds; often empty for Product Manager search

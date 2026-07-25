@@ -364,8 +364,32 @@ Personio-Multi-Board-Spiegel für Workday: Board-YAML + CXS-Loop → Prefilter �
 
 Artifact: `/tmp/multi_workday_sprint21.json`. Lesart: Multi-Board-Pfad analog Personio; Salesforce-Familie CXS stabil; ING aktuell WAF → graceful skip (Sprint-20-Baseline behalten). Fit-Rejects u. a. `no_go` (Presence/Employment) — **keine** Threshold-Änderung.
 
+## Sprint A — Conceptboard Qualitätsgate (2026-07-25)
+
+Siehe [`CONCEPTBOARD_PASS_REVIEW.md`](CONCEPTBOARD_PASS_REVIEW.md).
+
+| Job | Score | Entscheidung |
+|-----|------:|--------------|
+| Senior Product Manager | **93** | **KEEP** (echtes Ownership, Remote) |
+| Product Analytics Manager | 57 | Watchlist belassen |
+
+## Sprint B — Workday DE/Remote-Fokus (2026-07-25)
+
+| Änderung | Detail |
+|----------|--------|
+| ING | `disabled: true` (WAF) in `domain/workday_boards.yaml` |
+| Defaults | `location_keywords` DE/DACH/Remote/EMEA |
+| Runner | Location-Prefilter vor Title-Prefilter; CLI `--location-keywords` |
+| Live Smoke | Salesforce `--limit-per-board 3` → discovered 386, fit 2, **0 pass / 2 watchlist** (Remote-US Product Marketing) |
+
+Lesart: Location-Filter reduziert Non-EU stark, lässt aber „Remote“-US durch. Strong Passes weiter primär Personio. Keine Threshold-Änderung.
+
+## Sprint C — Weekly Run
+
+`scripts/weekly_sourcing_run.sh` — Personio multi-board + optional `--with-workday`.
+
 ## Nächster Sprint (Empfehlung)
 
-1. Conceptboard-Pass (93) + Analytics-Watchlist (57) gegen Lexikon/JD prüfen — ohne Threshold zu senken.
-2. sipgate bewusst als Presence-no_go belassen oder Board nur für Remote/≤1-Tag-Öffnungen priorisieren; Score-Lexikon hilft hier nicht gegen Bar 90.
-3. Weitere unabhängige Workday-Tenants verifizieren (viele WAF); ING-CXS erneut, wenn Challenge weg.
+1. Title-Prefilter: „Product Marketing“ vs Product Manager schärfer trennen.
+2. Workday: Remote-US optional ausschließen (`location_keywords` ohne nacktes `Remote`, oder `Germany|DACH` only).
+3. Personio Weekly als Standardbetrieb.

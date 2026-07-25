@@ -14,13 +14,15 @@ BOARDS_YAML = REPO_ROOT / "domain" / "workday_boards.yaml"
 
 
 def test_load_boards_from_yaml():
-    boards = multi.load_boards(BOARDS_YAML)
+    boards, defaults = multi.load_boards_config(BOARDS_YAML)
     assert len(boards) >= 3
     ids = {b["id"] for b in boards}
-    assert "ing" in ids
+    assert "ing" not in ids  # disabled: WAF
     assert "salesforce" in ids
     assert all(b["url"].startswith("https://") for b in boards)
     assert all("myworkdayjobs.com" in b["url"] for b in boards)
+    assert defaults.get("search_text") == "Product Manager"
+    assert "Germany" in (defaults.get("location_keywords") or [])
 
 
 def test_multi_workday_aggregates_and_skips_dead(tmp_path: Path):
@@ -42,14 +44,18 @@ def test_multi_workday_aggregates_and_skips_dead(tmp_path: Path):
         JobListing(
             url="https://alive.wd3.myworkdayjobs.com/Careers/job/Berlin/PM_REQ-1",
             title="Product Manager (m/w/d)",
+            locations_text="Berlin",
         ),
         JobListing(
             url="https://alive.wd3.myworkdayjobs.com/Careers/job/Berlin/Eng_REQ-2",
             title="Java Engineer (m/w/d)",
+            locations_text="Berlin",
         ),
     ]
 
-    def fake_discover(board_url, *, search_text, limit, use_playwright):
+    def fake_discover(
+        board_url, *, search_text, limit, use_playwright, location_keywords=None
+    ):
         if "dead" in board_url:
             raise RuntimeError("Workday CXS returned non-JSON (possible WAF/HTML challenge)")
         candidates = [listings[0]]
@@ -87,7 +93,9 @@ def test_multi_workday_aggregates_and_skips_dead(tmp_path: Path):
         }
 
     with (
-        patch.object(multi, "load_boards", return_value=boards),
+        patch.object(
+            multi, "load_boards_config", return_value=(boards, {"search_text": "Product Manager"})
+        ),
         patch.object(multi, "_discover_with_prefilter", side_effect=fake_discover),
         patch.object(multi, "_process_job", side_effect=fake_process),
         patch.object(multi, "time") as time_mod,
@@ -101,6 +109,7 @@ def test_multi_workday_aggregates_and_skips_dead(tmp_path: Path):
                 "0",
                 "--backoff",
                 "0.01",
+                "--location-keywords",
             ],
         ),
     ):

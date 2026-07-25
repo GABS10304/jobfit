@@ -50,8 +50,9 @@ MAX_BOARD_RETRIES = 2
 DEFAULT_CV_PASSED_OUT = REPO_ROOT / "out" / "cv_passed"
 
 
-def load_boards(path: Path) -> list[dict[str, Any]]:
+def load_boards_config(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    defaults = raw.get("defaults") if isinstance(raw.get("defaults"), dict) else {}
     boards = raw.get("boards") or []
     if not isinstance(boards, list) or not boards:
         raise ValueError(f"No boards listed in {path}")
@@ -76,7 +77,12 @@ def load_boards(path: Path) -> list[dict[str, Any]]:
         )
     if not out:
         raise ValueError(f"No valid board entries in {path}")
-    return out
+    return out, defaults
+
+
+def load_boards(path: Path) -> list[dict[str, Any]]:
+    boards, _ = load_boards_config(path)
+    return boards
 
 
 def _looks_transient(exc: BaseException) -> bool:
@@ -105,6 +111,7 @@ def _discover_with_backoff(
     limit_per_board: int | None,
     use_playwright: bool,
     backoff_sec: float,
+    location_keywords: list[str] | None = None,
 ) -> tuple[list[Any], list[Any], list[dict[str, Any]], int, str | None]:
     """Return (listings, candidates, prefilter_rejected, discovered, error)."""
     last_error: str | None = None
@@ -115,6 +122,7 @@ def _discover_with_backoff(
                 search_text=search_text,
                 limit=limit_per_board,
                 use_playwright=use_playwright,
+                location_keywords=location_keywords,
             )
             return listings, candidates, rejected, discovered, None
         except httpx.HTTPStatusError as exc:
@@ -171,12 +179,15 @@ def process_board(
     include_weak_proceed: bool,
     limit_per_board: int | None,
     backoff_sec: float,
+    location_keywords: list[str] | None = None,
 ) -> dict[str, Any]:
     board_id = board["id"]
     board_url = board["url"]
     print(f"\n=== board {board_id} ({board_url}) ===")
     if search_text:
         print(f"  searchText={search_text!r}")
+    if location_keywords:
+        print(f"  location_keywords={location_keywords!r}")
 
     listings, candidates, prefilter_rejected, discovered, discover_error = (
         _discover_with_backoff(
@@ -185,6 +196,7 @@ def process_board(
             limit_per_board=limit_per_board,
             use_playwright=use_playwright,
             backoff_sec=backoff_sec,
+            location_keywords=location_keywords,
         )
     )
     if discover_error:
@@ -299,8 +311,20 @@ def main() -> int:
     )
     parser.add_argument(
         "--search-text",
-        default=DEFAULT_SEARCH_TEXT,
-        help=f'CXS searchText (default: "{DEFAULT_SEARCH_TEXT}")',
+        default=None,
+        help=(
+            'CXS searchText (default: YAML defaults.search_text or '
+            f'"{DEFAULT_SEARCH_TEXT}")'
+        ),
+    )
+    parser.add_argument(
+        "--location-keywords",
+        nargs="*",
+        default=None,
+        help=(
+            "Override YAML defaults.location_keywords. "
+            "Use --location-keywords with no values to disable location filter."
+        ),
     )
     parser.add_argument(
         "--out",
@@ -368,7 +392,22 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    boards = load_boards(args.boards_file)
+    boards, yaml_defaults = load_boards_config(args.boards_file)
+    search_text = (
+        args.search_text
+        if args.search_text is not None
+        else str(yaml_defaults.get("search_text") or DEFAULT_SEARCH_TEXT)
+    )
+    if args.location_keywords is None:
+        raw_kw = yaml_defaults.get("location_keywords") or []
+        location_keywords = (
+            [str(k) for k in raw_kw if str(k).strip()]
+            if isinstance(raw_kw, list)
+            else []
+        )
+    else:
+        location_keywords = [str(k) for k in args.location_keywords if str(k).strip()]
+
     if args.board_ids:
         wanted = {bid.casefold() for bid in args.board_ids}
         boards = [b for b in boards if b["id"].casefold() in wanted]
@@ -378,7 +417,8 @@ def main() -> int:
 
     print(
         f"multi-workday run: {len(boards)} board(s); "
-        f"search_text={args.search_text!r}; "
+        f"search_text={search_text!r}; "
+        f"location_keywords={location_keywords!r}; "
         f"include_weak_proceed={args.include_weak_proceed}; "
         f"delay={args.delay}s"
     )
@@ -390,12 +430,13 @@ def main() -> int:
         board_results.append(
             process_board(
                 board,
-                search_text=args.search_text,
+                search_text=search_text,
                 use_playwright=args.playwright,
                 fit_check=args.fit_check,
                 include_weak_proceed=args.include_weak_proceed,
                 limit_per_board=args.limit_per_board,
                 backoff_sec=args.backoff,
+                location_keywords=location_keywords or None,
             )
         )
 
@@ -427,7 +468,8 @@ def main() -> int:
 
     payload: dict[str, Any] = {
         "boards_file": str(args.boards_file),
-        "search_text": args.search_text or None,
+        "search_text": search_text or None,
+        "location_keywords": location_keywords,
         "fit_check_enabled": args.fit_check,
         "include_weak_proceed": args.include_weak_proceed,
         "limit_per_board": args.limit_per_board,

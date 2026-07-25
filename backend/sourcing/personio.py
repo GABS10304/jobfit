@@ -70,9 +70,55 @@ class JobListing:
 
     url: str
     title: str | None = None
+    locations_text: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+
+def location_keyword_match(
+    locations_text: str | None,
+    keywords: list[str] | None,
+) -> bool:
+    """Return True if listing should be kept under location_keywords policy.
+
+    Empty keywords → keep all. Missing locations_text → keep (fail-open).
+    Otherwise require at least one keyword as case-insensitive substring.
+    """
+    if not keywords:
+        return True
+    if not locations_text or not str(locations_text).strip():
+        return True
+    hay = str(locations_text).casefold()
+    return any(str(k).strip().casefold() in hay for k in keywords if str(k).strip())
+
+
+def filter_listings_by_location(
+    listings: list[JobListing],
+    keywords: list[str] | None,
+) -> tuple[list[JobListing], list[dict[str, Any]]]:
+    """Split listings into kept vs location-prefilter rejects."""
+    if not keywords:
+        return list(listings), []
+    kept: list[JobListing] = []
+    rejected: list[dict[str, Any]] = []
+    for listing in listings:
+        if location_keyword_match(listing.locations_text, keywords):
+            kept.append(listing)
+            continue
+        rejected.append(
+            {
+                "url": listing.url,
+                "status": "rejected",
+                "title": listing.title,
+                "locations_text": listing.locations_text,
+                "passes_default_filter": False,
+                "watchlist": False,
+                "sourcing_bucket": "rejected",
+                "reject_reason": "location_prefilter",
+            }
+        )
+    return kept, rejected
 
 
 def is_personio_job_url(url: str) -> bool:

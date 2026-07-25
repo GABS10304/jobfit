@@ -516,7 +516,11 @@ def listings_from_cxs_payload(
         seen.add(url)
         title_raw = str(item.get("title") or "").strip()
         title = unescape(title_raw) if title_raw else None
-        listings.append(JobListing(url=url, title=title))
+        locations_raw = str(item.get("locationsText") or "").strip()
+        locations_text = unescape(locations_raw) if locations_raw else None
+        listings.append(
+            JobListing(url=url, title=title, locations_text=locations_text)
+        )
     return listings
 
 

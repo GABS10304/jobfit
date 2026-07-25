@@ -16,9 +16,9 @@
 #   selection_plan + generate_cv_variant (out/cv_watchlist; strong passed stays separate)
 #
 # Title prefilter (before fit-check):
-# - Prefer allow_keywords match → keep
-# - Else deny_keywords hit → skip (reject_reason=title_prefilter)
-# - Else require product_keywords match → keep; otherwise skip
+# - Deny first (marketing/engineering false friends)
+# - Then allow_keywords → keep
+# - Else require product_keywords → keep; otherwise skip
 # Shared deny list: title_prefilter.deny_keywords falls back to default_pass.title_deny_keywords
 
 default_pass:
@@ -48,6 +48,16 @@ default_pass:
     - schaden
     - backend
     - frontend
+    # Marketing ≠ Product Manager (substring "product" alone must not pass)
+    - product marketing
+    - produktmarketing
+    - marketing manager
+    - growth marketing
+    - brand marketing
+    - content marketing
+    - demand generation
+    - account executive
+    - sales development
 
 watchlist:
   # Surfaced only when batch uses --include-weak-proceed
@@ -65,7 +75,7 @@ title_prefilter:
     - product lead
     - produkt lead
     - ai product
-    - technical product
+    - technical product manager
     - head of product
     - director of product
   # Broader product signal when allowlist misses (still subject to deny)
@@ -80,5 +90,6 @@ notes:
   - "Presence exception_denied maps to status_flag=no_go and is excluded."
   - "title_deny_keywords are a sourcing guardrail; extend in YAML without touching V3."
   - "title_prefilter runs before fit-check; --limit applies after prefilter."
+  - "Deny 'product marketing' before product_keywords so Marketing-Titles do not enter fit-check."
   - "watchlist is not a pass; min_top_score stays 75 for strong match."
   - "watchlist CVs: --cv-from-watchlist / scripts/run_watchlist_cv.py (labeled weak-match)."

@@ -165,6 +165,29 @@ def test_title_prefilter_deny_beats_product_keyword():
     assert "deny=" in reason
 
 
+def test_title_prefilter_denies_product_marketing():
+    ok, reason = evaluate_title_prefilter("Senior Product Marketing Manager")
+    assert ok is False
+    assert reason is not None
+    assert "deny=" in reason
+    assert "marketing" in reason.casefold()
+
+
+def test_title_prefilter_denies_technical_product_marketing():
+    ok, reason = evaluate_title_prefilter(
+        "Technical Product Marketing Manager, Piper AI SDR Agent"
+    )
+    assert ok is False
+    assert reason is not None
+    assert "deny=" in reason
+
+
+def test_title_prefilter_still_allows_senior_product_manager():
+    ok, reason = evaluate_title_prefilter("Senior Product Manager (m/w/d)")
+    assert ok is True
+    assert reason is None
+
+
 def test_passes_default_filter_rejects_no_go():
     assert not passes_default_filter(
         "no_go",

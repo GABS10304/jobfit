@@ -58,7 +58,7 @@ def _prefilter_deny_keywords(contract: dict) -> list:
 def evaluate_title_prefilter(title: str | None) -> tuple[bool, str | None]:
     """Title gate before fit-check. Returns (passes, reject_reason).
 
-    Prefer allow_keywords; else deny → reject; else require product_keywords.
+    Deny first (e.g. product marketing), then allow_keywords, then product_keywords.
     """
     contract = load_filter_contract()
     prefilter = contract.get("title_prefilter") or {}
@@ -68,13 +68,13 @@ def evaluate_title_prefilter(title: str | None) -> tuple[bool, str | None]:
     if not title or not str(title).strip():
         return False, "title_prefilter:missing_title"
 
-    allow_hit = _keyword_hit(title, prefilter.get("allow_keywords"))
-    if allow_hit:
-        return True, None
-
     deny_hit = _keyword_hit(title, _prefilter_deny_keywords(contract))
     if deny_hit:
         return False, f"title_prefilter:deny={deny_hit}"
+
+    allow_hit = _keyword_hit(title, prefilter.get("allow_keywords"))
+    if allow_hit:
+        return True, None
 
     product_hit = _keyword_hit(title, prefilter.get("product_keywords"))
     if product_hit:

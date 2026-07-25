@@ -390,6 +390,6 @@ Lesart: Location-Filter reduziert Non-EU stark, lässt aber „Remote“-US durc
 
 ## Nächster Sprint (Empfehlung)
 
-1. Title-Prefilter: „Product Marketing“ vs Product Manager schärfer trennen.
+1. ~~Title-Prefilter: „Product Marketing“ vs Product Manager schärfer trennen.~~ **Done** — deny first + `product marketing` keywords; Smoke Salesforce: 0 Marketing-Watchlist.
 2. Workday: Remote-US optional ausschließen (`location_keywords` ohne nacktes `Remote`, oder `Germany|DACH` only).
-3. Personio Weekly als Standardbetrieb.
+3. Personio Weekly als Standardbetrieb (`./scripts/weekly_sourcing_run.sh`).

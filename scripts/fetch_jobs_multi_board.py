@@ -36,7 +36,9 @@ from scripts.fetch_jobs_batch import (  # noqa: E402
     _process_job,
     _strip_private_fields,
 )
+from backend import data_loader  # noqa: E402
 from backend.generation.watchlist_cv import write_passed_cvs  # noqa: E402
+from backend.sourcing.filtering import is_excluded_company  # noqa: E402
 from backend.sourcing.personio import discover_job_listings  # noqa: E402
 
 DEFAULT_BOARDS_FILE = REPO_ROOT / "domain" / "personio_boards.yaml"
@@ -153,6 +155,29 @@ def process_board(
     board_id = board["id"]
     board_url = board["url"]
     print(f"\n=== board {board_id} ({board_url}) ===")
+
+    excluded_companies = data_loader.load_constraints().excluded_companies
+    if is_excluded_company(board.get("name"), excluded_companies) or is_excluded_company(
+        board_id, excluded_companies
+    ):
+        print(f"  skip: excluded_company ({board.get('name') or board_id})")
+        return {
+            "id": board_id,
+            "name": board.get("name"),
+            "url": board_url,
+            "status": "skipped",
+            "error": "excluded_company",
+            "discovered": 0,
+            "prefilter_rejected_count": 0,
+            "candidates_after_prefilter": 0,
+            "fit_checked": 0,
+            "passed_count": 0,
+            "watchlist_count": 0,
+            "rejected_count": 0,
+            "passed": [],
+            "watchlist": [],
+            "rejected": [],
+        }
 
     listings, discover_error = _discover_with_backoff(
         board_url,

@@ -44,6 +44,7 @@ from backend.sourcing.filtering import (
     fit_check_jd_text,
     top_fit_score,
 )
+from backend.sourcing.salary_filter import passes_salary_gate
 from backend.sourcing.personio import (
     JobListing,
     NormalizedJobDescription,
@@ -85,6 +86,16 @@ def _run_fit_check(
         top_role_id=top_role,
         title=job.title,
     )
+
+    min_annual_base = (
+        constraints.compensation.min_annual_base if constraints.compensation else None
+    )
+    if not passes_salary_gate(job.jd_text, min_annual_base):
+        # Hard exclude: below the floor is below the floor, not "maybe worth it".
+        passes = False
+        watchlist_ok = False
+        reject_reason = f"salary_below_minimum:min={min_annual_base}"
+
     payload = {
         "status_flag": fit.status_flag,
         "verify_product_ownership": fit.verify_product_ownership,

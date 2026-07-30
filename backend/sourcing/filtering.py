@@ -31,6 +31,14 @@ def _is_product_role(role_id: str | None, default_pass: dict) -> bool:
     return any(sub and sub in role_cf for sub in substrings)
 
 
+def is_excluded_company(name: str | None, excluded: list[str] | None) -> bool:
+    """Case-insensitive exact-name match against constraints.excluded_companies."""
+    if not name or not excluded:
+        return False
+    name_cf = name.casefold().strip()
+    return any(name_cf == str(entry).casefold().strip() for entry in excluded if entry)
+
+
 def _keyword_hit(title: str | None, keywords: list | None) -> str | None:
     if not title:
         return None

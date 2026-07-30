@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Fit – Onboarding</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --text: #e8eef4;
+      --muted: #8b9aab;
+      --accent: #3d9a78;
+      --warn: #c4a35a;
+      --track: #2a3542;
+      --drop: #152028;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1c2a33, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1.25rem 3rem;
+    }
+    main { max-width: 42rem; margin: 0 auto; }
+    h1 { font-size: 1.6rem; font-weight: 600; margin: 0 0 0.35rem; }
+    .lede { color: var(--muted); margin: 0 0 1.5rem; line-height: 1.45; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid #2c3847;
+      border-radius: 12px;
+      padding: 1.25rem 1.35rem;
+      margin-bottom: 1rem;
+    }
+    .hidden { display: none !important; }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    input, select, textarea {
+      width: 100%;
+      background: #121820;
+      border: 1px solid #334155;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      font: inherit;
+      margin-bottom: 0.9rem;
+    }
+    textarea { min-height: 7rem; resize: vertical; }
+    .row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 8rem; }
+    button {
+      background: var(--accent);
+      color: #04120c;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.secondary { background: #2c3847; color: var(--text); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .drop {
+      border: 2px dashed #3d5166;
+      border-radius: 16px;
+      background: var(--drop);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .drop.drag { border-color: var(--accent); background: #183028; }
+    .drop h2 { margin: 0 0 0.5rem; font-size: 1.35rem; font-weight: 600; }
+    .drop p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .drop .formats { margin-top: 0.85rem; font-size: 0.82rem; color: var(--muted); }
+    .pct-wrap { margin: 0.5rem 0 0.25rem; }
+    .pct-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 0.4rem;
+    }
+    .bar {
+      height: 12px;
+      background: var(--track);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2f7d62, var(--accent));
+      transition: width 0.35s ease;
+    }
+    .bar.depth > span { background: linear-gradient(90deg, #5a6f86, #8b9aab); }
+    .status { font-size: 0.95rem; margin-top: 0.75rem; }
+    .status.ok { color: var(--accent); }
+    .status.wait { color: var(--warn); }
+    ul.missing { margin: 0.5rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.88rem; }
+    .blocks { font-size: 0.82rem; color: var(--muted); margin-top: 0.75rem; }
+    .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: -0.4rem; margin-bottom: 0.9rem; }
+    .need-attn { outline: 1px solid var(--warn); }
+    details.draft {
+      margin-top: 0.75rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    details.draft pre {
+      white-space: pre-wrap;
+      background: #121820;
+      padding: 0.75rem;
+      border-radius: 8px;
+      max-height: 14rem;
+      overflow: auto;
+    }
+    .fit-result {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: #121820;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .fit-flag { font-weight: 600; text-transform: uppercase; font-size: 0.85rem; }
+    .fit-flag.proceed { color: var(--accent); }
+    .fit-flag.verify { color: var(--warn); }
+    .fit-flag.no_go { color: #c96a6a; }
+  </style>
+</head>
+<body>
+  <main>
+    <section id="startView">
+      <h1>Job Fit Onboarding</h1>
+      <p class="lede">Starte mit deinem CV. Wir füllen die Maske vor und zeigen, was noch fehlt.</p>
+      <div class="panel">
+        <div class="row">
+          <div>
+            <label for="userIdStart">User ID</label>
+            <input id="userIdStart" value="demo" placeholder="z. B. demo" />
+          </div>
+          <div>
+            <label for="displayNameStart">Anzeigename (optional)</label>
+            <input id="displayNameStart" placeholder="Dein Name" />
+          </div>
+        </div>
+        <div class="drop" id="dropZone" tabindex="0" role="button" aria-label="CV ablegen">
+          <h2>Hier dein CV ablegen</h2>
+          <p>PDF oder DOCX per Drag &amp; Drop — oder klicken zum Auswählen.</p>
+          <p class="formats">Auch MD/TXT. Legacy .doc bitte zuvor als PDF/DOCX speichern.</p>
+          <input id="fileInput" type="file" accept=".pdf,.docx,.md,.markdown,.txt" class="hidden" />
+        </div>
+        <p class="hint" id="uploadStatus" style="margin-top:1rem"></p>
+      </div>
+    </section>
+
+    <section id="reviewView" class="hidden">
+      <h1>Profil prüfen</h1>
+      <p class="lede">
+        Aus dem CV vorausgefüllt. Pflichtlücken (oft Remote/Sales/Ownership) schließen,
+        bis Fit-ready 100&nbsp;% ist.
+      </p>
+
+      <section class="panel">
+        <div class="row">
+          <div>
+            <label for="userId">User ID</label>
+            <input id="userId" readonly />
+          </div>
+          <div>
+            <label for="displayName">Anzeigename</label>
+            <input id="displayName" />
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary" id="btnBack">Anderen CV</button>
+          <button type="button" class="secondary" id="btnRefresh">Completeness neu</button>
+        </div>
+      </section>
+
+      <section class="panel" id="progressPanel">
+        <div class="pct-wrap">
+          <div class="pct-label">
+            <span>Fit-ready</span>
+            <span id="fitPctLabel">–</span>
+          </div>
+          <div class="bar"><span id="fitBar"></span></div>
+        </div>
+        <div class="pct-wrap">
+          <div class="pct-label">
+            <span>Profil-Tiefe (optional)</span>
+            <span id="depthPctLabel">–</span>
+          </div>
+          <div class="bar depth"><span id="depthBar"></span></div>
+        </div>
+        <p class="status wait" id="statusLine">…</p>
+        <ul class="missing" id="missingList"></ul>
+        <div class="blocks" id="blocksLine"></div>
+        <details class="draft">
+          <summary>CV-Draft (Master-CV-Indikator)</summary>
+          <pre id="cvDraftPreview"></pre>
+        </details>
+      </section>
+
+      <section class="panel">
+        <label>1) Remote-Policy (Hard)</label>
+        <select id="remote" class="need-attn">
+          <option value="on">Remote-first / bis 1 Office-Tag — Gate an</option>
+          <option value="off">Präsenz egal — Gate aus</option>
+        </select>
+        <label>2) Hard Sales ausschließen?</label>
+        <select id="sales" class="need-attn">
+          <option value="on">Ja — no_hard_sales an</option>
+          <option value="off">Nein — Gate aus</option>
+        </select>
+        <label>3) Product Ownership erforderlich?</label>
+        <select id="ownership" class="need-attn">
+          <option value="on">Ja — Gate an</option>
+          <option value="off">Nein — Gate aus</option>
+        </select>
+        <label>4) Zielrolle (role_id)</label>
+        <input id="roleId" placeholder="ai_product_manager" />
+        <label>Rollenname</label>
+        <input id="roleName" placeholder="AI Product Manager" />
+        <label>Skills (kommagetrennt, min. 5)</label>
+        <textarea id="skills" placeholder="product_discovery, stakeholder_management, …"></textarea>
+        <p class="hint">Domains min. 2 — Tools optional für Fit-ready.</p>
+        <label>Domains (kommagetrennt, min. 2)</label>
+        <textarea id="domains" placeholder="b2b_saas, artificial_intelligence"></textarea>
+        <label>Tools (optional, kommagetrennt)</label>
+        <textarea id="tools" placeholder="jira, figma"></textarea>
+        <div class="actions">
+          <button type="button" id="btnSave">Speichern &amp; %-Stand aktualisieren</button>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="fitCheckPanel">
+        <h2 style="margin:0 0 0.75rem;font-size:1.1rem;font-weight:600">Ersten Job prüfen</h2>
+        <label for="jdText">Jobbeschreibung (paste)</label>
+        <textarea id="jdText" placeholder="Stellenanzeige hier einfügen …"></textarea>
+        <div class="actions">
+          <button type="button" id="btnFitCheck">Fit-Check starten</button>
+        </div>
+        <div class="fit-result hidden" id="fitResult"></div>
+      </section>
+    </section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function splitCsv(text) {
+      return text.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
+    function showReview() {
+      $("startView").classList.add("hidden");
+      $("reviewView").classList.remove("hidden");
+    }
+
+    function showStart() {
+      $("reviewView").classList.add("hidden");
+      $("startView").classList.remove("hidden");
+      $("uploadStatus").textContent = "";
+    }
+
+    function renderCompleteness(c, displayName) {
+      $("fitPctLabel").textContent = c.fit_ready_pct + " %";
+      $("depthPctLabel").textContent = c.profile_depth_pct + " %";
+      $("fitBar").style.width = c.fit_ready_pct + "%";
+      $("depthBar").style.width = c.profile_depth_pct + "%";
+      const status = $("statusLine");
+      if (c.fit_check_unlocked) {
+        status.className = "status ok";
+        status.textContent = "Fit-Check freigeschaltet — Profil ist fit-ready.";
+      } else {
+        status.className = "status wait";
+        status.textContent = "Noch nicht fit-ready — Pflichtangaben fehlen.";
+      }
+      const ul = $("missingList");
+      ul.innerHTML = "";
+      (c.missing_required || []).forEach((m) => {
+        const li = document.createElement("li");
+        li.textContent = m;
+        ul.appendChild(li);
+      });
+      $("blocksLine").textContent = (c.blocks || [])
+        .map((b) => `${b.label}: ${b.score_pct}%`)
+        .join(" · ");
+      if (displayName) $("displayName").value = displayName;
+      $("fitCheckPanel").classList.toggle("hidden", !c.fit_check_unlocked);
+    }
+
+    function fillProfile(p) {
+      $("userId").value = p.user_id;
+      $("displayName").value = p.display_name || p.user_id;
+      const hard = Object.fromEntries(
+        (p.constraints.hard_constraints || []).map((h) => [h.id, h.enabled])
+      );
+      const hasHard = (p.constraints.hard_constraints || []).length > 0;
+      $("remote").value = hard.remote_first_hybrid_ok === false ? "off" : "on";
+      $("sales").value = hard.no_hard_sales === false ? "off" : "on";
+      $("ownership").value = hard.product_ownership_required === false ? "off" : "on";
+      ["remote", "sales", "ownership"].forEach((id) => {
+        $(id).classList.toggle("need-attn", !hasHard);
+      });
+      const role = (p.role_fit_profile.roles || [])[0];
+      if (role) {
+        $("roleId").value = role.role_id || "";
+        $("roleName").value = role.role_name || "";
+        $("skills").value = (role.core_signals_skills || []).join(", ");
+        $("domains").value = (role.core_signals_domains || []).join(", ");
+        $("tools").value = (role.core_signals_tools || []).join(", ");
+      }
+    }
+
+    async function refreshCompleteness() {
+      const userId = $("userId").value.trim();
+      const res = await fetch(`/profiles/${encodeURIComponent(userId)}/completeness`);
+      if (!res.ok) {
+        $("statusLine").textContent = "Completeness fehlgeschlagen: " + (await res.text());
+        return;
+      }
+      const data = await res.json();
+      renderCompleteness(data.completeness, data.display_name);
+    }
+
+    async function uploadFile(file) {
+      const userId = $("userIdStart").value.trim();
+      if (!userId || userId === "gabriel") {
+        $("uploadStatus").textContent = "Bitte eine User ID ≠ gabriel wählen.";
+        return;
+      }
+      $("uploadStatus").textContent = "Lade und analysiere CV …";
+      const body = new FormData();
+      body.append("file", file);
+      body.append("user_id", userId);
+      body.append("display_name", $("displayNameStart").value.trim());
+      const res = await fetch("/onboarding/cv-upload", { method: "POST", body });
+      if (!res.ok) {
+        $("uploadStatus").textContent = "Upload fehlgeschlagen: " + (await res.text());
+        return;
+      }
+      const data = await res.json();
+      fillProfile(data.profile);
+      renderCompleteness(data.completeness, data.display_name);
+      $("cvDraftPreview").textContent = data.cv_draft_md || "";
+      showReview();
+    }
+
+    function buildHard(id, label, on) {
+      return { id, label, enabled: on };
+    }
+
+    async function saveProfile() {
+      const userId = $("userId").value.trim();
+      const payload = {
+        user_id: userId,
+        display_name: $("displayName").value.trim() || userId,
+        profile_version: "0.1",
+        role_fit_profile: {
+          version: "0.1",
+          roles: [
+            {
+              role_id: $("roleId").value.trim(),
+              role_name: $("roleName").value.trim(),
+              core_signals_skills: splitCsv($("skills").value),
+              core_signals_domains: splitCsv($("domains").value),
+              core_signals_tools: splitCsv($("tools").value),
+            },
+          ],
+        },
+        constraints: {
+          hard_constraints: [
+            buildHard("remote_first_hybrid_ok", "Remote-first (Hybrid ok)", $("remote").value === "on"),
+            buildHard("no_hard_sales", "No hard sales", $("sales").value === "on"),
+            buildHard(
+              "product_ownership_required",
+              "Product ownership required",
+              $("ownership").value === "on"
+            ),
+          ],
+          soft_constraints: [],
+          application_rules: {
+            min_score_for_review: 75,
+            min_score_for_assisted_apply: 80,
+            min_score_for_auto_apply: 90,
+            require_manual_approval_for_submit: true,
+            auto_apply_enabled: false,
+          },
+        },
+      };
+      const res = await fetch(`/profiles/${encodeURIComponent(userId)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        alert(await res.text());
+        return;
+      }
+      ["remote", "sales", "ownership"].forEach((id) => $(id).classList.remove("need-attn"));
+      await refreshCompleteness();
+    }
+
+    async function runFitCheck() {
+      const userId = $("userId").value.trim();
+      const jd = $("jdText").value.trim();
+      if (!jd) {
+        alert("Bitte Jobbeschreibung einfügen.");
+        return;
+      }
+      const res = await fetch("/fit-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_description: jd, user_id: userId }),
+      });
+      const box = $("fitResult");
+      box.classList.remove("hidden");
+      if (!res.ok) {
+        box.textContent = "Fit-Check fehlgeschlagen: " + (await res.text());
+        return;
+      }
+      const data = await res.json();
+      const top = (data.results || [])[0];
+      const flag = data.status_flag || "—";
+      box.innerHTML = "";
+      const flagEl = document.createElement("p");
+      flagEl.className = "fit-flag " + flag;
+      flagEl.textContent = "Ergebnis: " + flag;
+      box.appendChild(flagEl);
+      if (top) {
+        const p = document.createElement("p");
+        p.textContent = `Top-Rolle: ${top.role_name} (${top.score} %)`;
+        box.appendChild(p);
+      } else if (data.constraint_check && data.constraint_check.decision_reason) {
+        const p = document.createElement("p");
+        p.textContent = data.constraint_check.decision_reason;
+        box.appendChild(p);
+      }
+    }
+
+    const drop = $("dropZone");
+    const fileInput = $("fileInput");
+    drop.addEventListener("click", () => fileInput.click());
+    drop.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") fileInput.click();
+    });
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files && fileInput.files[0]) uploadFile(fileInput.files[0]);
+    });
+    drop.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      drop.classList.add("drag");
+    });
+    drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("drag");
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) uploadFile(f);
+    });
+
+    $("btnBack").onclick = showStart;
+    $("btnRefresh").onclick = refreshCompleteness;
+    $("btnSave").onclick = saveProfile;
+    $("btnFitCheck").onclick = runFitCheck;
+  </script>
+</body>
+</html>

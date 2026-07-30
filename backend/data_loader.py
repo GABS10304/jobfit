@@ -8,10 +8,11 @@ from pathlib import Path
 
 import yaml
 
-from backend.models import Constraints, CvMaster, CvRules, RoleFitProfile
+from backend.models import Constraints, CvMaster, CvRules, DomainSettingsUpdate, RoleFitProfile
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOMAIN_DIR = REPO_ROOT / "domain"
+CONSTRAINTS_PATH = DOMAIN_DIR / "constraints.yaml"
 
 
 def _ensure_mapping(data: object, path: Path) -> dict:
@@ -75,6 +76,36 @@ def load_role_fit_profile(path: Path | None = None) -> RoleFitProfile:
 
 def load_constraints(path: Path | None = None) -> Constraints:
     raw = _read_domain_file(path or DOMAIN_DIR / "constraints.yaml")
+    return Constraints.model_validate(raw)
+
+
+def update_constraints_settings(
+    update: DomainSettingsUpdate, path: Path | None = None
+) -> Constraints:
+    """Read-modify-write: only touch compensation/excluded_companies/impact_notes.
+
+    Leaves hard/soft constraints, location_preferences and job_types (hand-authored)
+    untouched. Clears the constraints cache so the running API picks up the change.
+    """
+    target = path or CONSTRAINTS_PATH
+    raw = _read_yaml(target)
+
+    if update.compensation is not None:
+        # currency/min_annual_base come from the settings form (full replace, so an
+        # explicit clear works); preserve any hand-authored "notes" untouched.
+        existing_notes = (raw.get("compensation") or {}).get("notes")
+        new_comp = update.compensation.model_dump(mode="json")
+        new_comp["notes"] = existing_notes
+        raw["compensation"] = new_comp
+    raw["excluded_companies"] = list(update.excluded_companies)
+    if update.impact_notes is not None:
+        raw["impact_notes"] = update.impact_notes
+
+    with target.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(raw, f, allow_unicode=True, sort_keys=False)
+
+    if target == CONSTRAINTS_PATH:
+        clear_domain_cache()
     return Constraints.model_validate(raw)
 
 

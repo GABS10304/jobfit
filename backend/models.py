@@ -12,9 +12,13 @@ from pydantic import BaseModel, Field
 
 class FitCheckRequest(BaseModel):
     job_description: str = Field(..., min_length=1)
+    user_id: Optional[str] = Field(
+        default=None,
+        description="Optional user profile for fit-check. Omit for domain SoT (gabriel).",
+    )
     role_ids: Optional[list[str]] = Field(
         default=None,
-        description="Optional subset of role_ids from role_fit_profile.yaml. "
+        description="Optional subset of role_ids from the user's role_fit_profile. "
         "If omitted, all roles are scored.",
     )
 
@@ -250,7 +254,27 @@ class Constraints(BaseModel):
     compensation: Optional[Compensation] = None
     job_types: Optional[JobTypes] = None
     application_rules: ApplicationRules = Field(default_factory=ApplicationRules)
+    excluded_companies: list[str] = Field(
+        default_factory=list,
+        description="Company names to skip entirely during sourcing (case-insensitive).",
+    )
+    impact_notes: Optional[str] = Field(
+        default=None,
+        description=(
+            "Freetext: what 'more impact' means for the next role "
+            "(e.g. team size, budget authority, strategic scope). "
+            "Informational only — not yet used for automated scoring."
+        ),
+    )
     notes: list[str] = Field(default_factory=list)
+
+
+class DomainSettingsUpdate(BaseModel):
+    """Narrow update payload for the gabriel/domain settings page."""
+
+    compensation: Optional[Compensation] = None
+    excluded_companies: list[str] = Field(default_factory=list)
+    impact_notes: Optional[str] = None
 
 
 # --- CV tailoring (Phase 2) ---
@@ -339,3 +363,57 @@ class CvVariant(BaseModel):
     language: str = "de"
     section_order: list[str] = Field(default_factory=list)
     max_pages_hint: int = 2
+
+
+# --- Multi-user profile / onboarding (V3 engine untouched) ---
+
+
+class CompletenessBlockScore(BaseModel):
+    id: str
+    label: str
+    weight: float
+    score_pct: int = Field(..., ge=0, le=100)
+    detail: str = ""
+
+
+class CompletenessSnapshot(BaseModel):
+    fit_ready_pct: int = Field(..., ge=0, le=100)
+    profile_depth_pct: int = Field(..., ge=0, le=100)
+    fit_check_unlocked: bool
+    missing_required: list[str] = Field(default_factory=list)
+    blocks: list[CompletenessBlockScore] = Field(default_factory=list)
+
+
+class UserProfile(BaseModel):
+    """Per-user SoT slice: same shape as domain YAMLs, behind user_id."""
+
+    user_id: str
+    display_name: str = ""
+    profile_version: str = "0.1"
+    role_fit_profile: RoleFitProfile = Field(
+        default_factory=lambda: RoleFitProfile(version="0.1", roles=[])
+    )
+    constraints: Constraints = Field(default_factory=Constraints)
+    cv_master: Optional[CvMaster] = None
+
+
+class CreateProfileRequest(BaseModel):
+    user_id: str = Field(..., min_length=1, pattern=r"^[a-z0-9][a-z0-9_-]{0,63}$")
+    display_name: str = ""
+
+
+class ProfileCompletenessResponse(BaseModel):
+    user_id: str
+    display_name: str
+    completeness: CompletenessSnapshot
+
+
+class CvUploadResponse(BaseModel):
+    user_id: str
+    display_name: str
+    profile: UserProfile
+    completeness: CompletenessSnapshot
+    cv_draft_md: str
+    matched_signal_ids: list[str] = Field(default_factory=list)
+    suggested_role_id: Optional[str] = None
+    notes: list[str] = Field(default_factory=list)

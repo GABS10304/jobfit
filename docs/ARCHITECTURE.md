@@ -5,7 +5,8 @@
 Lokales, dateibasiertes Job-Matching. Phase 1: Master-CV, Role-Fit-Profil, Fit-Check-API.
 
 **PM-Sicht auf Pipeline, Flags und Entscheidungslogik:** → [`docs/FIT_LOGIC_NOTES.md`](FIT_LOGIC_NOTES.md)  
-**Freeze:** → [`docs/V3_FREEZE.md`](V3_FREEZE.md)
+**Freeze:** → [`docs/V3_FREEZE.md`](V3_FREEZE.md)  
+**Multi-User / Completeness-%:** → [`docs/USER_ONBOARDING.md`](USER_ONBOARDING.md)
 
 ```
 Job Description (Text)
@@ -36,6 +37,9 @@ Master-CV steuert den Fit-Check noch nicht direkt (Phase 2: CV-Varianten).
 | `constraints_engine.py` | Hard/Soft-Auswertung am JD-Text |
 | `fit_engine.py` | Scoring, Ranking, Präsenz-Ausnahme, Response-Bau |
 | `POST /fit-check` | API-Einstieg |
+| `completeness.py` / `profile_store.py` | Fit-ready % + Profile unter `profiles/{user_id}/` (gabriel → `domain/`) |
+| `cv_ingest.py` / `cv_bootstrap.py` | CV-Upload → Text → Signal-/Rollen-Vorschläge + `cv_draft.md` |
+| `GET /onboarding` | CV-Drop Startscreen + Review-Maske mit Progress-Bar |
 
 ## Inspiration von Mads Lorentzen / ai-job-search
 

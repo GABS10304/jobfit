@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job Fit – Settings</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a222c;
+      --text: #e8eef4;
+      --muted: #8b9aab;
+      --accent: #3d9a78;
+      --warn: #c4a35a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1c2a33, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1.25rem 3rem;
+    }
+    main { max-width: 42rem; margin: 0 auto; }
+    h1 { font-size: 1.6rem; font-weight: 600; margin: 0 0 0.35rem; }
+    .lede { color: var(--muted); margin: 0 0 1.5rem; line-height: 1.45; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid #2c3847;
+      border-radius: 12px;
+      padding: 1.25rem 1.35rem;
+      margin-bottom: 1rem;
+    }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    input, textarea {
+      width: 100%;
+      background: #121820;
+      border: 1px solid #334155;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      font: inherit;
+      margin-bottom: 0.9rem;
+    }
+    textarea { min-height: 6rem; resize: vertical; }
+    .row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 8rem; }
+    button {
+      background: var(--accent);
+      color: #04120c;
+      border: 0;
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: -0.4rem; margin-bottom: 0.9rem; }
+    .status { font-size: 0.9rem; margin-top: 0.5rem; }
+    .status.ok { color: var(--accent); }
+    .status.err { color: #c96a6a; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Job Fit – Setup</h1>
+    <p class="lede">
+      Diese Angaben steuern die Vorauswahl in der täglichen Jobsuche. Gehalt und Ausschluss-Firmen
+      greifen sofort im Sourcing-Filter; die Impact-Notiz ist aktuell informativ (wird dir im
+      täglichen Digest gezeigt, aber noch nicht automatisch gescort).
+    </p>
+
+    <section class="panel">
+      <label for="minSalary">Gehalts-Untergrenze (Jahresbrutto)</label>
+      <div class="row">
+        <input id="minSalary" type="number" min="0" step="1000" placeholder="z. B. 90000" />
+        <input id="currency" placeholder="Währung, z. B. EUR" />
+      </div>
+      <p class="hint">
+        Greift nur, wenn die Stellenanzeige selbst eine Zahl nennt — sonst wird nicht gefiltert
+        (kein Erfinden fehlender Angaben).
+      </p>
+
+      <label for="excludedCompanies">Ausschluss-Firmen (kommagetrennt)</label>
+      <textarea id="excludedCompanies" placeholder="z. B. Firma A, Firma B"></textarea>
+      <p class="hint">Boards dieser Firmen werden beim Sourcing komplett übersprungen.</p>
+
+      <label for="impactNotes">Was bedeutet „mehr Wirkung“ für dich in der nächsten Rolle?</label>
+      <textarea id="impactNotes" placeholder="z. B. Teamverantwortung ab 5 Personen, Budget-Mitsprache, strategische statt rein operative Rolle …"></textarea>
+
+      <button type="button" id="btnSave">Speichern</button>
+      <p class="status" id="statusLine"></p>
+    </section>
+  </main>
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function splitCsv(text) {
+      return text.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch("/domain/settings");
+        if (!res.ok) throw new Error(`GET /domain/settings ${res.status}`);
+        const data = await res.json();
+        const comp = data.compensation || {};
+        if (comp.min_annual_base != null) $("minSalary").value = comp.min_annual_base;
+        $("currency").value = comp.currency || "EUR";
+        $("excludedCompanies").value = (data.excluded_companies || []).join(", ");
+        $("impactNotes").value = data.impact_notes || "";
+      } catch (err) {
+        $("statusLine").textContent = `Laden fehlgeschlagen: ${err.message}`;
+        $("statusLine").className = "status err";
+      }
+    }
+
+    async function saveSettings() {
+      $("btnSave").disabled = true;
+      const rawSalary = $("minSalary").value.trim();
+      const payload = {
+        compensation: {
+          currency: $("currency").value.trim() || "EUR",
+          min_annual_base: rawSalary ? Number(rawSalary) : null,
+        },
+        excluded_companies: splitCsv($("excludedCompanies").value),
+        impact_notes: $("impactNotes").value.trim() || null,
+      };
+      try {
+        const res = await fetch("/domain/settings", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`PUT /domain/settings ${res.status}`);
+        $("statusLine").textContent = "Gespeichert.";
+        $("statusLine").className = "status ok";
+      } catch (err) {
+        $("statusLine").textContent = `Speichern fehlgeschlagen: ${err.message}`;
+        $("statusLine").className = "status err";
+      } finally {
+        $("btnSave").disabled = false;
+      }
+    }
+
+    $("btnSave").addEventListener("click", saveSettings);
+    loadSettings();
+  </script>
+</body>
+</html>

@@ -96,6 +96,7 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
         "person_name": cv_master.person.name,
         "person_location": cv_master.person.location,
         "impact_notes": constraints.impact_notes,
+        "cv_markdown": cv_markdown,
     }
     (out_dir / "context.json").write_text(
         json.dumps(context, ensure_ascii=False, indent=2), encoding="utf-8"

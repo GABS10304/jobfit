@@ -19,11 +19,10 @@ Key differences from the interactive skill:
   backend can render it deterministically (same DIN-5008 renderer as
   backend/generation/application_pdf.py) instead of parsing prose.
 
-Not implemented here: the actual API call (requires an Anthropic API key +
-retry/error handling in the calling service) and the automated groundedness
-check (a second, cheaper call that extracts claims from the draft and
-verifies each against the input facts — recommended before this goes live,
-not yet built).
+The actual API call lives in backend/generation/cover_letter_service.py.
+Not implemented here or there yet: the automated groundedness check (a
+second, cheaper call that extracts claims from the draft and verifies each
+against the input facts — recommended before this goes live).
 """
 
 from __future__ import annotations
@@ -107,6 +106,7 @@ COVER_LETTER_OUTPUT_SCHEMA = {
         "flags for the human reviewer (gaps, ambiguous facts, contradictions "
         "in the input that were not invented around, only surfaced)."
     ),
+    "strict": True,
     "input_schema": {
         "type": "object",
         "properties": {
@@ -157,6 +157,7 @@ COVER_LETTER_OUTPUT_SCHEMA = {
                         },
                     },
                     "required": ["type", "description"],
+                    "additionalProperties": False,
                 },
             },
         },
@@ -171,6 +172,7 @@ COVER_LETTER_OUTPUT_SCHEMA = {
             "signature",
             "flags",
         ],
+        "additionalProperties": False,
     },
 }
 
@@ -178,10 +180,12 @@ COVER_LETTER_OUTPUT_SCHEMA = {
 def build_user_message(context: dict) -> str:
     """Build the user-turn content from prepare_application_draft.py's context.json.
 
-    Only include facts already filtered to belegt/teilweise belegt upstream —
-    this function does not itself filter; the caller (the service using this
-    module) is responsible for stripping [TODO]/unconfirmed bullets before
-    they ever reach this prompt.
+    The fact source is `cv_markdown` — the CV already rendered by
+    generate_cv_variant() from the SelectionPlan. That rendering already
+    applies the evidence-strength gate (cv_rules.evidence.min_strength_for_inclusion)
+    and strips [TODO]/provenance tags (see backend/generation/cv_variant.py),
+    so it is exactly the "already filtered, verified facts" the system prompt
+    requires — no separate filtering step needed here.
     """
     return (
         f"Job Description:\n{context['jd_text']}\n\n"
@@ -190,8 +194,8 @@ def build_user_message(context: dict) -> str:
         f"Gematchte Kompetenz-Signale: {', '.join(context.get('matched_signals', []))}\n"
         f"Fehlende Signale (nicht erfinden, ggf. als flag melden): "
         f"{', '.join(context.get('missing_signals', []))}\n\n"
-        f"Belegte Fakten (Master-CV, bereits gefiltert):\n"
-        f"{context.get('belegte_fakten_text', '<vom Aufrufer einzufügen>')}\n\n"
+        f"Belegte Fakten (bereits gefilterter, gerenderter CV):\n"
+        f"{context.get('cv_markdown', '<vom Aufrufer einzufügen>')}\n\n"
         f"Person: {context.get('person_name', '?')}, "
         f"{context.get('person_location', '?')}\n"
     )

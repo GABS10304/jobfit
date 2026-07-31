@@ -1,0 +1,20 @@
+# LinkedIn guest-search queries for the daily sourcing run.
+# Personal-use only (see backend/sourcing/linkedin.py) — keep this list short;
+# don't add many parallel queries just because more coverage sounds nice.
+
+searches:
+  - id: li-ai-product-manager-de
+    name: AI Product Manager (Germany/Remote)
+    query: AI Product Manager
+    location: Germany
+    jobage_days: 3
+    remote: null
+    disabled: false
+
+  - id: li-product-manager-de
+    name: Product Manager (Germany/Remote)
+    query: Product Manager
+    location: Germany
+    jobage_days: 3
+    remote: null
+    disabled: false

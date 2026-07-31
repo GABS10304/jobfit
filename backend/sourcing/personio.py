@@ -57,7 +57,7 @@ class NormalizedJobDescription:
     employment_type: str | None
     jd_text: str
     url: str
-    source: Literal["personio", "workday"]
+    source: Literal["personio", "workday", "linkedin"]
     fetched_at: str
 
     def to_dict(self) -> dict[str, Any]:
@@ -71,6 +71,7 @@ class JobListing:
     url: str
     title: str | None = None
     locations_text: str | None = None
+    company: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

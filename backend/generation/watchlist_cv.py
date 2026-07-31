@@ -50,12 +50,21 @@ def slugify_title(title: str | None, *, max_len: int = 48) -> str:
     return slug[:max_len].rstrip("-")
 
 
+_JOB_ID_URL_PATTERNS = (
+    re.compile(r"/job/(\d+)"),  # Personio, Workday
+    re.compile(r"/jobs/view/(?:[^/]*-)?(\d+)"),  # LinkedIn
+)
+
+
 def job_id_from_url(url: str | None) -> str | None:
     if not url:
         return None
     path = urlparse(url).path or ""
-    match = re.search(r"/job/(\d+)", path)
-    return match.group(1) if match else None
+    for pattern in _JOB_ID_URL_PATTERNS:
+        match = pattern.search(path)
+        if match:
+            return match.group(1)
+    return None
 
 
 def watchlist_cv_filename(

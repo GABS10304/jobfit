@@ -16,7 +16,7 @@ employments:
   - Agentic-AI-Produktideen mit Fachbereichen, Management, Software Delivery und Pilotkunden validieren.
   - Feasibility-first-Validierung mit MCP-Prototypen und Claude Desktop aufbauen.
   - AI-Use-Cases priorisieren.
-  - PM Evidence AI Portal als lokale Python-/Streamlit-Umgebung entwickeln.
+  - AI Pro Suite als lokale Python-/Streamlit-Umgebung entwickeln.
   - Ticket-, Freitext-, Survey- und Reportdaten analysieren.
   - Anforderungen und priorisierte Arbeitspakete für Software Delivery ableiten.
   - DSGVO-konforme AI-Analytics mit Datenschutzbeauftragten und Engineering etablieren.
@@ -180,30 +180,19 @@ employments:
   relevance_note: Geschäftsmodellentwicklung, Marktvalidierung und strategischer Pivot ohne externes Kapital.
   evidence_strength: medium
 projects:
-- id: pr-01-pm-evidence-ai-portal
-  title: PM Evidence AI Portal / pm-ai-brain-pro
+- id: pr-01-ai-pro-suite
+  title: AI Pro Suite
   context: RIWA GmbH / GovTech
   role: Produkt- und AI-Entwicklung, Entscheidungsunterstützung
-  problem: Tickets, Freitext, Surveys und Reports waren schwer in priorisierte Produktentscheidungen übersetzbar.
-  approach: Lokale Python-/Streamlit-App mit pandas, LangChain, Ollama; Chat-Oberfläche; qualitative Pain-Point-Analyse; deterministische KPI-Auswertung.
-  result: Datenbasierte Priorisierung und AI-gestützte Entscheidungsunterstützung.
+  problem: Tickets, Freitext, Surveys, Reports sowie Support-, Field-Feedback- und Sales-Signale lagen verstreut vor und waren schwer in priorisierte Produktentscheidungen übersetzbar.
+  approach: Lokale Python-/Streamlit-App mit pandas, LangChain, Ollama, Chat-Oberfläche, qualitativer Pain-Point-Analyse und deterministischer KPI-Auswertung, erweitert um einen BigQuery-basierten Workspace mit Hybrid-RAG-Chat, Ingestion-Pipeline, staging-sicheren Uploads und privacy-gated Cloud-Synthese.
+  result: Datenbasierte Priorisierung, AI-gestützte Entscheidungsunterstützung und eine gemeinsame Entscheidungsgrundlage für Customer Intelligence, Markt-/Segmentanalyse und Priorisierung.
   supports_roles:
   - ai_product_manager
   - technical_product_manager
   - product_transformation_lead
-  evidence_strength: strong
-- id: pr-02-customer-market-intelligence-workspace
-  title: Customer & Market Intelligence Workspace
-  context: B2G-/GovTech-SaaS / RIWA-nah
-  role: Builder von Analyse- und Entscheidungssystemen
-  problem: Support, Survey, Field Feedback und Sales-Signale lagen verteilt vor.
-  approach: BigQuery-basierter Workspace mit Hybrid-RAG-Chat, Ingestion-Pipeline, staging-sicheren Uploads und privacy-gated Cloud-Synthese.
-  result: Entscheidungsgrundlage für Customer Intelligence, Markt-/Segmentanalyse und Priorisierung.
-  supports_roles:
-  - ai_product_manager
-  - technical_product_manager
   - product_operations
-  evidence_strength: medium
+  evidence_strength: strong
 - id: pr-03-valueflow
   title: valueflow / Kanban Prioritization Tool
   context: eigene Tool-Entwicklung
@@ -277,7 +266,7 @@ skills:
   strength: strong
 - id: SK-03
   name: Data & AI Product Analysis
-  evidence: RIWA, Customer & Market Intelligence, PM Evidence AI Portal
+  evidence: RIWA, AI Pro Suite
   strength: strong
 - id: SK-04
   name: Organizational Diagnostics

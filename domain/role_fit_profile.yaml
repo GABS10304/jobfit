@@ -13,7 +13,7 @@ roles:
       und verantwortungsvolle AI-Nutzung in regulierten Kontexten.
     evidence_level: strong
     confidence_notes: >
-      Sehr gut belegt durch RIWA, PM Evidence AI Portal, MCP/RAG-Prototyping, Ticket- und Suchdatenanalyse,
+      Sehr gut belegt durch RIWA, AI Pro Suite, MCP/RAG-Prototyping, Ticket- und Suchdatenanalyse,
       Pilotkunden-Validierung und DSGVO-konforme Analytics-Prozesse.
     core_signals_skills:
       - product_discovery
@@ -50,7 +50,7 @@ roles:
         reason: Agentic-AI-Use-Cases mit Stakeholdern entwickelt, mit Pilotkunden verifiziert und in Entscheidungs- und Datenprodukte übersetzt.
       - project_name: RIWA - Ticket- und Suchdatenanalyse
         reason: Fehlerbilder identifiziert und priorisierte Anforderungen für intelligente Suche abgeleitet.
-      - project_name: PM Evidence AI Portal
+      - project_name: AI Pro Suite
         reason: Lokale Python/Streamlit/LangChain/Ollama-Umgebung für DSGVO-konforme Analyse von Tickets, Freitexten und Reports.
       - project_name: GovTech Analytics
         reason: Analytics-Prozesse mit Datenschutzbeauftragten und Engineering aufgebaut.
@@ -60,7 +60,7 @@ roles:
       - project_name: RIWA - AI-nahe Produktarbeit
         employer_or_client: RIWA
         short_reason: Produktentscheidungen im GovTech-Kontext mit Daten- und AI-Bezug.
-      - project_name: PM Evidence AI Portal
+      - project_name: AI Pro Suite
         employer_or_client: RIWA
         short_reason: AI-gestütztes Portal für evidenzbasierte PM-Entscheidungen.
     match_patterns_positive:
@@ -123,7 +123,7 @@ roles:
     supporting_evidence:
       - project_name: RIWA - Anforderungen aus Ticket- und Suchdaten
         reason: Anforderungen in umsetzungsreife Arbeitspakete übersetzt und mit Software-Leads diskutiert.
-      - project_name: PM Evidence AI Portal
+      - project_name: AI Pro Suite
         reason: Technische Prototypen aufgebaut, um Produktideen und AI-Workflows schnell zu validieren.
       - project_name: FIS - Jira Product Discovery
         reason: Produktzentriertes Portfolio-Backbone eingeführt.

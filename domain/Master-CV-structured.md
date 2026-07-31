@@ -16,7 +16,7 @@
   - Agentic-AI-Produktideen mit Fachbereichen, Management, Software Delivery und Pilotkunden validieren.
   - Feasibility-first-Validierung mit MCP-Prototypen und Claude Desktop aufbauen.
   - AI-Use-Cases priorisieren.
-  - PM Evidence AI Portal als lokale Python-/Streamlit-Umgebung entwickeln.
+  - AI Pro Suite als lokale Python-/Streamlit-Umgebung entwickeln.
   - Ticket-, Freitext-, Survey- und Reportdaten analysieren.
   - Anforderungen und priorisierte Arbeitspakete für Software Delivery ableiten.
   - DSGVO-konforme AI-Analytics mit Datenschutzbeauftragten und Engineering etablieren.
@@ -134,23 +134,14 @@
 
 ## Projekte
 
-### PR-01 | PM Evidence AI Portal / pm-ai-brain-pro
+### PR-01 | AI Pro Suite
 - **Kontext/Firma:** RIWA GmbH / GovTech
 - **Deine Rolle:** Produkt- und AI-Entwicklung, Entscheidungsunterstützung
-- **Problem:** Tickets, Freitext, Surveys und Reports waren schwer in priorisierte Produktentscheidungen übersetzbar.
-- **Vorgehen:** Lokale Python-/Streamlit-App mit pandas, LangChain, Ollama; Chat-Oberfläche; qualitative Pain-Point-Analyse; deterministische KPI-Auswertung.
-- **Ergebnis:** Datenbasierte Priorisierung und AI-gestützte Entscheidungsunterstützung.
-- **Welche Zielrollen unterstützt das?** AI Product Manager, Product Manager, Product/Transformation Lead, Product Discovery Lead
-- **Belegstärke:** belegt bis teilweise belegt
-
-### PR-02 | Customer & Market Intelligence Workspace
-- **Kontext/Firma:** B2G-/GovTech-SaaS / RIWA-nah
-- **Deine Rolle:** Builder von Analyse- und Entscheidungssystemen
-- **Problem:** Support, Survey, Field Feedback und Sales-Signale lagen verteilt vor.
-- **Vorgehen:** BigQuery-basierter Workspace mit Hybrid-RAG-Chat, Ingestion-Pipeline, staging-sicheren Uploads und privacy-gated Cloud-Synthese.
-- **Ergebnis:** Entscheidungsgrundlage für Customer Intelligence, Markt-/Segmentanalyse und Priorisierung.
-- **Welche Zielrollen unterstützt das?** AI Product Manager, Product Manager, Product Operations, Customer Insights Lead
-- **Belegstärke:** teilweise belegt
+- **Problem:** Tickets, Freitext, Surveys, Reports sowie Support-, Field-Feedback- und Sales-Signale lagen verstreut vor und waren schwer in priorisierte Produktentscheidungen übersetzbar.
+- **Vorgehen:** Lokale Python-/Streamlit-App mit pandas, LangChain, Ollama, Chat-Oberfläche, qualitativer Pain-Point-Analyse und deterministischer KPI-Auswertung, erweitert um einen BigQuery-basierten Workspace mit Hybrid-RAG-Chat, Ingestion-Pipeline, staging-sicheren Uploads und privacy-gated Cloud-Synthese.
+- **Ergebnis:** Datenbasierte Priorisierung, AI-gestützte Entscheidungsunterstützung und eine gemeinsame Entscheidungsgrundlage für Customer Intelligence, Markt-/Segmentanalyse und Priorisierung.
+- **Welche Zielrollen unterstützt das?** AI Product Manager, Product Manager, Product/Transformation Lead, Product Operations
+- **Belegstärke:** belegt
 
 ### PR-03 | valueflow / Kanban Prioritization Tool
 - **Kontext/Firma:** eigene Tool-Entwicklung
@@ -208,7 +199,7 @@
 - **Belegstärke:** belegt bis teilweise belegt
 
 ### SK-03 | Data & AI Product Analysis
-- **Belegt durch:** RIWA, Customer & Market Intelligence, PM Evidence AI Portal
+- **Belegt durch:** RIWA, AI Pro Suite
 - **Belegstärke:** belegt bis teilweise belegt
 
 ### SK-04 | Organizational Diagnostics

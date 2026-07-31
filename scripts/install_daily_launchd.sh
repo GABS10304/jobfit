@@ -25,6 +25,7 @@ cat > "$PLIST" <<EOF
     <array>
         <string>/bin/bash</string>
         <string>${ROOT}/scripts/daily_sourcing_run.sh</string>
+        <string>--with-linkedin</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>

@@ -37,6 +37,7 @@ employments:
   - Ollama
   - MCP
   - RAG
+  - Gemini CLI
   - Jira
   - Confluence
   - Valueflow
@@ -243,7 +244,8 @@ projects:
   evidence_strength: medium
 - id: pr-07-job-fit-system
   title: job-fit-system (Agentic-AI-Bewerbungsassistent)
-  context: Eigenes Tool-Projekt (privates Repo, Python/FastAPI)
+  context: Eigenes Tool-Projekt (privates Repo, Python/FastAPI, gebaut mit Claude
+    Code)
   role: Alleiniger Entwickler
   problem: Stellensuche und individuell zugeschnittene Bewerbungsunterlagen pro
     Stelle zu schreiben, skaliert nicht neben einer Vollzeitrolle.
@@ -301,6 +303,9 @@ tools:
 - Ollama
 - MCP
 - Claude Desktop
+- Claude Code
+- Cursor
+- Gemini CLI
 - Valueflow
 certifications:
 # ATS-Ausgabe begrenzt via cv_rules.limits.max_certifications (Reihenfolge = Priorität).

@@ -26,7 +26,7 @@
   - 250 Freitext-Surveyantworten analysiert. [teilweise belegt]
   - Pilotkunden direkt akquiriert. [teilweise belegt]
   - Entscheidungshilfen halluzinationsarm und nachvollziehbar gemacht. [qualitativ belegt]
-- **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Jira, Confluence, Valueflow, ABC-Priorisierung
+- **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Gemini CLI, Jira, Confluence, Valueflow, ABC-Priorisierung
 - **Wofür war ich dort relevant?** Übersetzung von Kunden-, Ticket- und Marktdaten in priorisierte Produktentscheidungen. Aufbau von AI-gestützter Entscheidungsunterstützung für Product und Delivery.
 - **Belegstärke:** überwiegend belegt bis teilweise belegt
 - **Quellen:** Master-CV, CV-Varianten, GitHub-Demo-Link
@@ -182,7 +182,7 @@
 - **Belegstärke:** belegt durch Nutzerangabe
 
 ### PR-07 | job-fit-system (Agentic-AI-Bewerbungsassistent)
-- **Kontext/Firma:** Eigenes Tool-Projekt (privates Repo, Python/FastAPI)
+- **Kontext/Firma:** Eigenes Tool-Projekt (privates Repo, Python/FastAPI, gebaut mit Claude Code)
 - **Deine Rolle:** Alleiniger Entwickler
 - **Problem:** Stellensuche und individuell zugeschnittene Bewerbungsunterlagen pro Stelle zu schreiben, skaliert nicht neben einer Vollzeitrolle.
 - **Vorgehen:** Deterministische Fit-Engine gleicht Master-CV gegen Stellenanzeigen ab (kein Erfinden von Fakten), automatisiertes Sourcing über mehrere Jobbörsen mit täglichem Lauf, API-gestützte Anschreiben-Generierung mit strukturiertem Output und Human-in-the-Loop-Freigabe vor jedem Versand.
@@ -235,6 +235,9 @@
 - Ollama
 - MCP
 - Claude Desktop
+- Claude Code
+- Cursor
+- Gemini CLI
 - Valueflow
 
 ## Zertifikate

@@ -43,6 +43,7 @@
         "Ollama",
         "MCP",
         "RAG",
+        "Gemini CLI",
         "Jira",
         "Confluence",
         "Valueflow",
@@ -293,7 +294,7 @@
     {
       "id": "pr-07-job-fit-system",
       "title": "job-fit-system (Agentic-AI-Bewerbungsassistent)",
-      "context": "Eigenes Tool-Projekt (privates Repo, Python/FastAPI)",
+      "context": "Eigenes Tool-Projekt (privates Repo, Python/FastAPI, gebaut mit Claude Code)",
       "role": "Alleiniger Entwickler",
       "problem": "Stellensuche und individuell zugeschnittene Bewerbungsunterlagen pro Stelle zu schreiben, skaliert nicht neben einer Vollzeitrolle.",
       "approach": "Deterministische Fit-Engine gleicht Master-CV gegen Stellenanzeigen ab (kein Erfinden von Fakten), automatisiertes Sourcing über mehrere Jobbörsen mit täglichem Lauf, API-gestützte Anschreiben-Generierung mit strukturiertem Output und Human-in-the-Loop-Freigabe vor jedem Versand.",
@@ -364,6 +365,9 @@
     "Ollama",
     "MCP",
     "Claude Desktop",
+    "Claude Code",
+    "Cursor",
+    "Gemini CLI",
     "Valueflow"
   ],
   "certifications": [

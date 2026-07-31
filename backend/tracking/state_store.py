@@ -4,13 +4,14 @@ JSON file at ``out/tracking/jobs_state.json``, keyed by a stable job_id derived
 from url/title (reuses the same slugging as backend/generation/watchlist_cv.py
 so ids match what shows up in filenames elsewhere in the pipeline).
 
-Status lifecycle: new -> proposed -> approved -> draft_ready -> finalized
+Status lifecycle: new -> proposed -> approved -> draft_ready -> finalized -> sent
 (+ rejected, set by the user declining a proposed job).
 """
 
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,7 @@ STATUS_PROPOSED = "proposed"
 STATUS_APPROVED = "approved"
 STATUS_DRAFT_READY = "draft_ready"
 STATUS_FINALIZED = "finalized"
+STATUS_SENT = "sent"
 STATUS_REJECTED = "rejected"
 
 _VALID_STATUSES = frozenset(
@@ -33,6 +35,7 @@ _VALID_STATUSES = frozenset(
         STATUS_APPROVED,
         STATUS_DRAFT_READY,
         STATUS_FINALIZED,
+        STATUS_SENT,
         STATUS_REJECTED,
     }
 )
@@ -77,6 +80,24 @@ def mark_status(job_id: str, status: str, path: Path | None = None) -> dict[str,
     if job_id not in state:
         raise KeyError(f"Unknown job_id: {job_id}")
     state[job_id]["status"] = status
+    save_state(state, path)
+    return state[job_id]
+
+
+def mark_sent(
+    job_id: str, *, sent_date: str | None = None, path: Path | None = None
+) -> dict[str, Any]:
+    """Mark an application as actually submitted; records ``sent_at`` (YYYYMMDD).
+
+    Gabriel submits applications himself (no auto-apply) — this just records
+    that it happened, for tracking/history. Callable regardless of current
+    status; typically follows ``finalized``.
+    """
+    state = load_state(path)
+    if job_id not in state:
+        raise KeyError(f"Unknown job_id: {job_id}")
+    state[job_id]["status"] = STATUS_SENT
+    state[job_id]["sent_at"] = sent_date or datetime.now(timezone.utc).strftime("%Y%m%d")
     save_state(state, path)
     return state[job_id]
 

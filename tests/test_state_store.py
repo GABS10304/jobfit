@@ -110,6 +110,48 @@ def test_mark_status_updates_and_validates(tmp_path):
         state_store.mark_status("does-not-exist", state_store.STATUS_APPROVED, path=state_path)
 
 
+def test_mark_sent_sets_status_and_sent_at(tmp_path):
+    state_path = tmp_path / "jobs_state.json"
+    rows = [_row("https://x.jobs.personio.de/job/1", "Job One")]
+    state_store.upsert_and_diff(
+        rows,
+        source_artifact="a.json",
+        run_date="20260730",
+        sourcing_bucket="passed",
+        path=state_path,
+    )
+    job_id = state_store.make_job_id(url=rows[0]["url"], title=rows[0]["title"])
+    state_store.mark_status(job_id, state_store.STATUS_FINALIZED, path=state_path)
+
+    updated = state_store.mark_sent(job_id, sent_date="20260731", path=state_path)
+    assert updated["status"] == state_store.STATUS_SENT
+    assert updated["sent_at"] == "20260731"
+    assert state_store.get_entry(job_id, path=state_path)["status"] == state_store.STATUS_SENT
+
+
+def test_mark_sent_defaults_sent_at_to_today(tmp_path):
+    state_path = tmp_path / "jobs_state.json"
+    rows = [_row("https://x.jobs.personio.de/job/1", "Job One")]
+    state_store.upsert_and_diff(
+        rows,
+        source_artifact="a.json",
+        run_date="20260730",
+        sourcing_bucket="passed",
+        path=state_path,
+    )
+    job_id = state_store.make_job_id(url=rows[0]["url"], title=rows[0]["title"])
+
+    updated = state_store.mark_sent(job_id, path=state_path)
+    assert updated["status"] == state_store.STATUS_SENT
+    assert len(updated["sent_at"]) == 8  # YYYYMMDD
+
+
+def test_mark_sent_unknown_job_id_raises(tmp_path):
+    state_path = tmp_path / "jobs_state.json"
+    with pytest.raises(KeyError):
+        state_store.mark_sent("does-not-exist", path=state_path)
+
+
 def test_get_by_status_filters(tmp_path):
     state_path = tmp_path / "jobs_state.json"
     rows = [

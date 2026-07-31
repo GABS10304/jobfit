@@ -301,6 +301,20 @@
         "b2b_saas_govtech_product_lead"
       ],
       "evidence_strength": "medium"
+    },
+    {
+      "id": "pr-07-job-fit-system",
+      "title": "job-fit-system (Agentic-AI-Bewerbungsassistent)",
+      "context": "Eigenes Tool-Projekt (privates Repo, Python/FastAPI)",
+      "role": "Alleiniger Entwickler",
+      "problem": "Stellensuche und individuell zugeschnittene Bewerbungsunterlagen pro Stelle zu schreiben, skaliert nicht neben einer Vollzeitrolle.",
+      "approach": "Deterministische Fit-Engine gleicht Master-CV gegen Stellenanzeigen ab (kein Erfinden von Fakten), automatisiertes Sourcing über mehrere Jobbörsen mit täglichem Lauf, API-gestützte Anschreiben-Generierung mit strukturiertem Output und Human-in-the-Loop-Freigabe vor jedem Versand.",
+      "result": "Aus Stellenanzeige und Master-CV entsteht in Minuten ein individuell zugeschnittenes, faktengeprüftes Bewerbungspaket (Anschreiben + CV).",
+      "supports_roles": [
+        "ai_product_manager",
+        "technical_product_manager"
+      ],
+      "evidence_strength": "strong"
     }
   ],
   "skills": [

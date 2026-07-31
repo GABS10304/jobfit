@@ -188,6 +188,15 @@
 - **Welche Zielrollen unterstützt das?** Product/Transformation Lead, Founder/Operator, Strategy/Product Lead
 - **Belegstärke:** belegt durch Nutzerangabe
 
+### PR-07 | job-fit-system (Agentic-AI-Bewerbungsassistent)
+- **Kontext/Firma:** Eigenes Tool-Projekt (privates Repo, Python/FastAPI)
+- **Deine Rolle:** Alleiniger Entwickler
+- **Problem:** Stellensuche und individuell zugeschnittene Bewerbungsunterlagen pro Stelle zu schreiben, skaliert nicht neben einer Vollzeitrolle.
+- **Vorgehen:** Deterministische Fit-Engine gleicht Master-CV gegen Stellenanzeigen ab (kein Erfinden von Fakten), automatisiertes Sourcing über mehrere Jobbörsen mit täglichem Lauf, API-gestützte Anschreiben-Generierung mit strukturiertem Output und Human-in-the-Loop-Freigabe vor jedem Versand.
+- **Ergebnis:** Aus Stellenanzeige und Master-CV entsteht in Minuten ein individuell zugeschnittenes, faktengeprüftes Bewerbungspaket (Anschreiben + CV).
+- **Welche Zielrollen unterstützt das?** AI Product Manager, Technical Product Manager
+- **Belegstärke:** belegt
+
 ## Skills
 
 ### SK-01 | Product Discovery

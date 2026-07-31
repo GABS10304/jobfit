@@ -49,7 +49,7 @@
   - Review-Qualität +64. [teilweise belegt]
   - Anforderungsklarheit +80. [teilweise belegt]
   - Teamstress -54. [teilweise belegt]
-  - Jira Product Discovery für 5 Teams eingeführt, anschließend von 5 weiteren Teams übernommen. [teilweise belegt]
+  - Jira Product Discovery für zwei Teams eingeführt. [belegt]
   - Produktverständnis juniorer Product Owner +80 Prozent. [teilweise belegt]
 - **Tools/Methoden:** Jira Product Discovery, Organizational Fit Diagnostics, EBM, Kanban, Scrum, Stacey Matrix, Workshop-Facilitation, Product-Owner-Coaching
 - **Wofür war ich dort relevant?** Sichtbarmachen organisatorischer Reality-Gaps und Ableitung passender Arbeitsweisen statt Framework-Standardisierung.

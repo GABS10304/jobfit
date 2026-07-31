@@ -353,6 +353,12 @@
       "name": "Market Validation / Pivot",
       "evidence": "GBS, Youparts",
       "strength": "medium"
+    },
+    {
+      "id": "SK-07",
+      "name": "Stakeholder-Management",
+      "evidence": "JTL, FIS (Organizational Fit Diagnostics)",
+      "strength": "medium"
     }
   ],
   "tools": [

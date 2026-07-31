@@ -223,6 +223,10 @@
 - **Belegt durch:** GBS, Youparts
 - **Belegstärke:** belegt bis teilweise belegt
 
+### SK-07 | Stakeholder-Management
+- **Belegt durch:** JTL, FIS (Organizational Fit Diagnostics)
+- **Belegstärke:** belegt bis teilweise belegt
+
 ## Tools
 - Jira
 - Jira Product Discovery

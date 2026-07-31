@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from datetime import datetime, timezone
@@ -22,6 +23,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from backend.generation.application_pdf import generate_application_pdf  # noqa: E402
+from backend.generation.ats_check import check_application_pdf  # noqa: E402
 from backend.tracking import state_store  # noqa: E402
 
 DEFAULT_REVIEW_DIR = REPO_ROOT / "out" / "review"
@@ -67,6 +69,27 @@ def finalize(
     out_path = out_dir / f"Bewerbung_{company_slug}_{role_slug}_{date_stamp}.pdf"
 
     generate_application_pdf(cover_letter_text, cv_text, out_path)
+
+    context_path = draft_dir / "context.json"
+    if context_path.exists():
+        context = json.loads(context_path.read_text(encoding="utf-8"))
+        result = check_application_pdf(
+            out_path,
+            person_name=context.get("person_name") or "",
+            person_location=context.get("person_location"),
+            matched_signals=context.get("matched_signals") or [],
+        )
+        (out_dir / "ats_check.json").write_text(
+            json.dumps(result.to_dict(), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        if not result.passed:
+            print("ATS-Check WARNUNGEN:", file=sys.stderr)
+            for warning in result.warnings:
+                print(f"  - {warning}", file=sys.stderr)
+        else:
+            print("ATS-Check: bestanden (Kontaktdaten + gematchte Signale im PDF-Text gefunden).")
+
     state_store.mark_status(job_id, state_store.STATUS_FINALIZED)
 
     return out_path

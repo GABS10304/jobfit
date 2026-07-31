@@ -58,6 +58,16 @@ curl -s -X POST http://127.0.0.1:8000/fit-check \
 **Nichts erfinden:** fehlende Werte (z. B. Gehalt) bleiben `null` / TODO.  
 Nach Domain-Änderungen Server neu starten (`--reload` reicht; Cache leert sich beim Restart).
 
+## Zusammenarbeit (Multi-User)
+
+Privates Repo, zwei Personen. Damit sich niemand gegenseitig überschreibt:
+
+- **Branches statt direkt auf `main`:** neue Arbeit auf einem Feature-Branch (`git checkout -b feature/xyz`), dann PR + Merge. Für triviale Änderungen (Typo, ein Kommentar) ist direktes Pushen auf `main` ok.
+- **Vor jeder Session:** `git pull origin main`, um nicht auf altem Stand zu arbeiten.
+- **Vor jedem Push:** `pytest -q` muss grün sein.
+
+**Wichtig:** `domain/*.yaml` (`cv_master.yaml`, `constraints.yaml`, `role_fit_profile.yaml`) ist das persönliche Profil von Gabriel (fest verdrahteter `gabriel`-User) — **nicht anfassen**, wenn du nicht Gabriel bist. Eigenes Profil stattdessen über `/onboarding` anlegen: CV hochladen, es entsteht ein separates Profil unter `profiles/<deine-user-id>/`, komplett getrennt von `domain/`. Gehalts-Untergrenze, Ausschluss-Firmen und die Impact-Notiz für Gabriels eigenes Setup gehören auf `/settings` (schreibt gezielt in `domain/constraints.yaml`, ohne die übrigen Constraints anzufassen).
+
 ## Tests
 
 ```bash

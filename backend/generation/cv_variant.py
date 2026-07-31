@@ -130,6 +130,8 @@ def _render_projects(
         lines.append(title_line if plain else f"### {title_line}")
         if proj.role:
             lines.append(f"Rolle: {proj.role}")
+        if proj.repo_url:
+            lines.append(f"Repo: {proj.repo_url}")
         lines.append("")
         for bullet in selected.bullets:
             text = _ats_bullet_text(bullet.bullet_text)

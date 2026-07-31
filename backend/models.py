@@ -189,6 +189,7 @@ class Project(BaseModel):
     result: Optional[str] = None
     supports_roles: list[str] = Field(default_factory=list)
     evidence_strength: Optional[str] = None
+    repo_url: Optional[str] = None
 
 
 class Skill(BaseModel):

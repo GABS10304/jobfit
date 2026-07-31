@@ -243,7 +243,8 @@
         "agile_coach",
         "product_transformation_lead"
       ],
-      "evidence_strength": "strong"
+      "evidence_strength": "strong",
+      "repo_url": "https://github.com/GABS10304/valueflow"
     },
     {
       "id": "pr-04-organizational-fit-diagnostics",
@@ -258,7 +259,8 @@
         "agile_transformation_consultant",
         "product_transformation_lead"
       ],
-      "evidence_strength": "strong"
+      "evidence_strength": "strong",
+      "repo_url": "https://github.com/GABS10304/organizational-fit-diagnostics"
     },
     {
       "id": "pr-05-weidmueller-lead-gen-proof",

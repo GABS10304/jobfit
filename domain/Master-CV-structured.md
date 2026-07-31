@@ -151,6 +151,7 @@
 - **Ergebnis:** Sichtbare Zielkonflikte und transparentere Roadmap-Entscheidungen.
 - **Welche Zielrollen unterstützt das?** Product Manager, Product Operations, Agile Coach, Product/Transformation Lead
 - **Belegstärke:** vom Nutzer bestätigt
+- **Repo:** https://github.com/GABS10304/valueflow
 
 ### PR-04 | Organizational Fit Diagnostics
 - **Kontext/Firma:** FIS / SAP-Consulting
@@ -160,6 +161,7 @@
 - **Ergebnis:** Passgenauere Transformations- und Steuerungsentscheidungen.
 - **Welche Zielrollen unterstützt das?** Agile Coach, Transformation Lead, Product/Transformation Lead, Organizational Development
 - **Belegstärke:** belegt
+- **Repo:** https://github.com/GABS10304/organizational-fit-diagnostics
 
 ### PR-05 | Weidmüller Lead-Gen Proof
 - **Kontext/Firma:** Weidmüller GTI Software GmbH

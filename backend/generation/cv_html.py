@@ -219,12 +219,16 @@ def _render_certifications_html(cv_master: CvMaster, cv_rules: CvRules) -> str:
     return _section_wrap("certifications", f'<ul class="cv-plain-list">{items}</ul>')
 
 
-def generate_cv_variant_html(
+def cv_content_html(
     selection_plan: SelectionPlan,
     cv_master: CvMaster,
     cv_rules: CvRules,
 ) -> str:
-    """Render a full, styled HTML CV document (single-column, ATS-safe)."""
+    """Render just the CV's body content (header + sections), no <html> shell.
+
+    Reused as-is by generate_cv_variant_html (standalone CV doc) and by
+    application_html.py (combined cover-letter + CV document).
+    """
     body_parts = [_render_header_html(cv_master)]
 
     order = cv_rules.section_order or list(_SECTION_TITLES.keys())
@@ -243,12 +247,26 @@ def generate_cv_variant_html(
             body_parts.append(_render_certifications_html(cv_master, cv_rules))
         # Unknown section key in cv_rules – skip, do not invent content.
 
-    css = _CSS_TEMPLATE.format(font_b64=_font_base64())
+    return "".join(body_parts)
+
+
+def cv_css(*, font_b64: str | None = None) -> str:
+    return _CSS_TEMPLATE.format(font_b64=font_b64 or _font_base64())
+
+
+def generate_cv_variant_html(
+    selection_plan: SelectionPlan,
+    cv_master: CvMaster,
+    cv_rules: CvRules,
+) -> str:
+    """Render a full, styled HTML CV document (single-column, ATS-safe)."""
+    content = cv_content_html(selection_plan, cv_master, cv_rules)
+    css = cv_css()
     person_name = escape(cv_master.person.name)
     return (
         "<!doctype html><html lang=\"de\"><head><meta charset=\"utf-8\">"
         f"<title>{person_name}</title><style>{css}</style></head>"
-        f"<body>{''.join(body_parts)}</body></html>"
+        f"<body>{content}</body></html>"
     )
 
 

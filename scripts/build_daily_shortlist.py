@@ -25,6 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from backend.sourcing.filtering import relocation_note  # noqa: E402
 from backend.tracking import state_store  # noqa: E402
 
 
@@ -33,11 +34,15 @@ def _render_row(row: dict[str, Any]) -> str:
     score = row.get("top_score")
     score_text = str(score) if score is not None else "n/a"
     company = row.get("company") or "?"
-    return (
-        f"- **{row['title']}** @ {company} — {bucket_label}, Score {score_text}\n"
-        f"  - job_id: `{row['job_id']}`\n"
-        f"  - {row['url']}"
-    )
+    lines = [
+        f"- **{row['title']}** @ {company} — {bucket_label}, Score {score_text}",
+        f"  - job_id: `{row['job_id']}`",
+        f"  - {row['url']}",
+    ]
+    note = relocation_note(score, row.get("location_match"))
+    if note:
+        lines.append(f"  - 📍 {note}")
+    return "\n".join(lines)
 
 
 def build_shortlist(

@@ -138,6 +138,7 @@ def upsert_and_diff(
             "company": row.get("board_id") or row.get("company"),
             "status_flag": fit.get("status_flag"),
             "top_score": fit.get("top_score"),
+            "location_match": fit.get("location_match"),
             "sourcing_bucket": sourcing_bucket,
             "source_artifact": source_artifact,
             "status": STATUS_PROPOSED,

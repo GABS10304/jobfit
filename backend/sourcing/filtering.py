@@ -39,6 +39,67 @@ def is_excluded_company(name: str | None, excluded: list[str] | None) -> bool:
     return any(name_cf == str(entry).casefold().strip() for entry in excluded if entry)
 
 
+_LOCATION_SYNONYMS: dict[str, tuple[str, ...]] = {
+    "remote": ("remote", "home office", "homeoffice", "work from anywhere"),
+    "germany": ("germany", "deutschland"),
+    "dach": (
+        "dach", "germany", "deutschland", "austria", "österreich",
+        "switzerland", "schweiz",
+    ),
+}
+
+
+def _location_cue_candidates(label: str) -> tuple[str, ...]:
+    key = label.strip().casefold()
+    return _LOCATION_SYNONYMS.get(key, (key,))
+
+
+def evaluate_location_fit(jd_text: str, location_preferences) -> dict:
+    """Advisory-only location signal against constraints.location_preferences.
+
+    Deliberately never touches the fit score or the pass/watchlist gates —
+    those stay pure content-fit (see role_fit_profile.yaml signal matching).
+    This only flags "outside_preferred" so the shortlist/manual-add output
+    can surface a relocation-willingness note on otherwise-strong matches,
+    instead of a job just quietly scoring the same either way.
+    """
+    if location_preferences is None:
+        return {"match": "unknown", "note": None}
+
+    text = (jd_text or "").casefold()
+
+    for avoid in location_preferences.avoid_locations or []:
+        if any(cue in text for cue in _location_cue_candidates(avoid)):
+            return {"match": "avoid", "note": f"JD nennt vermiedenen Standort ({avoid})."}
+
+    for preferred in location_preferences.preferred_locations or []:
+        if any(cue in text for cue in _location_cue_candidates(preferred)):
+            return {"match": "preferred", "note": None}
+
+    return {
+        "match": "outside_preferred",
+        "note": "Standort nicht in den bevorzugten Standorten (preferred_locations) gefunden.",
+    }
+
+
+# Below this, a location mismatch isn't the interesting story anymore — the
+# content-fit itself is already weak. Above it, worth flagging relocation as
+# an option rather than letting a solid match blend in with the rest.
+RELOCATION_NOTE_MIN_SCORE = 50
+
+
+def relocation_note(top_score: int | None, location_match: str | None) -> str | None:
+    """Advisory text for a solid-scoring job outside preferred locations."""
+    if location_match not in ("outside_preferred", "avoid"):
+        return None
+    if top_score is None or top_score < RELOCATION_NOTE_MIN_SCORE:
+        return None
+    return (
+        "Standort außerhalb der Präferenzen, aber Score solide — trotzdem "
+        "vorschlagen: Umzugsbereitschaft, wenn der Job wirklich gut ist."
+    )
+
+
 def _keyword_hit(title: str | None, keywords: list | None) -> str | None:
     if not title:
         return None

@@ -92,6 +92,30 @@ def test_add_manual_job_rejects_weak_title_prefilter(tmp_path: Path):
     assert result["bucket"] == "rejected"
 
 
+def test_add_manual_job_flags_relocation_for_solid_score_outside_preferred(tmp_path: Path):
+    state_path = tmp_path / "jobs_state.json"
+    # Mirrors the real Danske Bank JD in spirit: strong content signals but a
+    # location (Copenhagen, Denmark) outside preferred_locations.
+    strong_but_far_jd = (
+        "Senior AI Product Manager\n\nCopenhagen, Denmark, Hybrid\n\n"
+        "Product Discovery, AI-Use-Case-Validierung, datenbasierte Produktentscheidungen, "
+        "Pilotkunden-Validierung, DSGVO-konforme AI-Analytics-Prozesse. "
+        "Stakeholder-Kommunikation mit Fachbereichen und Management. "
+        "Requirements Engineering und experimentelle Validierung von AI-Use-Cases. "
+        "B2B SaaS im regulierten Umfeld."
+    )
+    result = add_manual_job(
+        url="https://example.com/careers/job/2000",
+        title=None,
+        company="FarAwayCo",
+        jd_text=strong_but_far_jd,
+        state_path=state_path,
+    )
+    assert result["location_match"] == "outside_preferred"
+    if result["top_score"] and result["top_score"] >= 50:
+        assert result["relocation_note"] is not None
+
+
 def test_guess_title_uses_first_nonblank_line():
     from scripts.add_manual_job import _guess_title
 

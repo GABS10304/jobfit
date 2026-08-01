@@ -26,8 +26,10 @@ if str(REPO_ROOT) not in sys.path:
 from backend import data_loader, fit_engine  # noqa: E402
 from backend.sourcing.filtering import (  # noqa: E402
     evaluate_default_filter,
+    evaluate_location_fit,
     evaluate_title_prefilter,
     evaluate_watchlist,
+    relocation_note,
     top_fit_score,
 )
 from backend.sourcing.language_detect import detect_jd_language  # noqa: E402
@@ -82,6 +84,8 @@ def add_manual_job(
         watchlist_ok = False
         reject_reason = f"salary_below_minimum:min={min_annual_base}"
 
+    location = evaluate_location_fit(jd_text, constraints.location_preferences)
+
     if not title_ok:
         bucket = "rejected"
     elif passes:
@@ -98,6 +102,7 @@ def add_manual_job(
         "fit_check": {
             "status_flag": fit.status_flag,
             "top_score": top_score,
+            "location_match": location["match"],
         },
     }
     run_date = datetime.now(timezone.utc).strftime("%Y%m%d")
@@ -121,6 +126,8 @@ def add_manual_job(
         "title_prefilter_reason": title_reason,
         "reject_reason": reject_reason,
         "language": detect_jd_language(jd_text),
+        "location_match": location["match"],
+        "relocation_note": relocation_note(top_score, location["match"]),
         "is_new": bool(new_rows),
     }
 
@@ -157,6 +164,8 @@ def main() -> int:
     print(f"top_score: {result['top_score']} ({result['top_role']})")
     print(f"language: {result['language']}")
     print(f"new: {result['is_new']}")
+    if result["relocation_note"]:
+        print(f"📍 {result['relocation_note']}")
     if result["bucket"] == "rejected":
         print(f"reject_reason: {result['title_prefilter_reason'] or result['reject_reason']}")
     return 0

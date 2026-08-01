@@ -39,6 +39,7 @@ from backend.generation.watchlist_cv import write_passed_cvs, write_watchlist_cv
 from backend.models import FitCheckResponse
 from backend.sourcing.filtering import (
     evaluate_default_filter,
+    evaluate_location_fit,
     evaluate_title_prefilter,
     evaluate_watchlist,
     fit_check_jd_text,
@@ -96,6 +97,8 @@ def _run_fit_check(
         watchlist_ok = False
         reject_reason = f"salary_below_minimum:min={min_annual_base}"
 
+    location = evaluate_location_fit(job.jd_text, constraints.location_preferences)
+
     payload = {
         "status_flag": fit.status_flag,
         "verify_product_ownership": fit.verify_product_ownership,
@@ -104,6 +107,7 @@ def _run_fit_check(
         "top_role_id": top_role,
         "passes_default_filter": passes,
         "watchlist_eligible": watchlist_ok and not passes,
+        "location_match": location["match"],
     }
     if reject_reason:
         payload["filter_reject_reason"] = reject_reason

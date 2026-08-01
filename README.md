@@ -24,6 +24,7 @@ source .venv/bin/activate
 
 # 2) Abhängigkeiten
 pip install -r requirements.txt
+playwright install chromium  # einmalig, für Board-Scraping-Fallback + styled CV/PDF-Rendering
 
 # 3) API starten (aus dem Repo-Root!)
 uvicorn backend.main:app --reload --port 8000

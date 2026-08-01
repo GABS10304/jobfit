@@ -52,7 +52,13 @@ def _find_row(artifact_path: Path, url: str) -> dict[str, Any]:
     raise ValueError(f"job url not found in {artifact_path}: {url}")
 
 
-def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
+def build_context(job_id: str) -> dict[str, Any]:
+    """Compute the facts context for a job — no file writes, no state
+    transitions, no CV translation (that's only needed for the final
+    rendered artifact, not for reasoning about the job). Shared by
+    build_draft() and scripts/run_decision_agent.py, which needs these
+    facts *before* deciding whether a draft is even worth building.
+    """
     entry = state_store.get_entry(job_id)
     if entry is None:
         raise KeyError(f"Unknown job_id (not in state store): {job_id}")
@@ -73,6 +79,34 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
     )
     plan = selection_plan(cv_master, role_fit_profile, fit, jd_text, cv_rules)
     cv_markdown = generate_cv_variant(plan, cv_master, cv_rules)
+    top = fit.results[0] if fit.results else (fit.excluded_roles[0] if fit.excluded_roles else None)
+
+    return {
+        "job_id": job_id,
+        "title": entry.get("title") or job.get("title"),
+        "company": entry.get("company"),
+        "url": entry.get("url"),
+        "jd_text": jd_text,
+        "hiring_contact": extract_hiring_contact(jd_text),
+        "location_match": entry.get("location_match"),
+        "role_id": plan.selected_role_id,
+        "role_name": plan.selected_role_name,
+        "role_score": plan.role_score,
+        "matched_signals": top.matched_signals if top else [],
+        "missing_signals": top.missing_signals if top else [],
+        "selection_rationale": plan.rationale,
+        "selection_explain": plan.explain,
+        "person_name": cv_master.person.name,
+        "person_location": cv_master.person.location,
+        "impact_notes": constraints.impact_notes,
+        "cv_markdown": cv_markdown,
+    }
+
+
+def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
+    context = build_context(job_id)
+    jd_text = context["jd_text"]
+    cv_markdown = context["cv_markdown"]
 
     language = detect_jd_language(jd_text)
     cv_markdown_rendered = cv_markdown
@@ -93,8 +127,6 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
             language = "de"
             cv_markdown_rendered = cv_markdown
 
-    top = fit.results[0] if fit.results else (fit.excluded_roles[0] if fit.excluded_roles else None)
-
     out_dir = review_dir / job_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -102,29 +134,9 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
     cv_path.write_text(cv_markdown_rendered, encoding="utf-8")
     generate_cv_variant_pdf(cv_markdown_rendered, out_dir / "cv.pdf")
 
-    hiring_contact = extract_hiring_contact(jd_text)
-
-    context = {
-        "job_id": job_id,
-        "title": entry.get("title") or job.get("title"),
-        "company": entry.get("company"),
-        "url": entry.get("url"),
-        "jd_text": jd_text,
-        "hiring_contact": hiring_contact,
-        "role_id": plan.selected_role_id,
-        "role_name": plan.selected_role_name,
-        "role_score": plan.role_score,
-        "matched_signals": top.matched_signals if top else [],
-        "missing_signals": top.missing_signals if top else [],
-        "selection_rationale": plan.rationale,
-        "selection_explain": plan.explain,
-        "person_name": cv_master.person.name,
-        "person_location": cv_master.person.location,
-        "impact_notes": constraints.impact_notes,
-        "language": language,
-        "cv_markdown": cv_markdown_rendered,
-        "cv_markdown_de": cv_markdown,
-    }
+    context["language"] = language
+    context["cv_markdown"] = cv_markdown_rendered
+    context["cv_markdown_de"] = cv_markdown
     (out_dir / "context.json").write_text(
         json.dumps(context, ensure_ascii=False, indent=2), encoding="utf-8"
     )

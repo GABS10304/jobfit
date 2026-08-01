@@ -198,6 +198,46 @@ _SOFT_CUES: dict[str, tuple[str, ...]] = {
         "coaching mandat",
         "reine coaching-rolle",
     ),
+    # 2026-08-01: Gabriel's stated motivation priority is autonomy > impact >
+    # money (money already has its own hard gate via compensation.min_annual_base,
+    # so it isn't duplicated here as a soft constraint). See fit_engine.py's
+    # soft-constraint score bonus for how these actually move the score.
+    "autonomy_preferred": (
+        "ownership",
+        "eigenverantwortung",
+        "autonomous team",
+        "autonomes team",
+        "you decide",
+        "du entscheidest",
+        "flat hierarchy",
+        "flache hierarchien",
+        "founder-led",
+        "self-directed",
+        "eigenständig arbeiten",
+        "no micromanagement",
+        "trust-based",
+        "vertrauensbasiert",
+        "high autonomy",
+        "hohe autonomie",
+        "entscheidungsfreiheit",
+    ),
+    "impact_preferred": (
+        "shape the product",
+        "produkt mitgestalten",
+        "zero to one",
+        "0 to 1",
+        "0-to-1",
+        "founding",
+        "high impact",
+        "hohe wirkung",
+        "drive strategy",
+        "strategie mitgestalten",
+        "greenfield",
+        "end-to-end ownership",
+        "end-to-end verantwortung",
+        "direct impact",
+        "unmittelbarer einfluss",
+    ),
 }
 
 

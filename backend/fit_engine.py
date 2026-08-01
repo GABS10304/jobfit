@@ -40,6 +40,22 @@ SIMILAR_SCORE_BAND = 12
 
 _UNKNOWN_TIER = 99
 
+# Soft-constraint score bonus: a bounded nudge for JDs that signal Gabriel's
+# stated motivation priorities (autonomy > impact > money — money already
+# has its own hard salary gate, so it isn't a soft constraint here). Capped
+# well below SIMILAR_SCORE_BAND so it can't turn a genuinely weak skill-fit
+# into a false strong-pass; it only reorders among already-plausible roles
+# and nudges borderline cases (e.g. 70 -> 75+) over the review threshold.
+#
+# Deliberately scoped to just these two ids, not "all matched soft
+# constraints" — the pre-existing b2b/govtech/ai-data/coaching soft
+# constraints were dormant (declared with a `weight` field but never
+# affecting score) before this change, and stay that way; only the new
+# autonomy/impact motivation signal actually moves the score.
+_SOFT_BONUS_CONSTRAINT_IDS = frozenset({"autonomy_preferred", "impact_preferred"})
+_SOFT_BONUS_POINTS_PER_WEIGHT = 6
+_SOFT_BONUS_CAP = 10
+
 
 def role_rank_tier(role_id: str) -> int:
     return ROLE_RANK_TIER.get(role_id, _UNKNOWN_TIER)
@@ -327,6 +343,29 @@ def build_presence_policy(
     )
 
 
+def _soft_constraint_bonus(constraint_check: ConstraintCheckResult) -> int:
+    """Bounded score bonus from matched autonomy/impact constraints only."""
+    total = 0.0
+    for result in constraint_check.soft_results:
+        if result.id in _SOFT_BONUS_CONSTRAINT_IDS and result.status == "matched":
+            total += result.weight * _SOFT_BONUS_POINTS_PER_WEIGHT
+    return min(round(total), _SOFT_BONUS_CAP)
+
+
+def _apply_soft_bonus(results: list[RoleFitResult], bonus: int, *, min_review: int) -> list[RoleFitResult]:
+    if not bonus:
+        return results
+    return [
+        r.model_copy(
+            update={
+                "score": min(100, r.score + bonus),
+                "passes_review_threshold": (r.score + bonus) >= min_review,
+            }
+        )
+        for r in results
+    ]
+
+
 def run_fit_check(
     job_description: str,
     profile: RoleFitProfile,
@@ -363,6 +402,8 @@ def run_fit_check(
         role_ids=role_ids,
         min_score_for_review=min_review,
     )
+    soft_bonus = _soft_constraint_bonus(constraint_check)
+    scored = _apply_soft_bonus(scored, soft_bonus, min_review=min_review)
     matching = rank_roles([r for r in scored if r.passes_review_threshold])
     excluded = rank_roles([r for r in scored if not r.passes_review_threshold])
     best_score = max((r.score for r in scored), default=0)

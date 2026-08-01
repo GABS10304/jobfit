@@ -32,6 +32,7 @@ from backend.sourcing.filtering import (  # noqa: E402
     relocation_note,
     top_fit_score,
 )
+from backend.sourcing.contact_extract import extract_hiring_contact  # noqa: E402
 from backend.sourcing.language_detect import detect_jd_language  # noqa: E402
 from backend.sourcing.salary_filter import passes_salary_gate  # noqa: E402
 from backend.tracking import state_store  # noqa: E402
@@ -128,6 +129,7 @@ def add_manual_job(
         "language": detect_jd_language(jd_text),
         "location_match": location["match"],
         "relocation_note": relocation_note(top_score, location["match"]),
+        "hiring_contact": extract_hiring_contact(jd_text),
         "is_new": bool(new_rows),
     }
 
@@ -166,6 +168,9 @@ def main() -> int:
     print(f"new: {result['is_new']}")
     if result["relocation_note"]:
         print(f"📍 {result['relocation_note']}")
+    contact = result["hiring_contact"]
+    if contact.get("name") or contact.get("email"):
+        print(f"📇 hiring contact found: {contact.get('name') or '?'} <{contact.get('email') or '?'}>")
     if result["bucket"] == "rejected":
         print(f"reject_reason: {result['title_prefilter_reason'] or result['reject_reason']}")
     return 0

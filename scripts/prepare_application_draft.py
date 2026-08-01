@@ -35,6 +35,7 @@ from backend.generation.cv_translate_service import translate_cv_markdown  # noq
 from backend.generation.cv_variant import generate_cv_variant  # noqa: E402
 from backend.generation.selection_plan import selection_plan  # noqa: E402
 from backend.generation.watchlist_cv import jd_text_from_job_dict  # noqa: E402
+from backend.sourcing.contact_extract import extract_hiring_contact  # noqa: E402
 from backend.sourcing.language_detect import detect_jd_language  # noqa: E402
 from backend.tracking import state_store  # noqa: E402
 
@@ -101,12 +102,15 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
     cv_path.write_text(cv_markdown_rendered, encoding="utf-8")
     generate_cv_variant_pdf(cv_markdown_rendered, out_dir / "cv.pdf")
 
+    hiring_contact = extract_hiring_contact(jd_text)
+
     context = {
         "job_id": job_id,
         "title": entry.get("title") or job.get("title"),
         "company": entry.get("company"),
         "url": entry.get("url"),
         "jd_text": jd_text,
+        "hiring_contact": hiring_contact,
         "role_id": plan.selected_role_id,
         "role_name": plan.selected_role_name,
         "role_score": plan.role_score,
@@ -145,6 +149,12 @@ def main() -> int:
 
     print(f"draft written: {out_dir}")
     print("  cv.md, cv.pdf, context.json")
+
+    context = json.loads((out_dir / "context.json").read_text(encoding="utf-8"))
+    contact = context.get("hiring_contact") or {}
+    if contact.get("name") or contact.get("email"):
+        print(f"📇 hiring contact found: {contact.get('name') or '?'} <{contact.get('email') or '?'}>")
+
     print("Next: write out/review/<job_id>/anschreiben.md, then run finalize_application.py")
     return 0
 

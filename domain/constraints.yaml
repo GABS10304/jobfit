@@ -31,6 +31,16 @@ soft_constraints:
 - id: team_coaching_preferred
   label: Team coaching / transformation preferred
   weight: 0.75
+- id: autonomy_preferred
+  label: Autonomy / ownership / flat hierarchy preferred
+  weight: 1.0
+  notes: >
+    Höchste Priorität in Gabriels Motivations-Reihenfolge (2026-08-01:
+    Autonomie > Wirkung > Geld). Geld hat bereits ein eigenes hartes Gate
+    (compensation.min_annual_base), daher kein separater Soft Constraint dafür.
+- id: impact_preferred
+  label: High impact / zero-to-one / shape-the-product preferred
+  weight: 0.95
 location_preferences:
   preferred_locations:
   - Remote

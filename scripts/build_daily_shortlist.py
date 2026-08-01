@@ -92,11 +92,34 @@ def build_shortlist(
     return new_rows
 
 
+def append_new_ids(new_rows: list[dict[str, Any]], ids_path: Path) -> list[str]:
+    """Append new job_ids to a JSON list file, creating/merging as needed.
+
+    Multiple sources in one daily run (Personio, Workday, LinkedIn) share
+    one file, so a later call must not clobber an earlier one's ids.
+    """
+    existing: list[str] = []
+    if ids_path.exists():
+        existing = json.loads(ids_path.read_text(encoding="utf-8"))
+    combined = existing + [row["job_id"] for row in new_rows]
+    ids_path.parent.mkdir(parents=True, exist_ok=True)
+    ids_path.write_text(json.dumps(combined, ensure_ascii=False, indent=2), encoding="utf-8")
+    return combined
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--artifact", type=Path, required=True)
     parser.add_argument("--run-date", required=True, help="YYYYMMDD, used for dedup + filenames")
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--new-ids-out",
+        type=Path,
+        default=None,
+        help="Optional: write the new job_ids as a JSON list (machine-readable, "
+        "for scripts/run_decisions_for_new_jobs.py). Appends if the file already "
+        "exists (multiple sources in one daily run share one list).",
+    )
     args = parser.parse_args()
 
     if not args.artifact.exists():
@@ -106,6 +129,10 @@ def main() -> int:
     new_rows = build_shortlist(args.artifact, run_date=args.run_date, out_path=args.out)
     print(f"shortlist written: {args.out}")
     print(f"NEW_COUNT={len(new_rows)}")
+
+    if args.new_ids_out is not None:
+        append_new_ids(new_rows, args.new_ids_out)
+
     return 0
 
 

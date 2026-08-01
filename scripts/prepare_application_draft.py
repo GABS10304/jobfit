@@ -31,9 +31,11 @@ if str(REPO_ROOT) not in sys.path:
 
 from backend import data_loader, fit_engine  # noqa: E402
 from backend.generation.cv_pdf import generate_cv_variant_pdf  # noqa: E402
+from backend.generation.cv_translate_service import translate_cv_markdown  # noqa: E402
 from backend.generation.cv_variant import generate_cv_variant  # noqa: E402
 from backend.generation.selection_plan import selection_plan  # noqa: E402
 from backend.generation.watchlist_cv import jd_text_from_job_dict  # noqa: E402
+from backend.sourcing.language_detect import detect_jd_language  # noqa: E402
 from backend.tracking import state_store  # noqa: E402
 
 DEFAULT_REVIEW_DIR = REPO_ROOT / "out" / "review"
@@ -71,14 +73,33 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
     plan = selection_plan(cv_master, role_fit_profile, fit, jd_text, cv_rules)
     cv_markdown = generate_cv_variant(plan, cv_master, cv_rules)
 
+    language = detect_jd_language(jd_text)
+    cv_markdown_rendered = cv_markdown
+    if language == "en":
+        try:
+            cv_markdown_rendered = translate_cv_markdown(cv_markdown)
+        except Exception as exc:  # noqa: BLE001 - fail open, see comment below
+            # An English-JD application shouldn't be blocked by a missing API
+            # key / refusal / transient error — fall back to the German CV
+            # and flag it loudly instead of failing silently. Deliberately
+            # broad: missing credentials raise a plain TypeError from the
+            # anthropic client, not one of our typed exceptions.
+            print(
+                f"WARNUNG: CV-Übersetzung ins Englische fehlgeschlagen ({exc}); "
+                "verwende deutschen CV-Text.",
+                file=sys.stderr,
+            )
+            language = "de"
+            cv_markdown_rendered = cv_markdown
+
     top = fit.results[0] if fit.results else (fit.excluded_roles[0] if fit.excluded_roles else None)
 
     out_dir = review_dir / job_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
     cv_path = out_dir / "cv.md"
-    cv_path.write_text(cv_markdown, encoding="utf-8")
-    generate_cv_variant_pdf(cv_markdown, out_dir / "cv.pdf")
+    cv_path.write_text(cv_markdown_rendered, encoding="utf-8")
+    generate_cv_variant_pdf(cv_markdown_rendered, out_dir / "cv.pdf")
 
     context = {
         "job_id": job_id,
@@ -96,7 +117,9 @@ def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
         "person_name": cv_master.person.name,
         "person_location": cv_master.person.location,
         "impact_notes": constraints.impact_notes,
-        "cv_markdown": cv_markdown,
+        "language": language,
+        "cv_markdown": cv_markdown_rendered,
+        "cv_markdown_de": cv_markdown,
     }
     (out_dir / "context.json").write_text(
         json.dumps(context, ensure_ascii=False, indent=2), encoding="utf-8"

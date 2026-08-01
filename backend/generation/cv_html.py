@@ -3,9 +3,11 @@
 Same source data as cv_variant.py (SelectionPlan + CvMaster + CvRules) —
 this is a second renderer, not a parser of the markdown output, so there is
 no lossy round-trip. Still single-column with real, selectable text (no
-images, no multi-column layout), so it stays ATS-safe like the fpdf2
-renderer in cv_pdf.py; only the typography/spacing/color improves. Verify
-with backend/generation/ats_check.py same as any other rendered PDF.
+multi-column layout), so it stays ATS-safe like the fpdf2 renderer in
+cv_pdf.py; only the typography/spacing/color improves, and — for the German
+variant only — an optional profile photo (outside the text reading order,
+so it doesn't affect ATS text extraction; see backend/generation/ats_check.py).
+English-market CVs conventionally omit a photo, so it's gated on `language`.
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ from backend.generation.cv_variant import _ats_bullet_text, _date_range
 from backend.models import CvMaster, CvRules, Employment, Project, SelectionPlan
 
 _FONT_PATH = Path(__file__).resolve().parent / "fonts" / "DejaVuSans.ttf"
+_PHOTO_PATH = Path(__file__).resolve().parent.parent.parent / "domain" / "assets" / "profile_photo.jpg"
 
 _SECTION_TITLES: dict[str, str] = {
     "profile": "Profil",
@@ -44,6 +47,12 @@ body {{
   padding: 15mm 16mm;
 }}
 header.cv-header {{ margin-bottom: 3.5mm; }}
+header.cv-header .header-flex {{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6mm;
+}}
 header.cv-header h1 {{
   margin: 0 0 1.3mm 0;
   font-size: 20pt;
@@ -52,6 +61,13 @@ header.cv-header h1 {{
   letter-spacing: 0.2px;
 }}
 header.cv-header .meta {{ font-size: 9.1pt; color: #5b6472; }}
+header.cv-header .photo {{
+  width: 26mm;
+  height: 26mm;
+  object-fit: cover;
+  border-radius: 2mm;
+  flex: none;
+}}
 header.cv-header hr.rule {{
   margin-top: 2.6mm;
   border: none;
@@ -90,7 +106,18 @@ def _font_base64() -> str:
     return base64.b64encode(_FONT_PATH.read_bytes()).decode("ascii")
 
 
-def _render_header_html(cv_master: CvMaster) -> str:
+def _photo_base64() -> str | None:
+    """Base64 JPEG data, or None if no local photo asset is present.
+
+    domain/assets/ is gitignored (biometric photo, kept local-only) — a
+    fresh clone simply renders without a photo rather than erroring.
+    """
+    if not _PHOTO_PATH.is_file():
+        return None
+    return base64.b64encode(_PHOTO_PATH.read_bytes()).decode("ascii")
+
+
+def _render_header_html(cv_master: CvMaster, *, language: str = "de") -> str:
     person = cv_master.person
     meta_parts: list[str] = []
     if person.location:
@@ -98,10 +125,21 @@ def _render_header_html(cv_master: CvMaster) -> str:
     if person.languages:
         meta_parts.append(escape(" · ".join(person.languages)))
     meta_html = f'<div class="meta">{" | ".join(meta_parts)}</div>' if meta_parts else ""
+
+    name_block = f"<h1>{escape(person.name)}</h1>{meta_html}"
+
+    photo_html = ""
+    if language == "de":
+        photo_b64 = _photo_base64()
+        if photo_b64:
+            photo_html = (
+                f'<img class="photo" src="data:image/jpeg;base64,{photo_b64}" '
+                f'alt="{escape(person.name)}">'
+            )
+
     return (
         '<header class="cv-header">'
-        f"<h1>{escape(person.name)}</h1>"
-        f"{meta_html}"
+        f'<div class="header-flex"><div>{name_block}</div>{photo_html}</div>'
         '<hr class="rule">'
         "</header>"
     )
@@ -223,13 +261,20 @@ def cv_content_html(
     selection_plan: SelectionPlan,
     cv_master: CvMaster,
     cv_rules: CvRules,
+    *,
+    language: str = "de",
 ) -> str:
     """Render just the CV's body content (header + sections), no <html> shell.
 
     Reused as-is by generate_cv_variant_html (standalone CV doc) and by
     application_html.py (combined cover-letter + CV document).
+
+    `language` only gates the photo (German-market convention) right now —
+    it does not translate section labels/content; see cv_translate.py for
+    the English-content path, which currently targets the plain-text/fpdf2
+    renderer, not this one.
     """
-    body_parts = [_render_header_html(cv_master)]
+    body_parts = [_render_header_html(cv_master, language=language)]
 
     order = cv_rules.section_order or list(_SECTION_TITLES.keys())
     for section in order:

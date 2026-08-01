@@ -22,6 +22,10 @@ secrets/
 .idea/
 .vscode/
 
+# Personal assets (biometric photo etc.) — local-only, never in git history
+# even though this repo is private.
+/domain/assets/
+
 # Generated outputs (Phase 2+)
 /output/
 /out/

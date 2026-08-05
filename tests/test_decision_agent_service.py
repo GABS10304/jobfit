@@ -135,3 +135,31 @@ def test_evaluate_job_for_pursuit_raises_when_tool_call_missing():
 
     with pytest.raises(DecisionAgentError):
         evaluate_job_for_pursuit(SAMPLE_CONTEXT, client=client)
+
+
+def test_evaluate_job_for_pursuit_raises_on_max_tokens_truncation():
+    """2026-08-05 live bug: a truncated response still delivers a matching
+    tool_use block, just with an empty/incomplete input — must not be
+    silently accepted as a valid result."""
+    client = MagicMock()
+    client.messages.create.return_value = _response(
+        stop_reason="max_tokens",
+        content=[_tool_block("submit_advocate_case", {})],
+    )
+
+    with pytest.raises(DecisionAgentError, match="truncated"):
+        evaluate_job_for_pursuit(SAMPLE_CONTEXT, client=client)
+
+
+def test_evaluate_job_for_pursuit_raises_when_required_field_missing():
+    """Defense in depth even if stop_reason looks fine but the payload is
+    incomplete for some other reason."""
+    client = MagicMock()
+    incomplete_advocate = {"case_for_pursuing": "x"}  # missing key_strengths, excitement_level
+    client.messages.create.return_value = _response(
+        stop_reason="tool_use",
+        content=[_tool_block("submit_advocate_case", incomplete_advocate)],
+    )
+
+    with pytest.raises(DecisionAgentError, match="missing required field"):
+        evaluate_job_for_pursuit(SAMPLE_CONTEXT, client=client)

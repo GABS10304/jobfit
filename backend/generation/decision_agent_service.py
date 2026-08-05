@@ -44,7 +44,17 @@ class DecisionAgentRefusal(Exception):
 
 
 class DecisionAgentError(Exception):
-    """A call didn't return the forced tool call."""
+    """A call didn't return the forced tool call, or it was truncated."""
+
+
+# 2026-08-05 bug, root-caused live (not guessed): with max_tokens=2048, the
+# advocate/skeptic calls hit stop_reason="max_tokens" before emitting any
+# tool-call JSON on a real JD — generation got cut off mid-thought, and the
+# forced tool_use block came back with input={}. Raised to 4096 (matches
+# cover_letter_service.py's prose-heavy structured output) and the
+# stop_reason is now checked explicitly instead of trusting any tool_use
+# block that happens to match the name.
+_MAX_TOKENS = 4096
 
 
 def _call_tool(
@@ -56,9 +66,10 @@ def _call_tool(
     user_message: str,
 ) -> dict[str, Any]:
     tool_name = schema["name"]
+    required_fields = schema["input_schema"].get("required", [])
     response = client.messages.create(
         model=MODEL,
-        max_tokens=2048,
+        max_tokens=_MAX_TOKENS,
         system=system,
         tools=[schema],
         tool_choice={"type": "tool", "name": tool_name},
@@ -73,8 +84,20 @@ def _call_tool(
             explanation=details.explanation if details else None,
         )
 
+    if response.stop_reason == "max_tokens":
+        raise DecisionAgentError(
+            f"{stage}: response truncated at max_tokens ({_MAX_TOKENS}) before "
+            "the tool call could complete — raise _MAX_TOKENS or shorten the input."
+        )
+
     for block in response.content:
         if block.type == "tool_use" and block.name == tool_name:
+            missing = [f for f in required_fields if f not in block.input]
+            if missing:
+                raise DecisionAgentError(
+                    f"{stage}: tool call missing required field(s) {missing} "
+                    f"(stop_reason={response.stop_reason!r}) — got {block.input!r}"
+                )
             return block.input
 
     raise DecisionAgentError(

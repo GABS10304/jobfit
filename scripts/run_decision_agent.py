@@ -63,8 +63,8 @@ def main() -> int:
     skeptic = result["skeptic"]
 
     print(f"=== {args.job_id} ===")
-    print(f"🟢 Advocate ({advocate['excitement_level']}): {advocate['case_for_pursuing']}")
-    print(f"🔴 Skeptic ({skeptic['concern_level']}): {skeptic['case_against_pursuing']}")
+    print(f"🟢 Advocate ({advocate.get('excitement_level', '?')}): {advocate.get('case_for_pursuing', '?')}")
+    print(f"🔴 Skeptic ({skeptic.get('concern_level', '?')}): {skeptic.get('case_against_pursuing', '?')}")
     print(
         f"\n⚖️  Decision: {decision['decision'].upper()} "
         f"(confidence={decision['confidence']}, action={decision['recommended_action']})"

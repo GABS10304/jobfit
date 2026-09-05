@@ -33,3 +33,7 @@ secrets/
 /out/cv_watchlist/
 /applications/
 *.pdf
+
+# Tailored CV drafts (cv-tailor skill output) — personal application content,
+# local-only like the other generated outputs above.
+/cv-output/

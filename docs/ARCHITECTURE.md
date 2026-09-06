@@ -45,17 +45,22 @@ Master-CV steuert den Fit-Check noch nicht direkt (Phase 2: CV-Varianten).
 
 **Übernommen (konzeptionell):** Dateien als SoT, Trennung Profil/Regeln/Logik/Docs, Pipeline-Denken, lokale Kontrolle.
 
-**Bewusst anders:** Python/FastAPI; kein Scraping/Auto-Apply; Fit als nachvollziehbare Signal-Logik (kein LLM-Scoring).
+**Bewusst anders:** Python/FastAPI; Fit als nachvollziehbare, deterministische Signal-Logik statt LLM-Scoring; Sourcing/Scraping ist inzwischen Teil des Systems, Auto-Apply bleibt aber bewusst aus (siehe [`SECURITY.md`](../SECURITY.md)).
 
-## Geplante Phasen
+## Phasen-Status
 
 ```
-Phase 1 (jetzt)  domain + fit_engine + /fit-check   ← V3 Freeze
-Phase 2          backend/generation/   → CV- & Anschreiben
-Phase 3          backend/sourcing/     → Job-Sourcing
-Phase 4          backend/tracking/     → Application Log
-Phase 5          optional Auto-Apply (regelngebunden)
+Phase 1  domain + fit_engine + /fit-check                    ✅ (V3 Freeze)
+Phase 2  backend/generation/   → CV- & Anschreiben-Generator  ✅
+Phase 3  backend/sourcing/     → Job-Sourcing (LinkedIn/       ✅
+         Personio/Workday)
+Phase 4  backend/tracking/     → Application Log + Decision-  ← aktuell
+         Agent (Advocate/Skeptic/Decision)
+Phase 5  optional Auto-Apply (regelngebunden)                 nicht begonnen,
+                                                               bewusst zurückgestellt
 ```
+
+Aktueller Stand ausführlicher: [`README.md`](../README.md#roadmap-kurz), [`SECURITY.md`](../SECURITY.md) (Threat-Model, u. a. welche Pfade heute wirklich ein LLM aufrufen).
 
 ## Tech-Stack
 

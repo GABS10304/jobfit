@@ -10,6 +10,8 @@ V1-Abschluss: [`docs/V1_FREEZE.md`](docs/V1_FREEZE.md). Nach Team-Review: Freeze
 **Phase 1 / V2:** Master-CV + Role-Fit-Profil + Fit-Check-API (`POST /fit-check`).  
 Sourcing/Scraping ist inzwischen Teil des Systems (`backend/sourcing/`, `scripts/fetch_jobs_*.py`) — was weiterhin bewusst **nicht** passiert: Auto-Apply. Kein Skript füllt Formulare aus oder klickt "Absenden" — das bleibt manuell (`domain/constraints.yaml`: `auto_apply_enabled: false`).
 
+Noch nie ein Terminal benutzt oder unsicher mit Python/venv? → **[SETUP.md](SETUP.md)** — Schritt-für-Schritt-Anleitung für absolute Anfänger, keine Vorkenntnisse nötig.
+
 ## Voraussetzungen
 
 - Python 3.11+ (empfohlen)

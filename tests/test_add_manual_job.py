@@ -11,6 +11,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from backend.tracking import state_store  # noqa: E402
 from scripts.add_manual_job import add_manual_job  # noqa: E402
+from scripts.prepare_application_draft import build_context  # noqa: E402
 
 STRONG_JD = (
     "Senior AI Product Manager\n\nBerlin, Remote\n\n"
@@ -44,6 +45,38 @@ def test_add_manual_job_tracks_new_row(tmp_path: Path):
     entry = state_store.get_entry(result["job_id"], path=state_path)
     assert entry is not None
     assert entry["company"] == "TestBank"
+
+
+def test_add_manual_job_source_artifact_is_readable_by_prepare_application_draft(
+    tmp_path: Path, monkeypatch
+):
+    """Regression test: add_manual_job() used to write source_artifact="manual"
+    (a literal string, not a file), which scripts/prepare_application_draft.py's
+    _find_row() then tried to open as a path and crashed with FileNotFoundError
+    — meaning "ja zu <job_id>" never actually worked for a manually-added job.
+    build_context() itself hardcodes state_store.get_entry(job_id) with no path
+    override, so STATE_PATH is monkeypatched here (rather than passed via
+    state_path=) to keep both calls reading the same isolated tmp_path state
+    file, with no writes to the real repo's out/ directory.
+    """
+    state_path = tmp_path / "jobs_state.json"
+    monkeypatch.setattr(state_store, "STATE_PATH", state_path)
+
+    result = add_manual_job(
+        url="https://example.com/careers/job/999",
+        title=None,
+        company="TestBank",
+        jd_text=STRONG_JD,
+        state_path=state_path,
+    )
+
+    context = build_context(result["job_id"])
+    # jd_text_from_job_dict() prepends the (guessed) title, so this isn't a
+    # byte-for-byte match — containment is enough to prove the real jd_text
+    # made the round trip through the artifact file, not a placeholder/error.
+    assert "AI-Use-Case-Validierung" in context["jd_text"]
+    assert "DSGVO-konforme AI-Analytics-Prozesse" in context["jd_text"]
+    assert context["url"] == "https://example.com/careers/job/999"
 
 
 def test_add_manual_job_dedups_on_second_call(tmp_path: Path):

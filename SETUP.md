@@ -1,12 +1,15 @@
 # Setup-Anleitung für absolute Anfänger
 
-Diese Anleitung setzt **nichts** voraus — keine Programmiererfahrung, keine Terminal-Erfahrung, kein Claude-Account. Wenn du weißt, was ein Terminal ist und `git clone` kennst, reicht dir wahrscheinlich der Kurzweg in der [README](README.md#lokal-starten). Diese Anleitung hier ist für alle anderen.
+Diese Anleitung setzt **nichts** voraus — keine Programmiererfahrung, keine Terminal-Erfahrung. Wenn du weißt, was ein Terminal ist und `git clone` kennst, reicht dir wahrscheinlich der Kurzweg in der [README](README.md#lokal-starten). Diese Anleitung hier ist für alle anderen.
 
 ## Was ist das hier überhaupt?
 
-Ein Programm, das auf **deinem eigenen Computer** läuft (nicht im Internet, keine fremde Firma sieht deine Daten) und dir sagt, wie gut eine Stellenanzeige zu deinem Lebenslauf passt. Du lädst einmal deinen Lebenslauf hoch, kopierst dann Stellenanzeigen-Texte rein, und bekommst einen Score + eine Begründung.
+Ein Programm, das auf **deinem eigenen Computer** läuft (nicht im Internet, keine fremde Firma sieht deine Daten) und in zwei Teilen hilft:
 
-Es kostet nichts, du brauchst kein Abo und keinen Claude-Account für diesen Grundablauf.
+- **Teil 1 — Passt das überhaupt?** Du lädst einmal deinen Lebenslauf hoch, kopierst Stellenanzeigen-Texte rein, bekommst einen Score + eine Begründung. Kostet nichts, kein Claude-Account nötig.
+- **Teil 2 — Bewerbung schreiben lassen.** Für eine konkrete Stelle einen zugeschnittenen Lebenslauf + ein Anschreiben erzeugen. Braucht zusätzlich einen (kostenlosen) Claude-Account, weil hier eine KI den Text formuliert.
+
+Fang einfach mit Teil 1 an — Teil 2 ist weiter unten und optional.
 
 Kleine Vorwarnung: Es kommen gleich ein paar neue Begriffe (Terminal, venv, Server) und wahrscheinlich mindestens eine rote Fehlermeldung unterwegs — das ist völlig normal, kein Zeichen, dass etwas kaputt ist. Für fast jede Meldung steht unten bei "Troubleshooting" die Lösung in zwei Zeilen.
 
@@ -117,7 +120,7 @@ http://127.0.0.1:8000/onboarding
 
 Dort siehst du eine Seite zum:
 
-1. **CV hochladen** (PDF, Word/DOCX oder reiner Text) — daraus baut das Tool dein Profil.
+1. **CV hochladen** (PDF, Word/DOCX oder reiner Text) — daraus baut das Tool dein Profil. Oben steht ein Feld **"User ID"** (vorausgefüllt mit `demo`) — **merk dir, was dort steht** (oder trag was Eigenes ein, z. B. deinen Vornamen klein geschrieben), die brauchst du später nochmal in [Teil 2](#teil-2-die-eigentliche-bewerbung-schreiben-lassen).
 2. **Profil prüfen** — hier musst du kurz aktiv werden, nicht nur drüberschauen:
    - Oben siehst du einen Fortschrittsbalken **"Fit-ready"**. Der steht nach dem Upload noch nicht bei 100 % — das ist normal, nicht ausfüllbar aus dem CV allein.
    - Weiter unten findest du 3 Dropdown-Felder (**Remote-Policy**, **Hard Sales ausschließen?**, **Product Ownership erforderlich?**) plus ein Feld für deine **Zielrolle** und **Skills/Domains** (durch Komma getrennt, mindestens 5 Skills und 2 Domains). Die sind meist schon sinnvoll vorausgefüllt — kurz drüberschauen reicht in der Regel, anpassen kannst du trotzdem.
@@ -132,9 +135,67 @@ Geh zurück ins Terminal-Fenster aus Schritt 6 und drücke `Strg + C` (Windows) 
 
 Willst du später weitermachen: Terminal öffnen, in den Projektordner wechseln (Schritt 3), `.venv` aktivieren (Schritt 4, zweite Zeile), dann Schritt 6 wiederholen.
 
-## Deine Daten
+## Deine Daten (für Teil 1 oben)
 
-Alles bleibt auf deinem Computer. Es gibt keinen Login, keine Cloud, niemand außer dir sieht deinen Lebenslauf oder die Stellenanzeigen, die du reinkopierst — solange du nur diesen Grundablauf (Onboarding + Fit-Check) nutzt. (Mehr Details, auch zu den optionalen KI-Funktionen, die einen eigenen API-Schlüssel bräuchten und hier nicht gebraucht werden: [SECURITY.md](SECURITY.md).)
+Alles bleibt auf deinem Computer. Es gibt keinen Login, keine Cloud, niemand außer dir sieht deinen Lebenslauf oder die Stellenanzeigen, die du reinkopierst — solange du nur den Grundablauf oben (Onboarding + Fit-Check im Browser) nutzt. Teil 2 unten braucht einen Claude-Account, dazu dort mehr. (Details: [SECURITY.md](SECURITY.md).)
+
+---
+
+## Teil 2: Die eigentliche Bewerbung schreiben lassen
+
+Teil 1 sagt dir nur, **wie gut** eine Stelle passt. Hier geht's um den nächsten Schritt: einen echten, auf dich zugeschnittenen Lebenslauf + ein Anschreiben für eine konkrete Stellenanzeige erzeugen.
+
+**Zusätzliche Voraussetzung:** [Claude Code](https://claude.com/claude-code) installiert und eingeloggt. Anders als Teil 1 braucht dieser Teil eine KI, die das Anschreiben formuliert — dafür reicht ein kostenloser Claude-Account zum Ausprobieren.
+
+Der Server aus Teil 1 (Schritt 6) muss **nicht** laufen — diese Schritte laufen direkt im Terminal.
+
+### Schritt A: Eine Stellenanzeige ins System holen
+
+Im selben Terminal, mit aktivierter `.venv` (siehe Schritt 4), im Projektordner:
+
+```bash
+python scripts/add_manual_job.py --url "https://echter-link-zur-stellenanzeige" --user-id demo
+```
+
+(`demo` durch deine User-ID aus Schritt 7 ersetzen.) Manche Karriereseiten lassen sich nicht automatisch auslesen — dann stattdessen den Text der Anzeige in eine Datei kopieren (z. B. `jd.txt`) und so aufrufen:
+
+```bash
+python scripts/add_manual_job.py --url "https://echter-link-zur-stellenanzeige" --jd-text-file jd.txt --user-id demo
+```
+
+Die Ausgabe zeigt eine Zeile `job_id: irgendwas-12345` — **schreib dir diese ID irgendwo hin, du brauchst exakt dieselbe gleich noch dreimal** (Schritt B, C und D unten).
+
+### Schritt B: Lebenslauf-Entwurf bauen
+
+```bash
+python scripts/prepare_application_draft.py --job-id <job_id-von-oben> --user-id demo
+```
+
+Das legt einen Ordner `out/review/<job_id>/` an mit `cv.md`, `cv.pdf` und `context.json` — dein zugeschnittener Lebenslauf ist damit schon fertig.
+
+### Schritt C: Claude Code das Anschreiben schreiben lassen
+
+Öffne ein Terminal **im Projektordner** und starte Claude Code:
+
+```bash
+claude
+```
+
+Tipp dann im Chat (ersetze `<job_id>` mit deiner echten ID):
+
+> Lies `out/review/<job_id>/context.json`. Schreib mir daraus ein ehrliches, auf die Stelle zugeschnittenes Anschreiben auf Deutsch — nichts erfinden, was nicht in den Daten steht. Speichere es als `out/review/<job_id>/anschreiben.md`.
+
+Claude zeigt dir den Text zur Kontrolle — lies ihn durch, lass ihn anpassen wo nötig ("mach Absatz 2 kürzer" etc.), bis er passt.
+
+### Schritt D: Alles zu einem fertigen PDF zusammenbauen
+
+Zurück im normalen Terminal (oder `claude` mit `Strg+D`/`exit` verlassen):
+
+```bash
+python scripts/finalize_application.py --job-id <job_id>
+```
+
+Das fertige PDF (Anschreiben + Lebenslauf) liegt danach in `out/applications_ready/<job_id>/`.
 
 ---
 
@@ -146,6 +207,11 @@ Da du das gerade als Tester/in ausprobierst, wären hilfreiche Rückmeldungen:
 - Wenn du eine echte Stellenanzeige reinkopierst: Ist die Erklärung zum Score nachvollziehbar, oder wirkt sie zufällig/unklar?
 - Ist irgendwo eine Fehlermeldung aufgetaucht? Wenn ja: welcher Schritt genau, und was stand in der Fehlermeldung (am besten Screenshot)?
 - War irgendein Schritt in dieser Anleitung selbst verwirrend oder hat nicht funktioniert wie beschrieben?
+
+Falls du auch Teil 2 ausprobierst:
+- Liest sich der generierte Lebenslauf (`cv.md`/`cv.pdf`) wie deiner, mit den richtigen Stationen/Skills?
+- Klingt das Anschreiben nach dir bzw. nach einem echten, individuellen Anschreiben — oder generisch/floskelhaft?
+- Steht irgendwo etwas drin, das nicht stimmt oder das du im Bewerbungsgespräch nicht erklären könntest? (Das wäre ein ernstes Problem, bitte melden.)
 
 ## Troubleshooting (häufige Stolpersteine)
 

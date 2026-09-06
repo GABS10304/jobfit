@@ -36,6 +36,7 @@ Being upfront rather than aspirational:
 - **No filtering boundary between raw JD text and the two live LLM paths above** (chat-based cover letter flow, decision agent) beyond instruction-level "treat this as data" framing — there is currently no code-level step that strips unconfirmed facts or hostile instructions out of `jd_text` before it reaches a model.
 - The sourcing scripts (`scripts/fetch_jobs_*.py`) make live requests to third-party job boards; running them against a board whose Terms of Service prohibit automated access is your responsibility to check for your own market/boards.
 - If you fork this and add new sourcing scripts or wire up `cover_letter_service.py`, the "postings are data, not instructions" framing above is a convention to maintain in new code, not an enforced sandbox.
+- **`run_decision_agent.py` / `run_decisions_for_new_jobs.py` are Gabriel-only and don't warn about it.** Unlike `add_manual_job.py` and `prepare_application_draft.py`, they have no `--user-id` and always evaluate against `domain/*.yaml` (Gabriel's own data and stated motivations, hard-coded into `decision_agent_prompt.py`'s system prompts). Run one of these on a job that a different onboarded user (`profiles/<user_id>/`) added, and it silently reasons about Gabriel's fit for that job, not theirs — no error, no crash, just a plausible-looking wrong answer. Not a security bug per se, but a correctness trap worth knowing about before relying on it for anyone but Gabriel.
 
 ## Scope notes
 

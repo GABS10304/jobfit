@@ -5,6 +5,16 @@ application, attempt direct outreach (if a hiring contact was found),
 both, or skip — before any drafting effort is spent. Never sends anything;
 that stays a human action (see decision_agent_service.py's scope note).
 
+Deliberately Gabriel-only, unlike add_manual_job.py / prepare_application_draft.py:
+decision_agent_prompt.py's system prompts are hard-coded to "Gabriel Strecker"
+and his stated motivation order (Autonomie > Wirkung > Geld), not generic
+advice. This script has no --user-id and always scores/reasons against
+domain/*.yaml regardless of whose job_id you pass it — if you run it on a job
+that a different onboarded user (profiles/<user_id>/) added, it silently
+evaluates Gabriel's fit for that job, not theirs, with no warning. Making this
+generic would mean rewriting the prompts themselves, not just the data
+loading — a bigger, separate task. See SECURITY.md.
+
 Usage:
   python scripts/run_decision_agent.py --job-id 24163_product-owner-genai-use-case-acceleration
 """

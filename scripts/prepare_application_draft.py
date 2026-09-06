@@ -9,12 +9,14 @@ pipeline (unchanged), and writes:
   out/review/<job_id>/context.json   ← facts for Claude to write the Anschreiben from
 
 The cover letter text itself is NOT generated here — per the agreed design,
-Claude writes it live in the approval chat from context.json + domain/cv_master.yaml
-+ the cv-tailor style rules, then saves out/review/<job_id>/anschreiben.md for
-scripts/finalize_application.py to combine into the final PDF.
+Claude writes it live in the approval chat from context.json + the relevant
+CV data (domain/cv_master.yaml for Gabriel, profiles/<user_id>/ for anyone
+else) + the cv-tailor style rules, then saves out/review/<job_id>/anschreiben.md
+for scripts/finalize_application.py to combine into the final PDF.
 
 Usage:
   python scripts/prepare_application_draft.py --job-id 2544351_senior-product-manager-m-w-d
+  python scripts/prepare_application_draft.py --job-id <id> --user-id <your-onboarding-id>
 """
 
 from __future__ import annotations
@@ -29,7 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from backend import data_loader, fit_engine  # noqa: E402
+from backend import data_loader, fit_engine, profile_store  # noqa: E402
 from backend.generation.cv_pdf import generate_cv_variant_pdf  # noqa: E402
 from backend.generation.cv_translate_service import translate_cv_markdown  # noqa: E402
 from backend.generation.cv_variant import generate_cv_variant  # noqa: E402
@@ -52,12 +54,19 @@ def _find_row(artifact_path: Path, url: str) -> dict[str, Any]:
     raise ValueError(f"job url not found in {artifact_path}: {url}")
 
 
-def build_context(job_id: str) -> dict[str, Any]:
+def build_context(job_id: str, *, user_id: str | None = None) -> dict[str, Any]:
     """Compute the facts context for a job — no file writes, no state
     transitions, no CV translation (that's only needed for the final
     rendered artifact, not for reasoning about the job). Shared by
     build_draft() and scripts/run_decision_agent.py, which needs these
     facts *before* deciding whether a draft is even worth building.
+
+    user_id: whose profile to draft against. None (default) → Gabriel's
+    own domain/*.yaml, unchanged behavior for the existing daily-run
+    scripts. Any other value → that user's onboarded profile under
+    profiles/<user_id>/ (see backend/profile_store.py), so a fork/tester
+    running through /onboarding can use this same script against their
+    own CV instead of Gabriel's.
     """
     entry = state_store.get_entry(job_id)
     if entry is None:
@@ -67,9 +76,13 @@ def build_context(job_id: str) -> dict[str, Any]:
     job = row.get("job") or {}
     jd_text = jd_text_from_job_dict(job)
 
-    cv_master = data_loader.load_cv_master()
-    role_fit_profile = data_loader.load_role_fit_profile()
-    constraints = data_loader.load_constraints()
+    user, role_fit_profile, constraints = profile_store.resolve_fit_check_inputs(user_id)
+    cv_master = user.cv_master
+    if cv_master is None:
+        raise ValueError(
+            f"Profile {user_id!r} has no cv_master yet — finish /onboarding "
+            "(CV upload) before drafting an application."
+        )
     cv_rules = data_loader.load_cv_rules()
 
     fit = fit_engine.run_fit_check(
@@ -103,8 +116,10 @@ def build_context(job_id: str) -> dict[str, Any]:
     }
 
 
-def build_draft(job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR) -> Path:
-    context = build_context(job_id)
+def build_draft(
+    job_id: str, *, review_dir: Path = DEFAULT_REVIEW_DIR, user_id: str | None = None
+) -> Path:
+    context = build_context(job_id, user_id=user_id)
     jd_text = context["jd_text"]
     cv_markdown = context["cv_markdown"]
 
@@ -151,10 +166,23 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--job-id", required=True)
     parser.add_argument("--review-dir", type=Path, default=DEFAULT_REVIEW_DIR)
+    parser.add_argument(
+        "--user-id",
+        default=None,
+        help="Profile to draft against (profiles/<user-id>/). Omit for Gabriel's own domain/*.yaml.",
+    )
     args = parser.parse_args()
 
     try:
-        out_dir = build_draft(args.job_id, review_dir=args.review_dir)
+        out_dir = build_draft(args.job_id, review_dir=args.review_dir, user_id=args.user_id)
+    except FileNotFoundError:
+        print(
+            f"Kein Profil gefunden für --user-id {args.user_id!r}. "
+            "Erst /onboarding durchlaufen (CV hochladen), oder --user-id weglassen "
+            "für Gabriels eigenes Profil.",
+            file=sys.stderr,
+        )
+        return 1
     except (KeyError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         return 1

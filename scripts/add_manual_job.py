@@ -10,11 +10,13 @@ proposed job ("ja zu <job_id>" works the same way afterwards).
 Usage:
   python scripts/add_manual_job.py --url "https://.../job/24163" --company "Danske Bank"
   python scripts/add_manual_job.py --url "..." --jd-text-file /tmp/jd.txt --company "..."
+  python scripts/add_manual_job.py --url "..." --jd-text-file /tmp/jd.txt --user-id <your-onboarding-id>
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -23,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from backend import data_loader, fit_engine  # noqa: E402
+from backend import fit_engine, profile_store  # noqa: E402
 from backend.sourcing.filtering import (  # noqa: E402
     evaluate_default_filter,
     evaluate_location_fit,
@@ -60,9 +62,9 @@ def add_manual_job(
     company: str | None,
     jd_text: str,
     state_path: Path | None = None,
+    user_id: str | None = None,
 ) -> dict:
-    role_fit_profile = data_loader.load_role_fit_profile()
-    constraints = data_loader.load_constraints()
+    _, role_fit_profile, constraints = profile_store.resolve_fit_check_inputs(user_id)
 
     fit = fit_engine.run_fit_check(
         job_description=jd_text, profile=role_fit_profile, constraints=constraints
@@ -96,26 +98,56 @@ def add_manual_job(
     else:
         bucket = "rejected"
 
+    job_id = state_store.make_job_id(url=url, title=resolved_title)
+    fetched_at = datetime.now(timezone.utc).isoformat()
+
+    # scripts/prepare_application_draft.py (and run_decision_agent.py, which
+    # shares its build_context()) re-read jd_text later — via
+    # _find_row(source_artifact, url) — from whatever JSON file
+    # source_artifact points to. The board-scraping pipeline always produces
+    # such a file; a manually-added job previously did not (source_artifact
+    # was the literal string "manual", which _find_row then tried to open as
+    # a path and failed). Write a real one-job artifact here so "ja zu
+    # <job_id>" actually works for manually-added jobs too, exactly as the
+    # module docstring above already claims it does.
+    job_payload = {
+        "url": url,
+        "title": resolved_title,
+        "location": None,
+        "work_mode": None,
+        "employment_type": None,
+        "jd_text": jd_text,
+        "source": "manual",
+        "fetched_at": fetched_at,
+    }
     row = {
         "url": url,
         "title": resolved_title,
         "board_id": company or "manual",
+        "job": job_payload,
         "fit_check": {
             "status_flag": fit.status_flag,
             "top_score": top_score,
             "location_match": location["match"],
         },
     }
+    manual_dir = (REPO_ROOT / "out" / "tracking" / "manual") if state_path is None else (
+        state_path.parent / "manual"
+    )
+    manual_dir.mkdir(parents=True, exist_ok=True)
+    artifact_path = manual_dir / f"{job_id}.json"
+    artifact_path.write_text(
+        json.dumps({bucket: [row]}, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
     run_date = datetime.now(timezone.utc).strftime("%Y%m%d")
     new_rows = state_store.upsert_and_diff(
         [row],
-        source_artifact="manual",
+        source_artifact=str(artifact_path),
         run_date=run_date,
         sourcing_bucket=bucket,
         path=state_path,
     )
-
-    job_id = state_store.make_job_id(url=url, title=resolved_title)
     return {
         "job_id": job_id,
         "title": resolved_title,
@@ -150,6 +182,11 @@ def main() -> int:
     parser.add_argument(
         "--jd-text-file", type=Path, default=None, help="Skip fetching; read JD text from a file."
     )
+    parser.add_argument(
+        "--user-id",
+        default=None,
+        help="Profile to score against (profiles/<user-id>/). Omit for Gabriel's own domain/*.yaml.",
+    )
     args = parser.parse_args()
 
     jd_text = (
@@ -158,7 +195,22 @@ def main() -> int:
         else fetch_page_text(args.url)
     )
 
-    result = add_manual_job(url=args.url, title=args.title, company=args.company, jd_text=jd_text)
+    try:
+        result = add_manual_job(
+            url=args.url,
+            title=args.title,
+            company=args.company,
+            jd_text=jd_text,
+            user_id=args.user_id,
+        )
+    except FileNotFoundError:
+        print(
+            f"Kein Profil gefunden für --user-id {args.user_id!r}. "
+            "Erst /onboarding durchlaufen (CV hochladen), oder --user-id weglassen "
+            "für Gabriels eigenes Profil.",
+            file=sys.stderr,
+        )
+        return 1
 
     print(f"job_id: {result['job_id']}")
     print(f"title: {result['title']}")

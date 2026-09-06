@@ -37,3 +37,10 @@ secrets/
 # Tailored CV drafts (cv-tailor skill output) — personal application content,
 # local-only like the other generated outputs above.
 /cv-output/
+
+# Per-user onboarding profiles (created via /onboarding) — real personal data
+# (CV, salary expectations, excluded companies) for anyone who forks this repo.
+# Ignored by default so a fork on a PUBLIC GitHub repo doesn't accidentally
+# commit/push someone's personal data (see README "Forken und selbst nutzen").
+/profiles/*
+!/profiles/.gitkeep

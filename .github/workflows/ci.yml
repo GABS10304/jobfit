@@ -1,0 +1,84 @@
+# CI for job-fit-system.
+#
+# Security posture: this repo ships pre-approved Claude Code permissions
+# (.claude/settings.json) that every fork user's Claude Code session executes,
+# so the security-guards job fails PRs that widen those permissions or weaken
+# the personal-data .gitignore rules (see tools/security_guards.py for the
+# full rationale, including why this exists at all).
+#
+# Honest limit: a PR can edit this workflow itself, so this guard catches
+# accidents and casual attempts, not a determined author — branch protection
+# with required checks and human review of workflow/settings diffs remain the
+# real backstop.
+#
+# Deliberately NOT here: live smoke tests against real job boards (LinkedIn,
+# Personio, Workday). Those are network-flaky and some boards' Terms of
+# Service restrict automated access — see scripts/fetch_jobs_*.py and
+# SECURITY.md. CI runs the checked-in fixture/mock test suite only
+# (-m "not network"); live sourcing stays a local, on-demand step.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-guards:
+    name: Security guards (permissions, gitignore)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: "3.12"
+      - run: python tools/security_guards.py
+
+  python-tests:
+    name: Python tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install -r requirements.txt
+      - run: playwright install --with-deps chromium
+      - run: pytest -q -m "not network"
+
+  dependency-review:
+    name: Dependency review
+    # Requires the repo's Dependency graph, which not every repo (upstream or
+    # fork) has enabled — so the graph is probed first, and the job warns and
+    # passes instead of hard-failing if it's unavailable. Enabling Dependency
+    # graph under Settings -> Advanced Security activates the real check.
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - name: Probe Dependency graph availability
+        id: graph
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/dependency-graph/sbom")
+          if [ "$code" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/dependency-review-action@67d4f4bd7d0b93de2c7c8b19f1e6d6c4cd8b8a1c # v4
+        if: steps.graph.outputs.enabled == 'true'
+      - name: Skip (Dependency graph not enabled on this repo)
+        if: steps.graph.outputs.enabled != 'true'
+        run: echo "Dependency graph is disabled for this repository — enable it under Settings -> Advanced Security to activate this check."

@@ -1,17 +1,20 @@
 # Job Fit System
 
+[![CI](https://github.com/GABS10304/job-fit-system/actions/workflows/ci.yml/badge.svg)](https://github.com/GABS10304/job-fit-system/actions/workflows/ci.yml)
+
 Lokales Job-Matching- und Bewerbungs-System (inspiriert von [MadsLorentzen/ai-job-search](https://github.com/MadsLorentzen/ai-job-search), aber eigenständig und schlanker).
 
 **V2 review-ready · Tests grün** — siehe [`docs/V2_RELEASE.md`](docs/V2_RELEASE.md).  
 V1-Abschluss: [`docs/V1_FREEZE.md`](docs/V1_FREEZE.md). Nach Team-Review: Freeze auf V2.
 
 **Phase 1 / V2:** Master-CV + Role-Fit-Profil + Fit-Check-API (`POST /fit-check`).  
-Kein Scraping, kein Auto-Apply, keine Browser-Automation.
+Sourcing/Scraping ist inzwischen Teil des Systems (`backend/sourcing/`, `scripts/fetch_jobs_*.py`) — was weiterhin bewusst **nicht** passiert: Auto-Apply. Kein Skript füllt Formulare aus oder klickt "Absenden" — das bleibt manuell (`domain/constraints.yaml`: `auto_apply_enabled: false`).
 
-## Voraussetzungen (macOS / Cursor)
+## Voraussetzungen
 
 - Python 3.11+ (empfohlen)
-- Terminal in Cursor (Integrated Terminal)
+- Ein Terminal (macOS/Linux/Windows) — egal ob in [Claude Code](https://claude.com/claude-code), Cursor oder einem eigenständigen Shell-Fenster
+- Optional: [Claude Code](https://claude.com/claude-code) für den `cv-tailor`-Skill (CV-/Anschreiben-Tailoring) und die anderen Claude-Command-Workflows dieses Repos
 
 ## Lokal starten
 
@@ -92,8 +95,24 @@ Mehr Kontext: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Roadmap (kurz)
 
-1. **Phase 1** – Fit-Check ← du bist hier  
-2. **Phase 2** – CV-/Anschreiben-Generator  
-3. **Phase 3** – Job-Sourcing (APIs / Scraper)  
-4. **Phase 4** – Assisted Apply + Tracking  
-5. **Phase 5** – optional Auto-Apply mit Regeln & Rate-Limits  
+1. **Phase 1** – Fit-Check ✅  
+2. **Phase 2** – CV-/Anschreiben-Generator ✅  
+3. **Phase 3** – Job-Sourcing (APIs / Scraper) ✅  
+4. **Phase 4** – Assisted Apply + Tracking ← du bist hier  
+5. **Phase 5** – optional Auto-Apply mit Regeln & Rate-Limits (noch nicht begonnen, bewusst zurückgestellt)
+
+## Forken und selbst nutzen
+
+Dieses Repo ist so gedacht, dass du es forkst und **auf deiner eigenen Maschine mit deinem eigenen Claude-/API-Zugang** betreibst — es gibt keinen Server, den irgendjemand für dich hostet, keine gemeinsame Datenbank, keine Anmeldung. Deine Daten bleiben bei dir; niemand sonst verarbeitet sie.
+
+> [!IMPORTANT]
+> Ein Fork eines öffentlichen Repos ist auf GitHub standardmäßig selbst **öffentlich** — private Forks gehen nicht. `/profiles/` ist zwar gitignored, aber bevor du `/onboarding` durchläufst, lohnt sich trotzdem ein zweiter Gedanke an dieser Stelle: Willst du das lieber komplett unter eigener Kontrolle laufen lassen, ist ein **privates Repository mit diesem Repo als `upstream`** in zwei Minuten erledigt:
+>
+> ```bash
+> git clone <dein-neues-privates-repo-url>
+> cd job-fit-system
+> git remote add upstream https://github.com/GABS10304/job-fit-system
+> # Updates später: git fetch upstream && git merge upstream/main
+> ```
+
+Sicherheitsmodell und was das System bewusst nicht automatisiert: [`SECURITY.md`](SECURITY.md). Lizenz: [`LICENSE`](LICENSE) (MIT).

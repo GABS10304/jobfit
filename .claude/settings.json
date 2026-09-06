@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python scripts/fetch_jd.py:*)",
+      "Bash(python3 scripts/fetch_jd.py:*)",
+      "Bash(python scripts/fetch_jobs_batch.py:*)",
+      "Bash(python3 scripts/fetch_jobs_batch.py:*)",
+      "Bash(python scripts/fetch_jobs_multi_board.py:*)",
+      "Bash(python3 scripts/fetch_jobs_multi_board.py:*)",
+      "Bash(python scripts/fetch_jobs_multi_linkedin.py:*)",
+      "Bash(python3 scripts/fetch_jobs_multi_linkedin.py:*)",
+      "Bash(python scripts/fetch_jobs_multi_workday.py:*)",
+      "Bash(python3 scripts/fetch_jobs_multi_workday.py:*)",
+      "Bash(python scripts/fetch_jobs_linkedin_search.py:*)",
+      "Bash(python3 scripts/fetch_jobs_linkedin_search.py:*)",
+      "Bash(python scripts/fetch_jobs_workday_board.py:*)",
+      "Bash(python3 scripts/fetch_jobs_workday_board.py:*)",
+      "Bash(python scripts/build_daily_shortlist.py:*)",
+      "Bash(python3 scripts/build_daily_shortlist.py:*)",
+      "Bash(python scripts/add_manual_job.py:*)",
+      "Bash(python3 scripts/add_manual_job.py:*)",
+      "Bash(python scripts/run_decision_agent.py:*)",
+      "Bash(python3 scripts/run_decision_agent.py:*)",
+      "Bash(python scripts/run_decisions_for_new_jobs.py:*)",
+      "Bash(python3 scripts/run_decisions_for_new_jobs.py:*)",
+      "Bash(python scripts/prepare_application_draft.py:*)",
+      "Bash(python3 scripts/prepare_application_draft.py:*)",
+      "Bash(python scripts/finalize_application.py:*)",
+      "Bash(python3 scripts/finalize_application.py:*)",
+      "Bash(python scripts/mark_sent.py:*)",
+      "Bash(python3 scripts/mark_sent.py:*)",
+      "Bash(python scripts/run_selection_plan.py:*)",
+      "Bash(python3 scripts/run_selection_plan.py:*)",
+      "Bash(python scripts/run_watchlist_cv.py:*)",
+      "Bash(python3 scripts/run_watchlist_cv.py:*)",
+      "Bash(pytest:*)",
+      "Bash(uvicorn backend.main:app:*)"
+    ]
+  }
+}

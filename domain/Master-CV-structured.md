@@ -4,6 +4,7 @@
 - **Name:** Gabriel Strecker
 - **Standort:** Marktheidenfeld, Bayern, Deutschland
 - **Sprachen:** Deutsch Muttersprache, Englisch C1, verhandlungssicher (Arbeitssprache bei GBS Europa, ~50 % englischsprachiges Geschäft bei Youparts) [belegt durch Nutzer]
+- **Highlights:** Speaker AIPMX 2026 [belegt durch Nutzer]; Enactivate Breath Work Instructor, seit 2026 (Zertifikat liegt vor) [belegt durch Nutzer]
 - **Profilkern:** digitales Produkt-, Transformations- und AI-Enablement-Profil mit starker Wirkung über den formalen Jobscope hinaus
 
 ## Ausbildung
@@ -26,6 +27,7 @@
   - Anforderungen und priorisierte Arbeitspakete für Software Delivery ableiten.
   - DSGVO-konforme AI-Analytics mit Datenschutzbeauftragten und Engineering etablieren.
   - KI-Assistenten RIWANEXIS evaluieren: Anfragen im Produktivbetrieb per Graylog auswerten und Prompt Guides vor Veröffentlichung manuell auf Konsistenz testen.
+  - Kommunikations- und Meeting-Charta für Remote-Alignment entwickeln; Release- und Kapazitätsplanung mit Product Managern und Software-Delivery-Leads koordinieren.
 - **Messbare Ergebnisse:**
   - 5 AI-Use-Cases priorisiert. [belegt]
   - >600 Support-Tickets/Monat analysiert. [teilweise belegt]
@@ -35,7 +37,15 @@
   - ~1.000 RIWANEXIS-Anfragen aus 110 Kommunen per Graylog ausgewertet (Fehlerraten, User Intent, erfolgreiche Fragemuster); daraus Prompt Guiding für Nutzer abgeleitet. [teilweise belegt]
   - ~20 Prompt Guides vor Release manuell auf Konsistenz getestet; gefundene Fehler als Verbesserungsaufgaben für Software Delivery in einem eigenen Jira-Kanban-Board definiert. [teilweise belegt]
   - Evaluierung im selbst gebauten RIWA PM Cockpit visualisiert. [teilweise belegt]
-- **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Graylog, Gemini CLI, Jira, Confluence, Valueflow, ABC-Priorisierung
+  - Verantwortet die AI-Produktstrategie bei RIWA. [belegt durch Nutzer]
+  - Internen Hybrid-KI-Kurs konzipiert und durchgeführt: Teilnehmende erarbeiten Anforderungen an einen KI-Meeting-Moderator selbst mit KI; Format unternehmensweit skaliert (Gruppen bis 10). [belegt durch Nutzer]
+  - RIWAnexis als externes Produkt-MVP termingebunden zur Kommunale 2025 (Nürnberg) ausgeliefert. [belegt durch Nutzer]
+  - Agentic-AI-MVP für die Smart Country Convention 2026 (CEO-Auftrag): Pain Points und Use Cases mit Stakeholdern und Kunden definiert, Umsetzung mit Software Delivery abgestimmt. [belegt durch Nutzer]
+  - Marktscans und Reports für die nationale Markterschließung (Bayern → Deutschland) erstellt. [belegt durch Nutzer]
+  - Verantwortet die OSS/OGC-Strategie (Open Source / Open Geospatial Consortium) inkl. späterer Umsetzung. [teilweise belegt]
+  - PM-Schulung initiiert, drei Anbieter evaluiert und die Wahl dem Team überlassen. [belegt durch Nutzer]
+  - Aktuar (KI-Hotline-Assistent) als alleinverantwortlicher Product Owner und Builder bis in den Produktivbetrieb gebracht; Prompt-Injection-Schwachstelle eigenständig entdeckt und zweistufig behoben. [belegt durch Nutzer]
+- **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Graylog, Gemini CLI, Jira, Confluence, Valueflow, ABC-Priorisierung, Claude Code, FastAPI, Docker, IONOS AI Model Hub
 - **Wofür war ich dort relevant?** Übersetzung von Kunden-, Ticket- und Marktdaten in priorisierte Produktentscheidungen. Aufbau von AI-gestützter Entscheidungsunterstützung für Product und Delivery.
 - **Belegstärke:** überwiegend belegt bis teilweise belegt
 - **Quellen:** Master-CV, CV-Varianten, GitHub-Demo-Link
@@ -55,11 +65,12 @@
   - Sprint-Qualitäts-Assessment entwickeln.
   - Product Owner bei Anforderungsanalyse und technischem Story-Writing befähigen.
 - **Messbare Ergebnisse:**
-  - Review-Qualität +64. [teilweise belegt]
+  - Sprint-Review-Qualität +64 % (Team-Umfragen). [belegt durch Nutzer]
   - Anforderungsklarheit +80. [teilweise belegt]
-  - Teamstress -54. [teilweise belegt]
+  - Teamstress −54 % (Team-Umfragen). [belegt durch Nutzer]
   - Jira Product Discovery für zwei Teams eingeführt. [belegt]
   - Produktverständnis juniorer Product Owner +80 Prozent. [teilweise belegt]
+  - Product Owner in User-Story-Erstellung und Führungskräfte in Kanban gecoacht; sehr gutes Feedback, spürbar mehr Sicherheit bei jungen POs. [belegt durch Nutzer]
 - **Tools/Methoden:** Jira Product Discovery, Organizational Fit Diagnostics, EBM, Kanban, Scrum, Stacey Matrix, Workshop-Facilitation, Product-Owner-Coaching
 - **Wofür war ich dort relevant?** Sichtbarmachen organisatorischer Reality-Gaps und Ableitung passender Arbeitsweisen statt Framework-Standardisierung.
 - **Belegstärke:** belegt bis teilweise belegt
@@ -75,8 +86,7 @@
   - Refinement- und Feedback-Prozesse strukturieren.
   - Teamfluss verbessern.
 - **Messbare Ergebnisse:**
-  - Teamproduktivität +25. [teilweise belegt]
-  - Stakeholder-Review-Qualität von Note 3 auf Note 2 verbessert. [teilweise belegt]
+  - Stakeholder-Review-Qualität von Note 3 auf Note 2 verbessert (Backlog Refinement, EBM). [belegt durch Nutzer]
   - Offenere Feedback-Kultur zwischen Team und Stakeholdern. [qualitativ belegt]
 - **Tools/Methoden:** Scrum, Kanban/Scrum-Hybrid, EBM, Backlog Refinement, Retrospektiven, Stakeholder-Management
 - **Wofür war ich dort relevant?** Verbesserung von Teamflow, Review-Qualität und Zusammenarbeit in einem ERP-Entwicklungskontext.
@@ -97,7 +107,7 @@
   - Lean/Kaizen für Zusammenarbeit und Workflows nutzen.
   - Marktannahmen und USP prüfen.
 - **Messbare Ergebnisse:**
-  - Entscheidungsvorlage für Stop/No-Go eines Produkts fachlich vorbereitet. [teilweise belegt]
+  - Sechs Jahre altes Entwicklungsprojekt trotz Sunk Cost gestoppt – Entscheidung auf Basis eigener Validierung mit Marktdaten und Kundenstimmen. [belegt durch Nutzer]
   - Effizienzmetriken im Original-CV genannt, aber noch nicht sauber verifiziert. [TODO]
 - **Tools/Methoden:** Lean, Kaizen, Customer Discovery, Sales Enablement, Workshops, ROI/TCO-Rechner, Pitch Decks, Playbooks
 - **Wofür war ich dort relevant?** Verknüpfung von Marktvalidierung, Produktfokus und Entscheidungsunterstützung.
@@ -117,8 +127,10 @@
   - Externe Marketing-Agenturen steuern.
 - **Messbare Ergebnisse:**
   - Digitale Lead-Akquisition in Industrie-Software nachgewiesen. [belegt]
-  - Niedrigere Marketingkosten und mehr qualifizierte Leads als Messeformate. [teilweise belegt]
+  - Interaktiver Lead-Magnet (Konfigurator) für rund ein Zehntel des Jahresmarketingbudgets brachte im ersten Jahr mehr wertvolle Leads als klassische Messeformate. [belegt durch Nutzer]
   - Lead-Gen-Produkt (Konfiguratoren/Landingpages) bleibt öffentlich verfügbar. [belegt]
+  - Digitale DSGVO-Umsetzung und DSGVO-konforme Lead-Strategien an der Schnittstelle Business/IT verantwortet. [belegt durch Nutzer]
+  - Kampagnen und Tools termingebunden zu Messeterminen geliefert. [belegt durch Nutzer]
 - **Tools/Methoden:** Online-Marketing, Lead Generation, Konfiguratoren, Landingpages, SEO/SEA, E-Mail-Marketing, Webinar-Marketing, Agency Management
 - **Wofür war ich dort relevant?** Nachweis, dass digitale Lead-Akquisition auch in erklärungsbedürftigen Industrie-Märkten funktioniert.
 - **Belegstärke:** teilweise belegt
@@ -133,10 +145,13 @@
   - Sales, Kundenentwicklung, Lieferantenmanagement, Operations und Geschäftsmodell verantworten.
   - JIT-Ansatz testen.
   - Pivot nach Marktfeedback vornehmen.
+  - Lieferanten für kundenspezifische mechanische Teile international koordinieren.
+  - Agile Arbeitsweisen über Marketing, Sales und Operations einführen.
 - **Messbare Ergebnisse:**
   - Strategischer Pivot auf Vermarktung freier Lieferantenkapazitäten. [belegt durch Nutzer]
   - Kunden-/Umsatzzahlen aus CV-Varianten noch zu verifizieren. [TODO]
   - Als Geschäftsführer umsatzsteuerliche Themen internationaler B2B-Geschäfte verantwortet (Dreiecksgeschäfte, Vorsteuer-Erstattung bei Auslandsgeschäften); laufende Buchhaltung durch Mitarbeiterin in DATEV. [belegt durch Nutzer]
+  - Regelmäßig unter engen Lieferzeitfenstern geliefert; direkte Verantwortung für Termintreue. [belegt durch Nutzer]
 - **Tools/Methoden:** Sales, Operations, Lieferantenmanagement, Pivot-Logik, Marktvalidierung, DATEV (über Buchhaltung)
 - **Wofür war ich dort relevant?** Geschäftsmodellentwicklung, Marktvalidierung und strategischer Pivot ohne externes Kapital.
 - **Belegstärke:** belegt bis teilweise belegt
@@ -199,6 +214,24 @@
 - **Ergebnis:** Aus Stellenanzeige und Master-CV entsteht in Minuten ein individuell zugeschnittenes, faktengeprüftes Bewerbungspaket (Anschreiben + CV).
 - **Welche Zielrollen unterstützt das?** AI Product Manager, Technical Product Manager
 - **Belegstärke:** belegt
+
+### PR-08 | Aktuar (KI-Hotline-Assistent / Hotline-Ticket-Guru)
+- **Kontext/Firma:** RIWA GmbH / GovTech, internes KI-Tool für das Support-Team
+- **Deine Rolle:** Alleinverantwortlicher Product Owner und Builder (Claude Code), von der Architektur bis zum Produktivbetrieb
+- **Problem:** Fragen zu historischen Support-Tickets (ConSol-CM-Export) ließen sich nicht schnell und nachvollziehbar beantworten.
+- **Vorgehen:** Python/FastAPI, SQLite, Docker Compose auf eigener Debian-VM; IONOS AI Model Hub (DSGVO-konformes LLM-Hosting in Deutschland). Prinzip „Zahlen = Code, LLM = Text“: Kennzahlen deterministisch, jede Antwort mit Beleg-Anker; regelbasierter Intent-Router; 400+ automatisierte Tests; Guard-Skripte gegen Überschreiben von Produktivdaten.
+- **Ergebnis:** Produktiv im Einsatz; Prompt-Injection-Schwachstelle eigenständig entdeckt und zweistufig behoben; produktionskritische Logikfehler (u. a. Kennzahlen-Verzerrung) gefunden und behoben. [belegt durch Nutzer]
+- **Welche Zielrollen unterstützt das?** AI Product Manager, Technical Product Manager
+- **Belegstärke:** belegt durch Nutzer (13.09.2026)
+
+### PR-09 | Product Insights Plattform („ORAKEL“)
+- **Kontext/Firma:** RIWA GmbH / GovTech, Auswertung von Kundenzufriedenheits-Freitexten für die Geschäftsführung
+- **Deine Rolle:** Konzeption, Datenschutz-Governance, Steuerung der technischen Umsetzung
+- **Problem:** Unstrukturiertes Kundenfeedback war für Investitionsentscheidungen nicht auswertbar.
+- **Vorgehen:** Python-Klassifikations-Pipeline gegen IONOS AI Model Hub; Schema mit 12 Kategorien (Multi-Label, Severity, Abwanderungssignal), iterativ aus echten Daten; Firmen-Glossar mit 350+ Produktmodulen; unbekannte Fachbegriffe werden gemeldet statt geraten; personenbezogene Daten vor jeder KI-Verarbeitung entfernt (Privacy by Design).
+- **Ergebnis:** 260+ Freitext-Rückmeldungen automatisiert klassifiziert; zwei bisher unsichtbare, geschäftskritische Themenfelder identifiziert; Priorisierungsmodell aus Feedback, Nutzungsintensität und Umsatzdaten. [belegt durch Nutzer]
+- **Welche Zielrollen unterstützt das?** AI Product Manager
+- **Belegstärke:** belegt durch Nutzer (13.09.2026)
 
 ## Skills
 
@@ -269,6 +302,10 @@
 - Scrum Master 2 – Advanced (Skilldrops)
 - Agile Leadership – Evidence Based Management 1 – Practitioner (Skilldrops)
 - Agiler Coach (Indisoft)
+- IHK-Kurs Rhetorik (16 UE) sowie Moderation und Präsentation (IHK, 2024)
+- IHK-Seminar „Dokumentationspflichten aus der EU-DSGVO“ (IHK, 2018)
+- Weiterbildung Eventmanager, 9 Monate (SSI Berlin, 2010)
+- Online Unternehmer 5.0 – Online-Marketing (Smart A GmbH)
 
 ## Offene TODOs / unclear
 - Exakter offizieller RIWA-Titel.
@@ -276,4 +313,7 @@
 - Verifizierte Metriken zu GBS, Weidmüller und Youparts.
 - Evtl. weitere Demonstratoren aus GitHub-Repos.
 - Ausbildung Mediengestalter: Ausbildungsbetrieb ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann); Aktuar als eigenes Projekt aus cv-tailor master-cv.md übernehmen.
+- Standort klären: Marktheidenfeld (Repo-CV) vs. Großraum Frankfurt (cv-tailor, 27.07.2026).
+- FIS: Jira Product Discovery für zwei Teams (Repo-CV) vs. fünf Teams + fünf weitere (cv-tailor) – Zahl bestätigen.
+- Verhältnis AI Pro Suite / PM Evidence AI Portal / ORAKEL klären (ein Projekt oder mehrere?).
 

@@ -1,0 +1,74 @@
+# Salary bands for the salary forecast (backend/sourcing/salary_estimate.py).
+#
+# Annual gross BASE salary (no bonus/equity), full-time. Used only when the JD
+# states no figure; a stated figure always wins. Reporting layer only — never
+# a gate, never scoring input (V3 untouched).
+#
+# Sources (checked 2026-10-17, rounded and blended — benchmarks, not promises):
+# - PRODUCT LOUNGE Gehälter im Produktmanagement (survey n=265 + 2026 portals):
+#   PM 3–6 J. 62–75k, Senior 70–95k, Lead 80–102k, Head 90–110k, CPO 120–180k;
+#   cities: Frankfurt +10 %, München +8 %, Berlin −3 % vs. DE average
+# - Glassdoor 2026: AI Product Manager München base ~88–124k; PM Berlin base ~54–70k
+# - upreer.ch 2026 (CH, CHF): Junior 92–115k, PM 115–158k, Senior 158–210k,
+#   Principal 195–250k, Head 210–290k; Swiss startups below Series B ~20 % lower
+#
+# Tune freely when real offers or recruiter numbers come in — they beat portals.
+
+currency_by_region:
+  DE: EUR
+  CH: CHF
+
+levels:            # [low, high] base, mid-market tech company
+  DE:
+    junior: [48000, 62000]
+    mid:    [62000, 78000]
+    senior: [75000, 95000]
+    lead:   [85000, 110000]
+    head:   [95000, 130000]
+    cpo:    [120000, 180000]
+  CH:
+    junior: [92000, 115000]
+    mid:    [115000, 158000]
+    senior: [158000, 210000]
+    lead:   [195000, 250000]
+    head:   [210000, 290000]
+    cpo:    [240000, 330000]
+
+# Title cues → level (first match wins, checked top to bottom).
+level_cues:
+  cpo:    [chief product officer, cpo, vp product, vp of product, vice president product]
+  head:   [head of product, director of product, product director, head of, director]
+  lead:   [lead, principal, staff, group product manager, gpm]
+  senior: [senior, sr., sr ]
+  junior: [junior, associate, trainee, werkstudent, working student, intern]
+
+# "N+ Jahre/years" in the JD raises the level to at least this one.
+years_floor:
+  - {min_years: 10, level: lead}
+  - {min_years: 7,  level: senior}
+
+role_multipliers:  # applied to both band ends; first match wins
+  # title_cues match the job title only (generic words like "AI" appear in many
+  # JD boilerplates); cues match title + JD text.
+  - {label: KI-/ML-Rolle, factor: 1.10, title_cues: [ai, ki, ml, machine learning, llm, genai], cues: [ai product manager, ki-produktmanager, machine learning product, llm-based products, llm product, generative ai product, ki-/llm-feature, llm-feature, llm-features, ki-features, ki-getriebene, ai features, ai-powered products, ai agents, ki-agenten, voice ai, ki-plattform]}
+  - {label: Technische PM-Rolle, factor: 1.05, title_cues: [technical, technischer, platform, plattform], cues: [technical product manager, technischer produktmanager]}
+
+location_multipliers:  # DE only; job location field first, JD text only if no location; default 1.0
+  - {label: München, factor: 1.07, cues: [münchen, munich]}
+  - {label: Frankfurt, factor: 1.08, cues: [frankfurt]}
+  - {label: Stuttgart, factor: 1.06, cues: [stuttgart]}
+  - {label: Nürnberg, factor: 1.05, cues: [nürnberg, nuremberg]}
+  - {label: Hamburg, factor: 1.00, cues: [hamburg]}
+  - {label: Düsseldorf/Köln, factor: 1.00, cues: [düsseldorf, köln, cologne]}
+  - {label: Berlin, factor: 0.97, cues: [berlin]}
+  - {label: Ostdeutschland, factor: 0.92, cues: [leipzig, dresden, erfurt, rostock, magdeburg, chemnitz]}
+  - {label: Remote DE, factor: 1.00, cues: [remote, fully remote, home office]}  # after cities: a named city wins
+
+region_cues:
+  CH: [zürich, zurich, basel, bern, genf, geneva, lausanne, zug, schweiz, switzerland]
+
+stage_multipliers:     # first match wins; default 1.0
+  - {label: Startup (Pre-Seed–Series A), factor: 0.95, equity_note: true,
+     cues: [pre-seed, pre seed, seed, series a, early-stage, early stage, founding, vsop, esop, virtuelle anteile, startup]}
+  - {label: Konzern, factor: 1.05, equity_note: false,
+     cues: [konzern, dax, fortune 500, "10.000 mitarbeitende", "10,000 employees"]}

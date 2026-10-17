@@ -40,8 +40,41 @@ def _to_number(raw: str) -> float:
     return float(raw.replace(".", "").replace(",", ""))
 
 
+# Annual base salaries outside this window are almost certainly something else
+# (benefit budgets, monthly figures, funding rounds) and are ignored.
+_PLAUSIBLE_MIN = 20_000
+_PLAUSIBLE_MAX = 500_000
+
+
+def _plausible(low: float, high: float) -> bool:
+    return _PLAUSIBLE_MIN <= low <= high <= _PLAUSIBLE_MAX
+
+
 def extract_salary_range(text: str | None) -> tuple[float, float] | None:
     """Return (low, high) annual base in the JD's stated currency, or None."""
+    if not text or not text.strip():
+        return None
+
+    for match in _RANGE_RE.finditer(text):
+        a = _to_number(match.group("a"))
+        b = _to_number(match.group("b"))
+        low, high = (a, b) if a <= b else (b, a)
+        if _plausible(low, high):
+            return low, high
+
+    for regex in (_SINGLE_WITH_CURRENCY_RE, _SINGLE_WITH_CONTEXT_RE):
+        for match in regex.finditer(text):
+            raw = match.groupdict().get("a") or match.groupdict().get("b")
+            if not raw:
+                continue
+            value = _to_number(raw)
+            if _plausible(value, value):
+                return value, value
+    return None
+
+
+def _legacy_extract_salary_range(text: str | None) -> tuple[float, float] | None:
+    """Pre-2026-10-17 behaviour (first match, no plausibility check). Unused."""
     if not text or not text.strip():
         return None
 

@@ -46,6 +46,7 @@ from backend.sourcing.filtering import (
     top_fit_score,
 )
 from backend.sourcing.salary_filter import passes_salary_gate
+from backend.sourcing.salary_estimate import estimate_salary
 from backend.sourcing.personio import (
     JobListing,
     NormalizedJobDescription,
@@ -98,6 +99,12 @@ def _run_fit_check(
         reject_reason = f"salary_below_minimum:min={min_annual_base}"
 
     location = evaluate_location_fit(job.jd_text, constraints.location_preferences)
+    salary = estimate_salary(
+        title=job.title,
+        jd_text=job.jd_text,
+        location=job.location,
+        min_annual_base=min_annual_base,
+    )
 
     payload = {
         "status_flag": fit.status_flag,
@@ -108,6 +115,8 @@ def _run_fit_check(
         "passes_default_filter": passes,
         "watchlist_eligible": watchlist_ok and not passes,
         "location_match": location["match"],
+        "salary": salary.to_dict(),
+        "salary_label": salary.label(),
     }
     if reject_reason:
         payload["filter_reject_reason"] = reject_reason

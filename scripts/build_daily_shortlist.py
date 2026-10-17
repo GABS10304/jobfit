@@ -48,6 +48,8 @@ def _render_row(row: dict[str, Any]) -> str:
     note = relocation_note(score, row.get("location_match"))
     if note:
         lines.append(f"  - 📍 {note}")
+    if row.get("salary_label"):
+        lines.append(f"  - 💶 Gehalt: {row['salary_label']}")
     labels = row.get("open_topic_labels") or []
     if labels:
         lines.append(f"  - ❓ Offene Themen: {', '.join(labels)}")

@@ -30,6 +30,7 @@ from scripts.fetch_jobs_batch import _run_fit_check, _strip_private_fields  # no
 from backend import data_loader  # noqa: E402
 from backend.sourcing import linkedin  # noqa: E402
 from backend.sourcing.filtering import evaluate_title_prefilter, is_excluded_company  # noqa: E402
+from backend.tracking.seen_cache import DEFAULT_TTL_DAYS, SeenCache  # noqa: E402
 
 DEFAULT_DELAY_SEC = 1.5
 
@@ -97,17 +98,34 @@ def run_search(
     limit: int | None,
     fit_check: bool,
     delay: float,
+    pages: int = 1,
+    seen: SeenCache | None = None,
+    seen_ttl_days: int = DEFAULT_TTL_DAYS,
 ) -> dict[str, Any]:
-    print(f"=== LinkedIn search: query={query!r} location={location!r} ===")
+    print(f"=== LinkedIn search: query={query!r} location={location!r} pages={pages} ===")
     excluded_companies = data_loader.load_constraints().excluded_companies
 
-    listings = linkedin.search_jobs(
-        query=query, location=location, jobage_days=jobage_days, remote=remote
-    )
+    # Page through results (10 per page). One page used to be the only page,
+    # so on broad queries like "Product Manager / Germany" most postings were
+    # never seen at all. Stop early when a page comes back short or repeats.
+    listings = []
+    seen_urls: set[str] = set()
+    for page in range(1, max(1, pages) + 1):
+        if page > 1 and delay > 0:
+            time.sleep(delay)
+        page_listings = linkedin.search_jobs(
+            query=query, location=location, jobage_days=jobage_days, remote=remote, page=page
+        )
+        fresh = [item for item in page_listings if item.url not in seen_urls]
+        seen_urls.update(item.url for item in fresh)
+        listings.extend(fresh)
+        if len(page_listings) < 10 or not fresh:
+            break
     print(f"  discovered {len(listings)}; title prefilter...")
 
     candidates = []
     rejected: list[dict[str, Any]] = []
+    skipped_seen = 0
     for listing in listings:
         if is_excluded_company(listing.company, excluded_companies):
             rejected.append(
@@ -134,9 +152,15 @@ def run_search(
                 }
             )
             continue
+        if seen is not None and seen.is_fresh(listing.url, seen_ttl_days):
+            skipped_seen += 1
+            continue
         candidates.append(listing)
 
-    print(f"  prefilter: {len(candidates)} candidate(s), {len(rejected)} rejected")
+    print(
+        f"  prefilter: {len(candidates)} candidate(s), {len(rejected)} rejected, "
+        f"{skipped_seen} skipped (checked <{seen_ttl_days}d ago)"
+    )
 
     limited = limit is not None and len(candidates) > limit
     to_process = candidates[:limit] if limit is not None else candidates
@@ -145,14 +169,15 @@ def run_search(
     for index, listing in enumerate(to_process):
         if index > 0 and delay > 0:
             time.sleep(delay)
-        rows.append(
-            _process_job(
-                listing.url,
-                fit_check=fit_check,
-                listing_title=listing.title,
-                listing_company=listing.company,
-            )
+        row = _process_job(
+            listing.url,
+            fit_check=fit_check,
+            listing_title=listing.title,
+            listing_company=listing.company,
         )
+        if seen is not None and row.get("status") == "ok":
+            seen.mark(listing.url)
+        rows.append(row)
 
     passed = [r for r in rows if r.get("sourcing_bucket") == "passed"]
     watchlist = [r for r in rows if r.get("sourcing_bucket") == "watchlist"]
@@ -168,7 +193,8 @@ def run_search(
         "location": location,
         "status": "ok",
         "discovered": len(listings),
-        "candidates_after_prefilter": len(candidates),
+        "candidates_after_prefilter": len(candidates) + skipped_seen,
+        "skipped_seen": skipped_seen,
         "fit_checked": len(to_process),
         "limited": limited,
         "passed_count": len(passed),
@@ -187,6 +213,7 @@ def main() -> int:
     parser.add_argument("--jobage-days", type=int, default=None)
     parser.add_argument("--remote", default=None, choices=["remote", "hybrid", "onsite"])
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--pages", type=int, default=1, help="Result pages to read (10/page)")
     parser.add_argument(
         "--fit-check", action=argparse.BooleanOptionalAction, default=True
     )
@@ -202,6 +229,7 @@ def main() -> int:
         limit=args.limit,
         fit_check=args.fit_check,
         delay=args.delay,
+        pages=args.pages,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")

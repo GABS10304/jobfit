@@ -1,6 +1,13 @@
 # LinkedIn guest-search queries for the daily sourcing run.
 # Personal-use only (see backend/sourcing/linkedin.py) — keep this list short;
 # don't add many parallel queries just because more coverage sounds nice.
+#
+# pages: result pages to read per query (10 postings each). Broad queries
+# ("Product Manager / Germany") produce far more than 10 postings per day, so
+# a single page missed most of them (e.g. Skalar's Senior PM, Okt 2026).
+# Traffic stays bounded: at most sum(pages) search calls per run, and jobs
+# already fit-checked in the last 14 days are skipped before any detail fetch
+# (out/tracking/seen_jobs.json).
 
 searches:
   - id: li-ai-product-manager-de
@@ -9,6 +16,7 @@ searches:
     location: Germany
     jobage_days: 3
     remote: null
+    pages: 3
     disabled: false
 
   - id: li-product-manager-de
@@ -17,4 +25,25 @@ searches:
     location: Germany
     jobage_days: 3
     remote: null
+    pages: 3
+    disabled: false
+
+  # German-titled postings ("KI-Produktmanager:in") rarely match the English query.
+  - id: li-ki-produktmanager-de
+    name: KI Produktmanager (Germany)
+    query: KI Produktmanager
+    location: Germany
+    jobage_days: 3
+    remote: null
+    pages: 2
+    disabled: false
+
+  # Founder-led AI startups (inbound pattern from Skalar): LLM/agentic product roles.
+  - id: li-llm-product-de
+    name: LLM / Agentic Product (Germany)
+    query: Product Manager LLM
+    location: Germany
+    jobage_days: 3
+    remote: null
+    pages: 2
     disabled: false

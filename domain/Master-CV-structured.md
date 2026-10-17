@@ -225,6 +225,10 @@
 - **Belegt durch:** JTL, FIS (Organizational Fit Diagnostics)
 - **Belegstärke:** belegt bis teilweise belegt
 
+### SK-08 | Visuelles Design / UI-Prototyping
+- **Belegt durch:** Ausbildung Mediengestalter, Webdesign-Erfahrung, UI-Prototypen per Claude Code (z. B. job-fit-system); kein Figma
+- **Belegstärke:** belegt durch Nutzer (Ausbildungsdaten noch ergänzen)
+
 ## Tools
 - Jira
 - Jira Product Discovery
@@ -266,4 +270,5 @@
 - Exakte Teamgröße / formale Führung bei RIWA.
 - Verifizierte Metriken zu GBS, Weidmüller und Youparts.
 - Evtl. weitere Demonstratoren aus GitHub-Repos.
+- Ausbildung Mediengestalter: Zeitraum, Betrieb, Abschluss (IHK?) ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann).
 

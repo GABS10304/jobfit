@@ -295,6 +295,10 @@ skills:
   name: Stakeholder-Management
   evidence: JTL, FIS (Organizational Fit Diagnostics)
   strength: medium
+- id: SK-08
+  name: Visuelles Design / UI-Prototyping
+  evidence: 'Ausbildung Mediengestalter, Webdesign-Erfahrung, UI-Prototypen per Claude Code (z. B. job-fit-system); kein Figma'
+  strength: medium
 tools:
 - Jira
 - Jira Product Discovery
@@ -335,5 +339,6 @@ open_todos:
 - Exakte Teamgröße / formale Führung bei RIWA.
 - Verifizierte Metriken zu GBS, Weidmüller und Youparts.
 - Evtl. weitere Demonstratoren aus GitHub-Repos.
+- 'Ausbildung Mediengestalter: Zeitraum, Betrieb, Abschluss (IHK?) ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann).'
 # supports_roles in Projekten nur auf role_ids aus role_fit_profile.yaml gemappt;
 # MD-Bezeichnungen wie „Product Manager“ / „Growth Lead“ ohne passende role_id weggelassen (kein Erfinden).

@@ -3,7 +3,7 @@
 ## Person
 - **Name:** Gabriel Strecker
 - **Standort:** Marktheidenfeld, Bayern, Deutschland
-- **Sprachen:** Deutsch Muttersprache, Englisch C1 / professionell
+- **Sprachen:** Deutsch Muttersprache, Englisch C1, verhandlungssicher (Arbeitssprache bei GBS Europa, ~50 % englischsprachiges Geschäft bei Youparts) [belegt durch Nutzer]
 - **Profilkern:** digitales Produkt-, Transformations- und AI-Enablement-Profil mit starker Wirkung über den formalen Jobscope hinaus
 
 ## Stationen

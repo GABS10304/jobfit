@@ -6,6 +6,11 @@
 - **Sprachen:** Deutsch Muttersprache, Englisch C1, verhandlungssicher (Arbeitssprache bei GBS Europa, ~50 % englischsprachiges Geschäft bei Youparts) [belegt durch Nutzer]
 - **Profilkern:** digitales Produkt-, Transformations- und AI-Enablement-Profil mit starker Wirkung über den formalen Jobscope hinaus
 
+## Ausbildung
+- Mediengestalter für Digital- und Printmedien, Fachrichtung Mediendesign, 2004–2007 [belegt durch Nutzer]
+- Gasthörer Entrepreneurial Design, FU Berlin (Prof. Dr. Günter Faltin), ein Semester [belegt durch Nutzer]
+- Teilnahme Businessplan-Wettbewerb Berlin-Brandenburg (BPW) [belegt durch Nutzer]
+
 ## Stationen
 
 ### ST-01 | RIWA GmbH
@@ -226,7 +231,7 @@
 - **Belegstärke:** belegt bis teilweise belegt
 
 ### SK-08 | Visuelles Design / UI-Prototyping
-- **Belegt durch:** Ausbildung Mediengestalter, Webdesign-Erfahrung, UI-Prototypen per Claude Code (z. B. job-fit-system); kein Figma
+- **Belegt durch:** Ausbildung Mediengestalter (Mediendesign, 2004–2007), Webdesign-Erfahrung; UIs per Claude Code gebaut: Aktuar (KI-Hotline-Assistent), RIWA PM Cockpit, job-fit-system; kein Figma
 - **Belegstärke:** belegt durch Nutzer (Ausbildungsdaten noch ergänzen)
 
 ## Tools
@@ -270,5 +275,5 @@
 - Exakte Teamgröße / formale Führung bei RIWA.
 - Verifizierte Metriken zu GBS, Weidmüller und Youparts.
 - Evtl. weitere Demonstratoren aus GitHub-Repos.
-- Ausbildung Mediengestalter: Zeitraum, Betrieb, Abschluss (IHK?) ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann).
+- Ausbildung Mediengestalter: Ausbildungsbetrieb ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann); Aktuar als eigenes Projekt aus cv-tailor master-cv.md übernehmen.
 

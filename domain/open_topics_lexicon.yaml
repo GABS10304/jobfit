@@ -1,0 +1,135 @@
+# Open-topics lexicon: requirement topics that job descriptions ask for.
+#
+# For every new sourcing hit (strong pass AND watchlist), the daily shortlist
+# lists topics the JD mentions but domain/cv_master.yaml doesn't — and asks
+# Gabby whether he has experience there. Answers go into the Master-CV, so
+# it grows exactly where the market asks. (Rule from the Skalar case, Okt 2026:
+# "no evidence in the CV" is a question, not a gap.)
+#
+# This is NOT scoring input — V3 stays frozen. Pure reporting layer.
+#
+# Fields:
+#   label:     shown in the shortlist
+#   question:  optional; default "Hast du Erfahrung mit <label>?"
+#   phrases:   matched case-insensitively with word boundaries in JD text
+#   cv_phrases: optional; what counts as "already in the CV" (default: phrases)
+#
+# Add topics freely; keep phrases specific (no generic words like "markt").
+
+topics:
+  evals:
+    label: Evals / LLM-Evaluation
+    question: Hast du Evals aufgebaut oder genutzt (Testsets, LLM-as-Judge, Metriken)?
+    phrases: [evals, eval, evaluation framework, evaluation frameworks, llm-as-judge, llm as a judge, eval-set, eval set, evaluierung, offline evaluation]
+
+  prompt_engineering:
+    label: Prompt Engineering / Prompt-Iteration
+    phrases: [prompt engineering, prompt-engineering, prompt iteration, prompt-iteration, prompt-iterationen, prompting, prompts]
+    cv_phrases: [prompt engineering, prompt-engineering, prompt iteration, prompt-iteration, prompting, prompts, prompt]
+
+  rag:
+    label: RAG / Vector Stores
+    phrases: [rag, retrieval-augmented, retrieval augmented, vector store, vector stores, vektordatenbank, vector database, embeddings]
+
+  fine_tuning:
+    label: Fine-Tuning vs. In-Context Learning
+    phrases: [fine-tuning, fine tuning, finetuning, in-context learning]
+
+  llm_cost_quality:
+    label: Kosten-Qualitäts-Trade-offs bei LLMs
+    question: Hast du LLM-Kosten gegen Qualität abgewogen (Modellwahl, Token-Kosten, Caching)?
+    phrases: [kosten-qualitäts, cost-quality, cost quality, token costs, inference cost, inference costs, model costs, modellkosten]
+
+  build_vs_buy:
+    label: Build-vs-Buy-Entscheidungen
+    phrases: [build-vs-buy, build vs buy, build vs. buy, make-or-buy, make or buy]
+
+  ai_agents:
+    label: KI-Agenten / Agentic AI
+    phrases: [ai agents, ki-agenten, agentic, multi-agent, autonome agenten, llm agents]
+
+  figma:
+    label: Figma
+    question: Nutzt du Figma (Skizzieren, Flows reviewen, Prototypen)?
+    phrases: [figma]
+
+  ux_research:
+    label: User Interviews / Shadowing
+    phrases: [user interviews, nutzerinterviews, kundeninterviews, shadowing, usability tests, usability testing]
+    cv_phrases: [user interviews, nutzerinterviews, kundeninterviews, interviews, shadowing, usability, customer discovery]
+
+  ab_testing:
+    label: A/B-Tests / Experimentation
+    phrases: [a/b test, a/b tests, a/b-test, a/b-tests, a/b testing, ab testing, experimentation]
+
+  analytics_tools:
+    label: Product-Analytics-Tools (Amplitude, Mixpanel, PostHog …)
+    phrases: [amplitude, mixpanel, posthog, google analytics, heap, looker, metabase, tableau, power bi]
+
+  sql:
+    label: SQL
+    phrases: [sql]
+
+  python:
+    label: Python
+    phrases: [python]
+
+  okrs:
+    label: OKRs
+    phrases: [okr, okrs, objectives and key results]
+
+  pricing:
+    label: Pricing / Monetarisierung
+    phrases: [pricing, preisgestaltung, monetarisierung, monetization, monetisation]
+
+  people_lead:
+    label: Disziplinarische Führung
+    question: Hast du disziplinarisch Menschen geführt (Anzahl, Zeitraum)?
+    phrases: [disziplinarische führung, disziplinarisch, people lead, people management, führungserfahrung, direct reports]
+
+  english_c1_c2:
+    label: Englisch auf C1/C2-Niveau
+    question: Wie gut ist dein Englisch (Niveau, Beleg z. B. Arbeitssprache, Zertifikat)?
+    phrases: [c1, c2, fluent english, english fluency, verhandlungssicheres englisch, fließendes englisch, business english]
+    cv_phrases: [c1, c2, fluent, verhandlungssicher, fließend, muttersprache]
+
+  tax_domain:
+    label: Steuer-/Kanzlei-Domäne
+    phrases: [steuerberatung, steuerkanzlei, steuerrecht, steuerberater, tax advisory, tax advisor, tax]
+
+  accounting:
+    label: Buchhaltung / Accounting
+    phrases: [buchhaltung, finanzbuchhaltung, fibu, accounting, lohnabrechnung, payroll]
+
+  datev_elster:
+    label: DATEV / ELSTER
+    phrases: [datev, elster]
+
+  financial_regulation:
+    label: Finanzregulierung (BaFin, KYC, AML)
+    phrases: [bafin, kyc, aml, anti-money laundering, geldwäsche, mifid, psd2]
+
+  security_compliance:
+    label: Security-Compliance (ISO 27001, SOC 2)
+    phrases: [iso 27001, iso27001, soc 2, soc2, tisax, bsi grundschutz]
+
+  healthcare:
+    label: Healthcare / Medizin
+    phrases: [healthcare, gesundheitswesen, medizinprodukt, medical device, klinik, patient, patienten]
+
+  mobile:
+    label: Mobile Apps (iOS/Android)
+    phrases: [ios, android, mobile app, mobile apps, app store]
+
+  api_platform:
+    label: API-/Plattform-Produkte
+    phrases: [api products, api-produkte, developer platform, developer experience, public api, apis]
+
+  cloud:
+    label: Cloud (AWS, Azure, GCP)
+    phrases: [aws, azure, gcp, google cloud]
+    cv_phrases: [aws, azure, gcp, google cloud, bigquery]
+
+  ml_basics:
+    label: Machine-Learning-Grundlagen
+    phrases: [machine learning, ml models, ml-modelle, maschinelles lernen, data science]

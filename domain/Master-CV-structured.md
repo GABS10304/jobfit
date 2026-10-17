@@ -131,7 +131,8 @@
 - **Messbare Ergebnisse:**
   - Strategischer Pivot auf Vermarktung freier Lieferantenkapazitäten. [belegt durch Nutzer]
   - Kunden-/Umsatzzahlen aus CV-Varianten noch zu verifizieren. [TODO]
-- **Tools/Methoden:** Sales, Operations, Lieferantenmanagement, Pivot-Logik, Marktvalidierung
+  - Als Geschäftsführer umsatzsteuerliche Themen internationaler B2B-Geschäfte verantwortet (Dreiecksgeschäfte, Vorsteuer-Erstattung bei Auslandsgeschäften); laufende Buchhaltung durch Mitarbeiterin in DATEV. [belegt durch Nutzer]
+- **Tools/Methoden:** Sales, Operations, Lieferantenmanagement, Pivot-Logik, Marktvalidierung, DATEV (über Buchhaltung)
 - **Wofür war ich dort relevant?** Geschäftsmodellentwicklung, Marktvalidierung und strategischer Pivot ohne externes Kapital.
 - **Belegstärke:** belegt bis teilweise belegt
 - **Quellen:** Master-CV, Nutzerangabe

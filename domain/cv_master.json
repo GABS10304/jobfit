@@ -32,7 +32,7 @@
         "250 Freitext-Surveyantworten analysiert. [teilweise belegt]",
         "Pilotkunden direkt akquiriert. [teilweise belegt]",
         "Entscheidungshilfen halluzinationsarm und nachvollziehbar gemacht. [qualitativ belegt]",
-        "~1.000 RIWANEXIS-Anfragen von 110 Admin-Einheiten per Graylog ausgewertet (Fehlerraten, User Intent, erfolgreiche Fragemuster); daraus Prompt Guiding für Nutzer abgeleitet. [teilweise belegt]",
+        "~1.000 RIWANEXIS-Anfragen aus 110 Kommunen per Graylog ausgewertet (Fehlerraten, User Intent, erfolgreiche Fragemuster); daraus Prompt Guiding für Nutzer abgeleitet. [teilweise belegt]",
         "~20 Prompt Guides vor Release manuell auf Konsistenz getestet; gefundene Fehler als Verbesserungsaufgaben für Software Delivery in einem eigenen Jira-Kanban-Board definiert. [teilweise belegt]",
         "Evaluierung im selbst gebauten RIWA PM Cockpit visualisiert. [teilweise belegt]"
       ],

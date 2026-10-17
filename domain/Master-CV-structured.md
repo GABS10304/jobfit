@@ -28,7 +28,7 @@
   - Pilotkunden direkt akquiriert. [teilweise belegt]
   - Entscheidungshilfen halluzinationsarm und nachvollziehbar gemacht. [qualitativ belegt]
   - ~1.000 RIWANEXIS-Anfragen von 110 Admin-Einheiten per Graylog ausgewertet (Fehlerraten, User Intent, erfolgreiche Fragemuster); daraus Prompt Guiding für Nutzer abgeleitet. [teilweise belegt]
-  - Prompt Guides vor Release manuell auf Konsistenz getestet; Fehler aufgedeckt, bevor sie Nutzer erreichten. [qualitativ belegt]
+  - ~20 Prompt Guides vor Release manuell auf Konsistenz getestet; gefundene Fehler als Verbesserungsaufgaben für Software Delivery in einem eigenen Jira-Kanban-Board definiert. [teilweise belegt]
   - Evaluierung im selbst gebauten RIWA PM Cockpit visualisiert. [teilweise belegt]
 - **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Graylog, Gemini CLI, Jira, Confluence, Valueflow, ABC-Priorisierung
 - **Wofür war ich dort relevant?** Übersetzung von Kunden-, Ticket- und Marktdaten in priorisierte Produktentscheidungen. Aufbau von AI-gestützter Entscheidungsunterstützung für Product und Delivery.

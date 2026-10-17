@@ -69,8 +69,8 @@
 - Konzipiert und führt einen internen Hybrid-KI-Kurs durch: Teilnehmende erarbeiten sich Anforderungen an einen Meeting-Moderator selbst mithilfe von KI. Format wird unternehmensweit im Rahmen der Transformation skaliert (Gruppengrößen bis 10, von Gabriel jeweils angepasst). **Belegstärke: belegt** (vom User bestätigt, 27.07.2026).
 - Priorisiert fünf AI-Use-Cases mit ABC-Tiering, Value-vs-Effort-Logik und datenbasierten Entscheidungsgrundlagen.
 - Erhält von der Entwicklung einen bereitgestellten Chatbot, um selbst erstellte Use Cases zu testen und zu bauen — enge Zusammenarbeit mit Engineering auf Tool-Ebene. **Belegstärke: belegt** (vom User bestätigt, 27.07.2026).
-- Entwickelt aktuell proaktiv (entwickelt sich noch weiter) das **PM Evidence AI Portal** als lokale Python-/Streamlit-Umgebung zur DSGVO-bewussten Auswertung von Tickets, Freitexten, Surveys und Reports. Eigenständig konzipiert und gebaut (Bedarf selbst erkannt und umgesetzt); öffentliches Demo-Repo mit synthetischen Daten: github.com/GABS10304/customer-market-intelligence-demo. **Belegstärke: belegt** (4-Layer-Architektur, Anti-Halluzinations-Prinzip "Zahlen = Code, LLM = Text", Atlassian-REST-Clients mit 12 automatisierten Tests, öffentlich einsehbar).
-- Besitzt die **AI-Produktstrategie bei RIWA**; das PM Evidence AI Portal wurde gezielt als Werkzeug gebaut, um diese Strategiearbeit mit belastbarer Customer-/Market-Intelligence zu unterlegen. **Belegstärke: belegt** (direkt vom User bestätigt, 27.07.2026).
+- Entwickelt aktuell proaktiv (entwickelt sich noch weiter) das **RIWA PM Cockpit** (vormals PM Evidence AI Portal / AI Pro Suite / ORAKEL) als lokale Python-/Streamlit-Umgebung zur DSGVO-bewussten Auswertung von Tickets, Freitexten, Surveys und Reports. Eigenständig konzipiert und gebaut (Bedarf selbst erkannt und umgesetzt); öffentliches Demo-Repo mit synthetischen Daten: github.com/GABS10304/customer-market-intelligence-demo. **Belegstärke: belegt** (4-Layer-Architektur, Anti-Halluzinations-Prinzip "Zahlen = Code, LLM = Text", Atlassian-REST-Clients mit 12 automatisierten Tests, öffentlich einsehbar).
+- Besitzt die **AI-Produktstrategie bei RIWA**; das RIWA PM Cockpit wurde gezielt als Werkzeug gebaut, um diese Strategiearbeit mit belastbarer Customer-/Market-Intelligence zu unterlegen. **Belegstärke: belegt** (direkt vom User bestätigt, 27.07.2026).
 - Verantwortet zusätzlich neue strategische Themen bei RIWA: aktuell die **OSS/OGC-Strategie** (Open Source Software / Open Geospatial Consortium) inklusive späterer Umsetzung.
 - Treibt aktuell (laufend) ein **Agentic-AI-MVP für die Vorstellung auf der Smart Country Convention Berlin, Oktober 2026** voran: CEO-initiiertes Projekt; führt Stakeholder- und Kundengespräche zur Pain-Point- und Use-Case-Definition und stimmt die Umsetzung mit Software Delivery ab. Noch nicht präsentiert — Termin liegt in der Zukunft. **Belegstärke: belegt** (CEO-Auftrag, eigene Stakeholder-Führung).
 - Trägt zur **nationalen Markterschließung** bei (Expansion von Bayern auf ganz Deutschland): erstellt Marktscans und Reports, die die nötige Evidenz für datenbasierte Entscheidungen liefern. **Belegstärke: belegt** (vom User bestätigt, 27.07.2026).
@@ -101,7 +101,7 @@
 - Entwickelte **Organizational Fit Diagnostics** zur strukturierten Erfassung von Geschäftszielen, Arbeitsweisen, Entscheidungslogik und passendem Vorgehensmodell. Inzwischen öffentlich als github.com/GABS10304/organizational-fit-diagnostics.
 - Organizational Fit Diagnostics liefert neutrale Empfehlungen zwischen klassischer Projektsteuerung, hybriden sowie flow-/agilen Vorgehensweisen.
 - Entwickelte und nutzte einen Stacey-Matrix-basierten Process Navigator in Workshops mit Führung und Teams.
-- Führte Jira Product Discovery als produktzentriertes Portfolio-/Discovery-Backbone für fünf Teams ein; laut CV-Angabe anschließend von fünf weiteren Teams übernommen. **Belegstärke: teilweise belegt.**
+- Führte Jira Product Discovery als produktzentriertes Portfolio-/Discovery-Backbone für fünf Teams ein. **Belegstärke: belegt** (vom User bestätigt, 17.10.2026).
 - Coachte Product Owner in User-Story-Erstellung (sehr gutes Feedback, spürbar mehr Sicherheit bei jungen POs) und Führungskräfte gezielt in Kanban. **Belegstärke: belegt** (vom User bestätigt, 27.07.2026).
 - Verbesserte die Sprint-Review-Qualität um 64% und reduzierte den Teamstress um 54% (Zahlen stammen aus Team-Umfragen). Basis waren die Umfragen selbst sowie daraus abgeleitete Action Points - diese Aktivitäten wurden zur Grundlage für das später entwickelte Tool Organizational Fit Diagnostics. **Belegstärke: belegt** (vom User bestätigt, 27.07.2026).
 - Facilitierte Kanban-Simulationen für cross-funktionale Business-Stakeholder.
@@ -177,19 +177,13 @@
 - **Design-Beleg:** UI selbst per Claude Code gebaut (zeigbar im Gespräch, Kundendaten schwärzen).
 - **Belegstärke:** belegt (vom User bestätigt, 13.09.2026).
 
-### Product Insights Plattform ("ORAKEL")
-- **Kontext:** RIWA GIS, Auswertung unstrukturierten Kundenfeedbacks (Kundenzufriedenheitsumfragen, Freitext) für die Geschäftsführung.
-- **Rolle:** Konzeption, Datenschutz-Governance, Steuerung der technischen Umsetzung.
-- **Beitrag:** Python-Klassifikations-Pipeline gegen IONOS AI Model Hub; 12 Kategorien (Multi-Label, Severity, Abwanderungssignal), iterativ aus echten Daten; Firmen-Glossar (350+ Produktmodule); unbekannte Fachbegriffe werden gemeldet statt geraten; personenbezogene Daten vor jeder KI-Verarbeitung entfernt (Privacy by Design).
-- **Ergebnis:** 260+ Freitext-Rückmeldungen automatisiert klassifiziert (100 % technische Erfolgsquote); zwei bisher unsichtbare, geschäftskritische Themenfelder identifiziert; Priorisierungsmodell aus Kundenfeedback, Nutzungsintensität und Umsatzdaten.
-- **Belegstärke:** belegt (vom User bestätigt, 13.09.2026).
-- **Hinweis:** Verhältnis zu PM Evidence AI Portal nicht abschließend geklärt.
-
-### PM Evidence AI Portal
-- **Kontext:** GovTech, Produkt- und Kundenintelligenz in reguliertem Umfeld.
-- **Ziel:** Kunden-, Ticket-, Survey- und Reportdaten DSGVO-bewusst auswerten und daraus belastbarere Produktentscheidungen ableiten.
-- **Beitrag:** Python-/Streamlit-Web-App mit pandas, LangChain, Ollama, BigQuery und ChromaDB/Chonkie-RAG; Chat-Oberfläche, qualitative Pain-Point-Analyse, deterministische KPI-Auswertung, Pipeline-Ingestion mit staging-sicheren Uploads, Theme Comparison, Atlassian-REST-Integration (Jira/Confluence Server), 12 automatisierte Tests. Führt Support-Tickets, Surveys, Field Feedback und Sales-/ERP-Daten in einer Anwendung zusammen. Selbst erkannt und eigenständig gebaut.
-- **Ergebnis:** Unterstützt die Übersetzung großer Mengen qualitativer Daten in priorisierte Pain Points, Epics, User Stories und KI-Strategieoptionen.
+### RIWA PM Cockpit (vormals PM Evidence AI Portal / AI Pro Suite / ORAKEL)
+- **Konsolidierung:** PM Evidence AI Portal, AI Pro Suite und ORAKEL sind dasselbe Produkt, heute „RIWA PM Cockpit“. Zweites eigenes Tool ist Aktuar (siehe oben). **Belegstärke: belegt** (vom User bestätigt, 17.10.2026).
+- **Kontext:** RIWA GIS / GovTech, Produkt- und Kundenintelligenz für PM und Geschäftsführung in reguliertem Umfeld.
+- **Ziel:** Tickets, Freitexte, Surveys, Reports, Field Feedback und Sales-/ERP-Daten DSGVO-bewusst auswerten und in priorisierte Produkt- und Investitionsentscheidungen übersetzen.
+- **Beitrag:** Python-/Streamlit-Web-App mit pandas, LangChain, Ollama, BigQuery und ChromaDB/Chonkie-RAG; Chat-Oberfläche, qualitative Pain-Point-Analyse, deterministische KPI-Auswertung ("Zahlen = Code, LLM = Text"), Pipeline-Ingestion mit staging-sicheren Uploads, Theme Comparison, Atlassian-REST-Integration (Jira/Confluence Server), 12 automatisierte Tests. Klassifikations-Pipeline gegen IONOS AI Model Hub (12 Kategorien, Multi-Label, Severity, Abwanderungssignal), Firmen-Glossar (350+ Produktmodule), unbekannte Fachbegriffe werden gemeldet statt geraten, personenbezogene Daten vor jeder KI-Verarbeitung entfernt. Visualisiert auch die RIWANEXIS-Evaluierung. Selbst erkannt und eigenständig gebaut.
+- **Ergebnis:** 260+ Freitext-Rückmeldungen automatisiert klassifiziert (100 % technische Erfolgsquote); zwei bisher unsichtbare, geschäftskritische Themenfelder identifiziert; Priorisierungsmodell aus Kundenfeedback, Nutzungsintensität und Umsatzdaten; Grundlage für die AI-Produktstrategie.
+- **Design-Beleg:** UI selbst per Claude Code gebaut (zeigbar im Gespräch, Kundendaten schwärzen).
 - **Nachweis:** github.com/GABS10304/customer-market-intelligence-demo (öffentliches Demo mit synthetischen Daten).
 - **Belegstärke:** belegt.
 
@@ -210,7 +204,7 @@
 - **Belegstärke:** belegt.
 
 ## Erfolge mit Nachweis
-- Einführung von Jira Product Discovery für fünf Teams; laut CV-Angabe später durch weitere fünf Teams übernommen. **Belegstärke: teilweise belegt.**
+- Einführung von Jira Product Discovery für fünf Teams. **Belegstärke: belegt** (vom User bestätigt, 17.10.2026).
 - Aufbau eines lokalen, DSGVO-bewussten AI-Analyseportals für Tickets, Surveys und Reports. **Belegstärke: belegt bis teilweise belegt.**
 - Verbesserung der Stakeholder-Review-Qualität bei JTL von Note 3 auf Note 2 laut CV-Angabe. **Belegstärke: teilweise belegt.**
 - Aufbau digitaler Lead-Generation und eines interaktiven Funnel-Ansatzes im HMI-/SCADA-Kontext. **Belegstärke: belegt.**
@@ -241,7 +235,7 @@
 - Scrum, Kanban, Lean/Kaizen, OKR, Evidence-Based Management.
 - SQL, BigQuery, Python, pandas, Streamlit.
 - LangChain, Ollama, Llama, RAG, MCP, Claude Desktop.
-- GitHub, Valueflow, PM Evidence AI Portal.
+- GitHub, Valueflow, RIWA PM Cockpit, Aktuar.
 
 ## Zertifikate
 (Verifizierung u. a. via Credly: credly.com/users/gabriel-strecker)
@@ -324,3 +318,4 @@ Quelle: Von Gabriel selbst zusammengestelltes Referenzdokument, 27.07.2026. **Be
 - `Gabriel_Strecker_CV_Roadmanager.doc-8.pdf`: archiviert, nicht verwertbar wegen fehlerhafter Zeichenkodierung.
 - `Muster-CV-Lebenslauf-Recruitment-Circle-connected-with-Calendly-6.docx`: Layoutvorlage, keine personenbezogene Evidenz.
 - **17.10.2026:** Abgleich mit Repo-CV (job-fit-system `domain/cv_master.yaml`): Evals RIWANEXIS, Englisch-Beleg, Youparts-Umsatzsteuer/DATEV, Design/UI, Aktuar + ORAKEL wiederhergestellt. Repo-CV und dieser Master-CV werden ab jetzt gemeinsam nachgezogen.
+- **17.10.2026:** PM Evidence AI Portal / AI Pro Suite / ORAKEL zu „RIWA PM Cockpit“ konsolidiert; Jira Product Discovery: fünf Teams (bestätigt); Standort zweitrangig.

@@ -22,7 +22,7 @@
   - Agentic-AI-Produktideen mit Fachbereichen, Management, Software Delivery und Pilotkunden validieren.
   - Feasibility-first-Validierung mit MCP-Prototypen und Claude Desktop aufbauen.
   - AI-Use-Cases priorisieren.
-  - AI Pro Suite als lokale Python-/Streamlit-Umgebung entwickeln.
+  - RIWA PM Cockpit (vormals AI Pro Suite / PM Evidence AI Portal / ORAKEL) als Python-/Streamlit-Umgebung entwickeln.
   - Ticket-, Freitext-, Survey- und Reportdaten analysieren.
   - Anforderungen und priorisierte Arbeitspakete für Software Delivery ableiten.
   - DSGVO-konforme AI-Analytics mit Datenschutzbeauftragten und Engineering etablieren.
@@ -68,7 +68,7 @@
   - Sprint-Review-Qualität +64 % (Team-Umfragen). [belegt durch Nutzer]
   - Anforderungsklarheit +80. [teilweise belegt]
   - Teamstress −54 % (Team-Umfragen). [belegt durch Nutzer]
-  - Jira Product Discovery für zwei Teams eingeführt. [belegt]
+  - Jira Product Discovery für fünf Teams eingeführt. [belegt durch Nutzer]
   - Produktverständnis juniorer Product Owner +80 Prozent. [teilweise belegt]
   - Product Owner in User-Story-Erstellung und Führungskräfte in Kanban gecoacht; sehr gutes Feedback, spürbar mehr Sicherheit bei jungen POs. [belegt durch Nutzer]
 - **Tools/Methoden:** Jira Product Discovery, Organizational Fit Diagnostics, EBM, Kanban, Scrum, Stacey Matrix, Workshop-Facilitation, Product-Owner-Coaching
@@ -159,14 +159,14 @@
 
 ## Projekte
 
-### PR-01 | AI Pro Suite
-- **Kontext/Firma:** RIWA GmbH / GovTech
-- **Deine Rolle:** Produkt- und AI-Entwicklung, Entscheidungsunterstützung
-- **Problem:** Tickets, Freitext, Surveys, Reports sowie Support-, Field-Feedback- und Sales-Signale lagen verstreut vor und waren schwer in priorisierte Produktentscheidungen übersetzbar.
-- **Vorgehen:** Lokale Python-/Streamlit-App mit pandas, LangChain, Ollama, Chat-Oberfläche, qualitativer Pain-Point-Analyse und deterministischer KPI-Auswertung, erweitert um einen BigQuery-basierten Workspace mit Hybrid-RAG-Chat, Ingestion-Pipeline, staging-sicheren Uploads und privacy-gated Cloud-Synthese.
-- **Ergebnis:** Datenbasierte Priorisierung, AI-gestützte Entscheidungsunterstützung und eine gemeinsame Entscheidungsgrundlage für Customer Intelligence, Markt-/Segmentanalyse und Priorisierung.
+### PR-01 | RIWA PM Cockpit (vormals AI Pro Suite / PM Evidence AI Portal / ORAKEL)
+- **Kontext/Firma:** RIWA GmbH / GovTech – Produkt- und Kundenintelligenz für PM und Geschäftsführung
+- **Deine Rolle:** Konzeption, eigenständiger Bau, Datenschutz-Governance; Bedarf selbst erkannt
+- **Problem:** Tickets, Freitexte, Surveys, Reports sowie Support-, Field-Feedback- und Sales-Signale lagen verstreut vor und waren schwer in priorisierte Produkt- und Investitionsentscheidungen übersetzbar.
+- **Vorgehen:** Python/Streamlit mit pandas, LangChain, Ollama und BigQuery; Hybrid-RAG-Chat, Ingestion-Pipeline mit staging-sicheren Uploads, Atlassian-REST-Integration; Klassifikations-Pipeline gegen IONOS AI Model Hub (12 Kategorien, Multi-Label, Severity, Abwanderungssignal), Firmen-Glossar mit 350+ Produktmodulen; Prinzip „Zahlen = Code, LLM = Text“; personenbezogene Daten vor jeder KI-Verarbeitung entfernt (Privacy by Design); visualisiert auch die RIWANEXIS-Evaluierung.
+- **Ergebnis:** 260+ Freitext-Rückmeldungen automatisiert klassifiziert; zwei bisher unsichtbare, geschäftskritische Themenfelder identifiziert; Priorisierungsmodell aus Kundenfeedback, Nutzungsintensität und Umsatzdaten; gemeinsame Entscheidungsgrundlage für AI-Produktstrategie und Priorisierung. [belegt durch Nutzer]
 - **Welche Zielrollen unterstützt das?** AI Product Manager, Product Manager, Product/Transformation Lead, Product Operations
-- **Belegstärke:** belegt
+- **Belegstärke:** belegt (Demo-Repo öffentlich: github.com/GABS10304/customer-market-intelligence-demo)
 
 ### PR-03 | valueflow / Kanban Prioritization Tool
 - **Kontext/Firma:** eigene Tool-Entwicklung
@@ -224,15 +224,6 @@
 - **Welche Zielrollen unterstützt das?** AI Product Manager, Technical Product Manager
 - **Belegstärke:** belegt durch Nutzer (13.09.2026)
 
-### PR-09 | Product Insights Plattform („ORAKEL“)
-- **Kontext/Firma:** RIWA GmbH / GovTech, Auswertung von Kundenzufriedenheits-Freitexten für die Geschäftsführung
-- **Deine Rolle:** Konzeption, Datenschutz-Governance, Steuerung der technischen Umsetzung
-- **Problem:** Unstrukturiertes Kundenfeedback war für Investitionsentscheidungen nicht auswertbar.
-- **Vorgehen:** Python-Klassifikations-Pipeline gegen IONOS AI Model Hub; Schema mit 12 Kategorien (Multi-Label, Severity, Abwanderungssignal), iterativ aus echten Daten; Firmen-Glossar mit 350+ Produktmodulen; unbekannte Fachbegriffe werden gemeldet statt geraten; personenbezogene Daten vor jeder KI-Verarbeitung entfernt (Privacy by Design).
-- **Ergebnis:** 260+ Freitext-Rückmeldungen automatisiert klassifiziert; zwei bisher unsichtbare, geschäftskritische Themenfelder identifiziert; Priorisierungsmodell aus Feedback, Nutzungsintensität und Umsatzdaten. [belegt durch Nutzer]
-- **Welche Zielrollen unterstützt das?** AI Product Manager
-- **Belegstärke:** belegt durch Nutzer (13.09.2026)
-
 ## Skills
 
 ### SK-01 | Product Discovery
@@ -244,7 +235,7 @@
 - **Belegstärke:** belegt bis teilweise belegt
 
 ### SK-03 | Data & AI Product Analysis
-- **Belegt durch:** RIWA, AI Pro Suite
+- **Belegt durch:** RIWA, RIWA PM Cockpit, Aktuar
 - **Belegstärke:** belegt bis teilweise belegt
 
 ### SK-04 | Organizational Diagnostics
@@ -312,8 +303,5 @@
 - Exakte Teamgröße / formale Führung bei RIWA.
 - Verifizierte Metriken zu GBS, Weidmüller und Youparts.
 - Evtl. weitere Demonstratoren aus GitHub-Repos.
-- Ausbildung Mediengestalter: Ausbildungsbetrieb ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann); Aktuar als eigenes Projekt aus cv-tailor master-cv.md übernehmen.
-- Standort klären: Marktheidenfeld (Repo-CV) vs. Großraum Frankfurt (cv-tailor, 27.07.2026).
-- FIS: Jira Product Discovery für zwei Teams (Repo-CV) vs. fünf Teams + fünf weitere (cv-tailor) – Zahl bestätigen.
-- Verhältnis AI Pro Suite / PM Evidence AI Portal / ORAKEL klären (ein Projekt oder mehrere?).
+- Ausbildung Mediengestalter: Ausbildungsbetrieb ergänzen; Webdesign-Erfahrung konkretisieren (wo/wann). Standort ist zweitrangig (Marktheidenfeld vs. Großraum Frankfurt) – nicht aktiv klären.
 

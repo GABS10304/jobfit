@@ -20,13 +20,17 @@
   - Ticket-, Freitext-, Survey- und Reportdaten analysieren.
   - Anforderungen und priorisierte Arbeitspakete für Software Delivery ableiten.
   - DSGVO-konforme AI-Analytics mit Datenschutzbeauftragten und Engineering etablieren.
+  - KI-Assistenten RIWANEXIS evaluieren: Anfragen im Produktivbetrieb per Graylog auswerten und Prompt Guides vor Veröffentlichung manuell auf Konsistenz testen.
 - **Messbare Ergebnisse:**
   - 5 AI-Use-Cases priorisiert. [belegt]
   - >600 Support-Tickets/Monat analysiert. [teilweise belegt]
   - 250 Freitext-Surveyantworten analysiert. [teilweise belegt]
   - Pilotkunden direkt akquiriert. [teilweise belegt]
   - Entscheidungshilfen halluzinationsarm und nachvollziehbar gemacht. [qualitativ belegt]
-- **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Gemini CLI, Jira, Confluence, Valueflow, ABC-Priorisierung
+  - ~1.000 RIWANEXIS-Anfragen von 110 Admin-Einheiten per Graylog ausgewertet (Fehlerraten, User Intent, erfolgreiche Fragemuster); daraus Prompt Guiding für Nutzer abgeleitet. [teilweise belegt]
+  - Prompt Guides vor Release manuell auf Konsistenz getestet; Fehler aufgedeckt, bevor sie Nutzer erreichten. [qualitativ belegt]
+  - Evaluierung im selbst gebauten RIWA PM Cockpit visualisiert. [teilweise belegt]
+- **Tools/Methoden:** Product Discovery, SQL, BigQuery, Python, pandas, Streamlit, LangChain, Ollama, MCP, RAG, Graylog, Gemini CLI, Jira, Confluence, Valueflow, ABC-Priorisierung
 - **Wofür war ich dort relevant?** Übersetzung von Kunden-, Ticket- und Marktdaten in priorisierte Produktentscheidungen. Aufbau von AI-gestützter Entscheidungsunterstützung für Product und Delivery.
 - **Belegstärke:** überwiegend belegt bis teilweise belegt
 - **Quellen:** Master-CV, CV-Varianten, GitHub-Demo-Link

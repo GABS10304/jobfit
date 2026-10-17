@@ -32,6 +32,7 @@ Nichts erfinden, nichts aufhübschen. Was der Nutzer nicht sagt, steht nicht im 
 - Belegstärke-Tag nach dem, was der Nutzer genannt hat: `[belegt]` (Zeugnis/Dokument), `[teilweise belegt]` (plausibel, Beleg nur teilweise), `[qualitativ belegt]` (keine Zahl).
 - Neue Skills/Tools zusätzlich unter `skills` bzw. `tools` aufnehmen, damit die Topic-Erkennung sie beim nächsten Lauf findet.
 - `domain/cv_master.json` synchron halten (gleicher Inhalt).
+- **Immer beide CV-Fassungen nachziehen** (Regel, siehe `docs/CV_SOURCES.md`): dieselbe Aussage auch in `domain/Master-CV-structured.md` und im cv-tailor-Spiegel `domain/cv-tailor-master-cv.md` eintragen – im selben Commit. Danach dem Nutzer sagen, dass die Skill-Datei auf claude.ai ersetzt werden muss.
 - Dem Nutzer den Diff zeigen und bestätigen lassen, **bevor** gespeichert wird.
 
 ## Schritt 4: Status setzen

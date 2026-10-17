@@ -268,7 +268,33 @@ def _find_cues(jd: str, cues: tuple[str, ...]) -> list[str]:
     return found
 
 
+_FLEXIBLE_LEVEL = {
+    "failed": ("hard_presence", "Feste/überwiegende Präsenz (>3 Office-Tage) erkannt – im flexiblen Modus nur markiert, kein No-Go."),
+    "penalty": ("two_to_three_office_days", "2–3 Office-Tage erkannt – im flexiblen Modus normal zulässig."),
+    "unclear": ("unclear", "Arbeitsmodell nicht explizit – im flexiblen Modus kein No-Go; im Gespräch klären."),
+    "passed": ("remote_first_ok", None),
+}
+
+
 def _eval_remote_first_hybrid_ok(
+    constraint: HardConstraint, jd: str
+) -> HardConstraintResult:
+    """Strict (V3) or flexible presence evaluation, depending on constraint.mode."""
+    result = _eval_remote_first_hybrid_ok_strict(constraint, jd)
+    if constraint.mode != "flexible" or result.status == "skipped":
+        return result
+    level, reason = _FLEXIBLE_LEVEL[result.status]
+    return HardConstraintResult(
+        id=result.id,
+        label=result.label,
+        status="passed",
+        reason=reason or result.reason,
+        matched_cues=result.matched_cues,
+        presence_level=level,
+    )
+
+
+def _eval_remote_first_hybrid_ok_strict(
     constraint: HardConstraint, jd: str
 ) -> HardConstraintResult:
     """V3: ≤1 OK; 2–3 Tage = penalty; >3 / feste Pflicht = failed."""

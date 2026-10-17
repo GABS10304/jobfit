@@ -2,6 +2,10 @@ hard_constraints:
 - id: remote_first_hybrid_ok
   label: Remote-first (Hybrid ok) / Presence penalty
   enabled: true
+  # 2026-10-17 Gabriel: "Hybrid egal wie viele Tage; reine Präsenz nur markieren".
+  # flexible = Präsenz blockiert nie, Level wird in presence_policy berichtet.
+  # strict  = V3-Regel unten (für Tests/Rückweg weiterhin verfügbar).
+  mode: flexible
   notes: >
     Präsenz ist als Penalty zu behandeln.
     Remote-first mit bis zu 1 Office-Tag pro Woche ist normal erlaubt.

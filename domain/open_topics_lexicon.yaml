@@ -96,6 +96,7 @@ topics:
   tax_domain:
     label: Steuer-/Kanzlei-Domäne
     phrases: [steuerberatung, steuerkanzlei, steuerrecht, steuerberater, tax advisory, tax advisor, tax]
+    cv_phrases: [steuerberatung, steuerkanzlei, steuerrecht, steuerberater, tax advisory, tax, umsatzsteuer, umsatzsteuerliche, vorsteuer, vorsteuer-erstattung, dreiecksgeschäfte]
 
   accounting:
     label: Buchhaltung / Accounting

@@ -15,5 +15,17 @@ boards:
     url: https://join.com/companies/skalar
     region: DE (München)
     notes: >-
-      KI-native Steuerkanzlei (Seed, 12 Mio €, Headline). Founder hat direkt
-      über LinkedIn angesprochen (Okt 2026). Senior Product Manager (KI) offen.
+      KI-native Steuerkanzlei (Seed, 12 Mio €, Headline). Ops-/Steuer-Rollen
+      auf JOIN; Product/Engineering laufen über Ashby (domain/ashby_boards.yaml).
+
+  - id: apryl
+    name: Apryl (Progyny Global)
+    url: https://join.com/companies/apryl
+    region: DE (Berlin)
+    notes: (Senior) Product Manager observed Okt 2026; benefits/health platform.
+
+  - id: 1komma5grad
+    name: 1KOMMA5°
+    url: https://join.com/companies/1komma5grad
+    region: DE (Remote)
+    notes: (Senior) Product Manager Energy (Remote) observed Okt 2026.

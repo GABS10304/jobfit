@@ -1,0 +1,26 @@
+# Ashby job boards (official public Job Posting API, one call per board,
+# full descriptions included — no HTML scraping).
+#
+# URL format: https://jobs.ashbyhq.com/<org>   (the public careers page)
+# Many funded startups (Seed → Series B) use Ashby; Personio/Workday/JOIN
+# runners never see them.
+#
+# Sourcing idea: when a founder/recruiter reaches out, check where the
+# company posts (Ashby / JOIN / Personio) and add the board to the matching
+# YAML — inbound interest is the strongest fit signal we have.
+
+boards:
+  - id: skalar
+    name: Skalar
+    url: https://jobs.ashbyhq.com/skalar
+    region: DE (München)
+    notes: >-
+      KI-native Steuerkanzlei. Product/Engineering-Rollen auf Ashby
+      (Ops/Steuer teils auf JOIN). Founder hat direkt über LinkedIn
+      angesprochen (Okt 2026) → Senior Product Manager (KI).
+
+  - id: linro
+    name: Linro
+    url: https://jobs.ashbyhq.com/linro
+    region: DE (Remote)
+    notes: Cloud-Security-Startup Berlin; erster dedizierter PM (Remote Germany), gefunden 17.10.2026.

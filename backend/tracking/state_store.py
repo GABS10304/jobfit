@@ -139,6 +139,7 @@ def upsert_and_diff(
             "status_flag": fit.get("status_flag"),
             "top_score": fit.get("top_score"),
             "location_match": fit.get("location_match"),
+            "salary_label": fit.get("salary_label"),
             "sourcing_bucket": sourcing_bucket,
             "source_artifact": source_artifact,
             "status": STATUS_PROPOSED,

@@ -1,0 +1,31 @@
+# JOIN (join.com) company boards for the daily sourcing run.
+# Many DACH startups (Pre-Seed → Series A) use JOIN instead of Personio/Workday,
+# so without this list they are invisible to the pipeline.
+#
+# URL format: https://join.com/companies/<slug>  (pagination handled by the runner)
+# Add a board: copy an entry, set a unique id. Dead board: disabled: true.
+#
+# Sourcing idea: whenever a founder/recruiter approaches you (LinkedIn etc.)
+# and the company runs on JOIN, add it here — inbound interest is the
+# strongest fit signal we have.
+
+boards:
+  - id: skalar
+    name: Skalar
+    url: https://join.com/companies/skalar
+    region: DE (München)
+    notes: >-
+      KI-native Steuerkanzlei (Seed, 12 Mio €, Headline). Ops-/Steuer-Rollen
+      auf JOIN; Product/Engineering laufen über Ashby (domain/ashby_boards.yaml).
+
+  - id: apryl
+    name: Apryl (Progyny Global)
+    url: https://join.com/companies/apryl
+    region: DE (Berlin)
+    notes: (Senior) Product Manager observed Okt 2026; benefits/health platform.
+
+  - id: 1komma5grad
+    name: 1KOMMA5°
+    url: https://join.com/companies/1komma5grad
+    region: DE (Remote)
+    notes: (Senior) Product Manager Energy (Remote) observed Okt 2026.

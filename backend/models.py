@@ -47,6 +47,10 @@ class HardConstraintResult(BaseModel):
     status: Literal["passed", "failed", "unclear", "skipped", "penalty"]
     reason: str
     matched_cues: list[str] = Field(default_factory=list)
+    # Set in flexible presence mode: the detected presence level, reported
+    # even though it no longer blocks (remote_first_ok / two_to_three_office_days /
+    # hard_presence / unclear).
+    presence_level: Optional[str] = None
 
 
 class SoftConstraintResult(BaseModel):
@@ -214,6 +218,9 @@ class HardConstraint(BaseModel):
     label: str
     enabled: bool = True
     notes: Optional[str] = None
+    # remote_first_hybrid_ok only: "strict" = V3 policy (default);
+    # "flexible" = presence never blocks, it is only reported (Gabriel 2026-10-17).
+    mode: Literal["strict", "flexible"] = "strict"
 
 
 class SoftConstraint(BaseModel):

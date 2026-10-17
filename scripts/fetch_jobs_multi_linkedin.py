@@ -28,6 +28,7 @@ if str(REPO_ROOT) not in sys.path:
 import yaml  # noqa: E402
 
 from scripts.fetch_jobs_linkedin_search import run_search  # noqa: E402
+from backend.tracking.seen_cache import DEFAULT_TTL_DAYS, SeenCache  # noqa: E402
 
 DEFAULT_SEARCHES_FILE = REPO_ROOT / "domain" / "linkedin_searches.yaml"
 DEFAULT_DELAY_BETWEEN_SEARCHES = 5.0
@@ -53,6 +54,7 @@ def load_searches(path: Path) -> list[dict[str, Any]]:
                 "location": entry.get("location"),
                 "jobage_days": entry.get("jobage_days"),
                 "remote": entry.get("remote"),
+                "pages": int(entry.get("pages") or 1),
             }
         )
     if not out:
@@ -73,7 +75,21 @@ def main() -> int:
         "--delay-between-searches", type=float, default=DEFAULT_DELAY_BETWEEN_SEARCHES
     )
     parser.add_argument("--out", type=Path, default=Path("multi_linkedin_results.json"))
+    parser.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help="Cap per-search 'pages' from YAML (e.g. 1 for a quick run)",
+    )
+    parser.add_argument(
+        "--seen-cache",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Skip jobs already fit-checked within --seen-ttl-days (default: on)",
+    )
+    parser.add_argument("--seen-ttl-days", type=int, default=DEFAULT_TTL_DAYS)
     args = parser.parse_args()
+    seen = SeenCache() if args.seen_cache else None
 
     searches = load_searches(args.searches_file)
     if args.search_ids:
@@ -97,10 +113,16 @@ def main() -> int:
             limit=args.limit_per_search,
             fit_check=args.fit_check,
             delay=args.delay,
+            pages=min(search["pages"], args.max_pages) if args.max_pages else search["pages"],
+            seen=seen,
+            seen_ttl_days=args.seen_ttl_days,
         )
         result["id"] = search["id"]
         result["name"] = search["name"]
         search_results.append(result)
+
+    if seen is not None:
+        seen.save()
 
     overall = {
         "searches_tried": len(search_results),
@@ -109,6 +131,7 @@ def main() -> int:
             int(s.get("candidates_after_prefilter") or 0) for s in search_results
         ),
         "fit_checked": sum(int(s.get("fit_checked") or 0) for s in search_results),
+        "skipped_seen": sum(int(s.get("skipped_seen") or 0) for s in search_results),
         "passed_count": sum(int(s.get("passed_count") or 0) for s in search_results),
         "watchlist_count": sum(int(s.get("watchlist_count") or 0) for s in search_results),
         "rejected_count": sum(int(s.get("rejected_count") or 0) for s in search_results),

@@ -30,6 +30,8 @@ from backend.sourcing.filtering import (
 )
 from backend.sourcing.personio import fetch_personio_job, is_personio_job_url
 from backend.sourcing.workday import fetch_workday_job, is_workday_job_url
+from backend.sourcing.join import fetch_join_job, is_join_job_url
+from backend.sourcing.ashby import fetch_ashby_job, is_ashby_job_url
 
 
 def _fetch_job(url: str, *, use_playwright: bool):
@@ -37,9 +39,16 @@ def _fetch_job(url: str, *, use_playwright: bool):
         return fetch_personio_job(url, use_playwright=use_playwright)
     if is_workday_job_url(url):
         return fetch_workday_job(url, use_playwright=use_playwright)
+    if is_join_job_url(url):
+        job, _company = fetch_join_job(url)
+        return job
+    if is_ashby_job_url(url):
+        return fetch_ashby_job(url)
     raise ValueError(
-        "Unsupported ATS URL (expected Personio *.jobs.personio.*/job/* "
-        f"or Workday *myworkdayjobs.com*/job/*): {url}"
+        "Unsupported ATS URL (expected Personio *.jobs.personio.*/job/*, "
+        "Workday *myworkdayjobs.com*/job/*, JOIN join.com/companies/<slug>/<id>-... "
+        "or Ashby jobs.ashbyhq.com/<org>/<uuid>): "
+        f"{url}"
     )
 
 
@@ -54,7 +63,7 @@ def main() -> int:
     parser.add_argument(
         "--url",
         required=True,
-        help="Personio or Workday job URL (ATS auto-detected from host)",
+        help="Personio, Workday, JOIN or Ashby job URL (ATS auto-detected from host)",
     )
     parser.add_argument(
         "--fit-check",

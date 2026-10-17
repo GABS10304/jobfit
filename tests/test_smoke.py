@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 from backend import constraints_engine, data_loader, fit_engine
 from backend.main import app
 from backend.models import RoleFitProfile, RoleFitResult, RoleSignals
+from tests._strict_presence import strict_presence  # noqa: F401  (autouse: V3 strict policy)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOMAIN = REPO_ROOT / "domain"

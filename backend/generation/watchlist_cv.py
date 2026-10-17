@@ -53,6 +53,8 @@ def slugify_title(title: str | None, *, max_len: int = 48) -> str:
 _JOB_ID_URL_PATTERNS = (
     re.compile(r"/job/(\d+)"),  # Personio, Workday
     re.compile(r"/jobs/view/(?:[^/]*-)?(\d+)"),  # LinkedIn
+    re.compile(r"^/companies/[^/]+/(\d+)(?:-|/?$)"),  # JOIN
+    re.compile(r"^/[^/]+/([0-9a-f]{8})-[0-9a-f]{4}-[0-9a-f]{4}-", re.I),  # Ashby (UUID head)
 )
 
 

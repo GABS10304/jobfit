@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from backend import constraints_engine, data_loader
 from backend.main import app
 from backend.models import PresencePolicyResult
+from tests._strict_presence import strict_presence  # noqa: F401  (autouse: V3 strict policy)
 
 # Starke Produkt-JD – erwartet Score ≥ 90 für ai_product_manager.
 STRONG_PRODUCT_JD_BODY = (

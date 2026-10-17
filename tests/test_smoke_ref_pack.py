@@ -15,6 +15,7 @@ from fastapi.testclient import TestClient
 from backend import data_loader
 from backend.fit_engine import ROLE_RANK_TIER, SIMILAR_SCORE_BAND, role_rank_tier
 from backend.main import app
+from tests._strict_presence import strict_presence  # noqa: F401  (autouse: V3 strict policy)
 
 FIXTURE = (
     Path(__file__).resolve().parent.parent

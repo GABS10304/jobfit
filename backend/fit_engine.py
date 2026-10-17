@@ -294,7 +294,7 @@ def build_presence_policy(
 
     if remote.status == "passed":
         return PresencePolicyResult(
-            level="remote_first_ok",
+            level=remote.presence_level or "remote_first_ok",
             outcome="ok",
             reason=remote.reason,
             exceptional_score_threshold=exceptional_score_threshold,

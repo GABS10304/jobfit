@@ -2,6 +2,10 @@ hard_constraints:
 - id: remote_first_hybrid_ok
   label: Remote-first (Hybrid ok) / Presence penalty
   enabled: true
+  # 2026-10-17 Gabriel: "Hybrid egal wie viele Tage; reine Präsenz nur markieren".
+  # flexible = Präsenz blockiert nie, Level wird in presence_policy berichtet.
+  # strict  = V3-Regel unten (für Tests/Rückweg weiterhin verfügbar).
+  mode: flexible
   notes: >
     Präsenz ist als Penalty zu behandeln.
     Remote-first mit bis zu 1 Office-Tag pro Woche ist normal erlaubt.
@@ -42,12 +46,29 @@ soft_constraints:
   label: High impact / zero-to-one / shape-the-product preferred
   weight: 0.95
 location_preferences:
+  # 2026-10-17 (Gabriel, Skalar-Fall): "für mich ist alles möglich" – Standort
+  # ist zweitrangig, Umzug/Pendeln innerhalb DE, CH und EU denkbar. Advisory-only
+  # (evaluate_location_fit), beeinflusst weder Score noch Gates.
   preferred_locations:
   - Remote
   - Germany
+  - Deutschland
   - DACH
+  - Berlin
+  - München
+  - Munich
+  - Hamburg
+  - Frankfurt
+  - Köln
+  - Würzburg
+  - Schweiz
+  - Switzerland
+  - Zürich
+  - Basel
+  - Europe
+  - EU
   avoid_locations: []
-  travel_tolerance: low_to_medium
+  travel_tolerance: medium_to_high
 compensation:
   currency: EUR
   min_annual_base: null

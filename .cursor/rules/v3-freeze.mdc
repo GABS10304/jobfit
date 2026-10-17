@@ -12,5 +12,7 @@ alwaysApply: true
 - Weitere Änderungen nur nach **neuem Review-Auftrag**.
 - Bis dahin: keine Änderungen an Präsenz-/Remote-Logik, Fit-Flags, Ranking oder SoT-Constraints ohne Auftrag.
 
+**Auftrag 2026-10-17 (Gabriel):** Präsenz geöffnet – „Hybrid egal wie viele Tage, reine Präsenz nur markieren“. Umgesetzt als `mode: flexible` für `remote_first_hybrid_ok` in `domain/constraints.yaml`; die strikte V3-Logik bleibt unverändert als `mode: strict` erhalten und ist weiter durch die V3-Boundary-Tests abgesichert. Scoring, Fit-Flags und Ranking unverändert.
+
 Policy-Inhalt: `v3-policy.mdc`  
 Details: `docs/V3_FREEZE.md`, `docs/V3_RELEASE.md`, `docs/V3_REVIEW.md`
